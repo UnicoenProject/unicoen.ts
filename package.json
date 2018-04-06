@@ -1,7 +1,7 @@
 {
-  "name": "unitree.ts",
+  "name": "unicoen.ts",
   "version": "1.0.0",
-  "description": "UniTree.ts",
+  "description": "unicoen.ts",
   "main": "index.js",
   "scripts": {
     "lint": "tslint --fix 'src/**/*.ts' 'test/**/*.ts'",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RYOSKATE/UniTree.ts.git"
+    "url": "git+https://github.com/UnicoenProject/unicoen.ts.git"
   },
   "author": "Ryosuke Ishizue",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RYOSKATE/UniTree.ts/issues"
+    "url": "https://github.com/UnicoenProject/unicoen.ts/issues"
   },
-  "homepage": "https://github.com/RYOSKATE/UniTree.ts#readme",
+  "homepage": "https://github.com/UnicoenProject/unicoen.ts#readme",
   "devDependencies": {
     "@types/chai": "^4.1.2",
     "@types/mocha": "^2.2.48",
