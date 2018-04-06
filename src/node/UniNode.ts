@@ -1,0 +1,44 @@
+import CodeRange from '../node_helper/CodeRange';
+export default abstract class UniNode {
+  public comments: string[];
+  public codeRange: CodeRange;
+
+  public constructor();
+  public constructor(comments: string[], codeRange: CodeRange);
+  public constructor(comments?: string[], codeRange?: CodeRange) {
+    if (comments === undefined && codeRange === undefined) {
+      this.comments = null;
+      this.codeRange = null;
+    } else if (comments === undefined || codeRange === undefined) {
+      throw new Error('invalid arguments');
+    } else {
+      this.comments = comments;
+      this.codeRange = codeRange;
+    }
+  }
+
+  public toString(): string {
+    return 'Node(' + ')';
+  }
+
+  public equals(obj: any): boolean {
+    if (obj == null || !(obj instanceof UniNode)) return false;
+    const that: UniNode = <UniNode>obj;
+    return that !== null
+        && (this.comments == null ? that.comments == null : this.comments.equals(that.comments))
+        && (this.codeRange == null ? that.codeRange == null : this.codeRange.equals(that.codeRange));
+  }
+
+  public merge(that: UniNode) {
+    if (that.comments != null) {
+      if (this.comments == null) {
+        this.comments = that.comments;
+      } else {
+        this.comments.push(...that.comments);
+      }
+    }
+    if (that.codeRange != null) {
+      this.codeRange = that.codeRange;
+    }
+  }
+}
