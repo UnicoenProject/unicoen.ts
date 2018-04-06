@@ -81,4 +81,25 @@ describe('node', () => {
     const ret = engine.execute(program); 
     assert.equal(ret, 55);
   });
+
+  it(`int main(){int i=1; {int i=100; i+=20;} i+=50; return i;}`, () => {
+    const iEq1 = new UniVariableDef('i', new UniIntLiteral(1),'');
+    const iDec = new UniVariableDec(null,'int', [iEq1]);
+
+    const i = new UniVariableDef('i', new UniIntLiteral(100),'');
+    const iInBlockDec = new UniVariableDec(null,'int', [i]);
+    const iPlus20 = new UniBinOp('+=', new UniIdent('i'), new UniIntLiteral(20)); 
+    const forBlock = new UniBlock('block', [iInBlockDec, iPlus20]);
+
+    const iPlus50 = new UniBinOp('+=', new UniIdent('i'), new UniIntLiteral(50)); 
+
+    const returnStatement = new UniReturn(new UniIdent('i'));
+    const mainBlock = new UniBlock('main', [iDec, forBlock, iPlus50, returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock('global', [mainFunc]);
+    const program = new UniProgram(globalBlock);
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 51);
+  });
 });
