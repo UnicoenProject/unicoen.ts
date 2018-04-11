@@ -18,6 +18,7 @@ import UniFor from '../src/node/UniFor';
 import UniBinOp from '../src/node/UniBinOp';
 import UniUnaryOp from '../src/node/UniUnaryOp';
 import UniIntLiteral from '../src/node/UniIntLiteral';
+import UniMethodCall from '../src/node/UniMethodCall';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {
@@ -80,6 +81,25 @@ describe('node', () => {
     const engine = new Engine();
     const ret = engine.execute(program); 
     assert.equal(ret, 55);
+  });
+
+  it(`int add(int x, int y){return x+y;} int main(){int a=2; int b=3; int c=add(a,b); return c;}`, () => {
+    const addReturn = new UniReturn(new UniBinOp('+',new UniIdent('x'),new UniIdent('y')));
+    const addBlock = new UniBlock('main', [addReturn]);
+    const addFunc = new UniFunctionDec('add',[],'int',[new UniParam([],'int', [new UniVariableDef('x', null, '')]), new UniParam([],'int', [new UniVariableDef('y', null, '')])],addBlock);
+    
+    const aDec = new UniVariableDec(null,'int', [new UniVariableDef('a', new UniIntLiteral(2),'')]);
+    const bDec = new UniVariableDec(null,'int', [new UniVariableDef('b', new UniIntLiteral(3),'')]);
+    const cDec = new UniVariableDec(null,'int', [new UniVariableDef('c', new UniMethodCall(null,'add',[new UniIdent('a'),new UniIdent('b')]),'')]);
+    
+    const returnStatement = new UniReturn(new UniIdent('c'));
+    const mainBlock = new UniBlock('main', [aDec, bDec, cDec, returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock('global', [addFunc, mainFunc]);
+    const program = new UniProgram(globalBlock);
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 5);
   });
 
   it(`int main(){int i=1; {int i=100; i+=20;} i+=50; return i;}`, () => {

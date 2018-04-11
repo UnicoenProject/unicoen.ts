@@ -62,10 +62,40 @@ export default class Engine {
     return this.state.getCurrentExpr();
   }
 
+  private setGlobalObjects(node:UniNode, global:Scope) {
+    if (node instanceof UniProgram) {
+      const block:UniBlock = node.block;
+      this.setGlobalObjects(block, global);
+    } else if (node instanceof UniBlock) {
+      for (const stateOfBlock of node.body) {
+        this.setGlobalObjects(stateOfBlock, global);
+      }
+    } else if (node instanceof UniDecralation) {
+      const dec = node;
+      if (dec instanceof UniFunctionDec) {
+        // 関数のセット
+        if ('main' !== dec.name) {
+          global.setTop(dec.name, dec, dec.returnType);
+        }
+      } else if (dec instanceof UniVariableDec) {
+        // グローバル変数のセット
+        this.execExpr(node, global);
+      } else if (dec instanceof UniClassDec) {
+        // structのセット
+        for (const member of dec.members) {
+          if (member instanceof UniFunctionDec) {
+            this.setGlobalObjects(member, global);
+          }
+        }
+      }
+    }
+  }
+
   public* executeStepByStep(dec:UniProgram) {
     const main:UniFunctionDec = this.getEntryPoint(dec);
     if (main != null) {
       const global:Scope = Scope.createGlobal();
+      this.setGlobalObjects(dec, global);
       this.state = new ExecState(global);
       // loadLibarary(global);
       // firePreExecAll(global);
@@ -300,9 +330,9 @@ export default class Engine {
       return yield* this.execDecralation(expr,scope);
     } else if (expr instanceof UniMethodCall) {
       const mc = <UniMethodCall> expr;
-      const args:any[] = new Array[mc.args == null ? 0 : mc.args.length];
-      for (let i = 0; i < args.length; i++) {
-        args[i] = yield* this.execExpr(mc.args[i], scope);
+      const args:any[] = [];
+      for (let i = 0; mc.args !== null && i < mc.args.length; i++) {
+        args.push(yield* this.execExpr(mc.args[i], scope));
       }
       this.currentScope = scope;
       let ret:any = null;
@@ -381,7 +411,7 @@ export default class Engine {
         const arg:UniExpr = args[i];
         const name = param.variables[0].name;
         const type = param.type;
-        const value = this.execExpr(arg, scope);
+        const value = yield* this.execExpr(arg, scope);
         funcScope.setTop(name,value,type);
       }
     }

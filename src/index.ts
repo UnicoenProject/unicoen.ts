@@ -65,26 +65,19 @@ export default {
   Engine,
 };
 
-const sumEq0 = new UniVariableDef('sum', new UniIntLiteral(0),'');
-const sumDec = new UniVariableDec(null,'int', [sumEq0]);
+const addReturn = new UniReturn(new UniBinOp('+',new UniIdent('x'),new UniIdent('y')));
+const addBlock = new UniBlock('main', [addReturn]);
+const addFunc = new UniFunctionDec('add',[],'int',[new UniParam([],'int', [new UniVariableDef('x', null, '')]), new UniParam([],'int', [new UniVariableDef('y', null, '')])],addBlock);
 
-const i = new UniVariableDef('i', new UniIntLiteral(1),'');
-const iDec = new UniVariableDec(null,'int', [i]);
-const cond = new UniBinOp('<=', new UniIdent('i'), new UniIntLiteral(10));    
-const step = new UniUnaryOp('++_',new UniIdent('i'));
+const aDec = new UniVariableDec(null,'int', [new UniVariableDef('a', new UniIntLiteral(2),'')]);
+const bDec = new UniVariableDec(null,'int', [new UniVariableDef('b', new UniIntLiteral(3),'')]);
+const cDec = new UniVariableDec(null,'int', [new UniVariableDef('c', new UniMethodCall(null,'add',[new UniIdent('a'),new UniIdent('b')]),'')]);
 
-const sumPlusI = new UniBinOp('+=', new UniIdent('sum'), new UniIdent('i')); 
-const forBlock = new UniBlock('for', [sumPlusI]);
-
-const forState = new UniFor(iDec, cond, step, forBlock);
-
-const sum = new UniIdent('sum');
-const returnStatement = new UniReturn(sum);
-const mainBlock = new UniBlock('main', [sumDec, forState, returnStatement]);
+const returnStatement = new UniReturn(new UniIdent('c'));
+const mainBlock = new UniBlock('main', [aDec, bDec, cDec, returnStatement]);
 const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
-const globalBlock = new UniBlock('global', [mainFunc]);
+const globalBlock = new UniBlock('global', [addFunc, mainFunc]);
 const program = new UniProgram(globalBlock);
 const engine = new Engine();
 const ret = engine.execute(program); 
-
-assert.equal(ret, 55);
+assert.equal(ret, 5);

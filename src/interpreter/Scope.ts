@@ -1,6 +1,7 @@
 import UniExpr from '../node/UniExpr';
 import { assert } from 'chai';
 import RuntimeException, { UniRuntimeError } from './RuntimeException';
+import UniFunctionDec from '../node/UniFunctionDec';
 
 
 enum Type {  GLOBAL,  OBJECT,  LOCAL }
@@ -45,7 +46,7 @@ export default class Scope {
   private tempAddressForListener:number = -1;
 
   private static assertNotUnicoen(value:any):void {
-    if (value instanceof UniExpr) {
+    if (value instanceof UniExpr && !(value instanceof UniFunctionDec)) {
       throw new RuntimeException('Maybe programming miss!');
     }
   }
@@ -261,13 +262,13 @@ export default class Scope {
         this.setPrimitiveOnCode(key, this.address.stackAddress, type + '[' + arr.length + ']');
         this.setArray(arr, type);
       }
-    } else if (type === 'FUNCTION') {
+    } else if (type === 'FUNCTION' || value instanceof UniFunctionDec) {
       this.setPrimitiveOnCode(key, value, type);
     } else {// 組み込み型の場合
       this.setPrimitive(key, value, type);
     }
   }
-
+  
   private setArray(value:any[], type:string):void {
     Scope.assertNotUnicoen(value);
     for (const _var of value) {
