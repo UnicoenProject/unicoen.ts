@@ -65,19 +65,22 @@ export default {
   Engine,
 };
 
-const addReturn = new UniReturn(new UniBinOp('+',new UniIdent('x'),new UniIdent('y')));
-const addBlock = new UniBlock('main', [addReturn]);
-const addFunc = new UniFunctionDec('add',[],'int',[new UniParam([],'int', [new UniVariableDef('x', null, '')]), new UniParam([],'int', [new UniVariableDef('y', null, '')])],addBlock);
+const fiboReturn1 = new UniReturn(new UniIdent('n'));
+const fiboReturn2 = new UniReturn(new UniBinOp(
+  '+', new UniMethodCall(null,'fibo',[new UniBinOp('-',new UniIdent('n'), new UniIntLiteral(1))]), 
+  new UniMethodCall(null,'fibo',[new UniBinOp('-',new UniIdent('n'), new UniIntLiteral(2))])));
+const fiboIf = new UniIf(new UniBinOp('<',new UniIdent('n'), new UniIntLiteral(2)), fiboReturn1, fiboReturn2);
+const fiboBlock = new UniBlock('fibo', [fiboIf]);
+const fiboFunc = new UniFunctionDec('fibo',[],'int',[new UniParam([],'int', [new UniVariableDef('n', null, '')])],fiboBlock);
 
-const aDec = new UniVariableDec(null,'int', [new UniVariableDef('a', new UniIntLiteral(2),'')]);
-const bDec = new UniVariableDec(null,'int', [new UniVariableDef('b', new UniIntLiteral(3),'')]);
-const cDec = new UniVariableDec(null,'int', [new UniVariableDef('c', new UniMethodCall(null,'add',[new UniIdent('a'),new UniIdent('b')]),'')]);
+const aDec = new UniVariableDec(null,'int', [
+  new UniVariableDef('a', new UniMethodCall(null,'fibo',[new UniIntLiteral(9)]),'')]);
 
-const returnStatement = new UniReturn(new UniIdent('c'));
-const mainBlock = new UniBlock('main', [aDec, bDec, cDec, returnStatement]);
+const returnStatement = new UniReturn(new UniIdent('a'));
+const mainBlock = new UniBlock('main', [aDec,  returnStatement]);
 const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
-const globalBlock = new UniBlock('global', [addFunc, mainFunc]);
+const globalBlock = new UniBlock('global', [fiboFunc, mainFunc]);
 const program = new UniProgram(globalBlock);
 const engine = new Engine();
 const ret = engine.execute(program); 
-assert.equal(ret, 5);
+assert.equal(ret, 34);

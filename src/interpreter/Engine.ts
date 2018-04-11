@@ -115,21 +115,10 @@ export default class Engine {
       node = gen.next();
       ret = node.value;
       console.log(ret);
-      console.log(this.getCurrentExpr());
+      // console.log(this.getCurrentExpr());
       // console.log(this.state.make());
     } while (!node.done);
     return ret;
-    // const main:UniFunctionDec = this.getEntryPoint(dec);
-    // if (main != null) {
-    //   const global:Scope = Scope.createGlobal();
-    //   // loadLibarary(global);
-    //   // firePreExecAll(global);
-    //   const value:any = this.execFunc(main, global, null);
-    //   // firePostExecAll(global, value);
-    //   return value;
-    // } else {
-    //   throw new RuntimeException('No entry point in ' + dec);
-    // }
   }
 
   private getEntryPoint(node:UniNode):UniFunctionDec {
@@ -185,12 +174,14 @@ export default class Engine {
     }
   }
   protected* execStatement(state:UniStatement, scope:Scope):any {
-    if (state instanceof UniFor) {
+    if (state instanceof UniIf) {
+      return yield* this.execIf(state,scope);
+    } else if (state instanceof UniFor) {
       return yield* this.execFor(state,scope);
     } else if (state instanceof UniWhile) {
-      yield* this.execWhile(state,scope);
+      return yield* this.execWhile(state,scope);
     } else if (state instanceof UniDoWhile) {
-      yield* this.execDoWhile(state,scope);
+      return yield* this.execDoWhile(state,scope);
     } else if (state instanceof UniBreak) {
       throw new Break();
     } else if (state instanceof UniContinue) {
@@ -222,12 +213,12 @@ export default class Engine {
     return ret;
   }
 
-  protected execIf(ui:UniIf, scope:Scope) {
-    const cond = this.toBool(this.execExpr(ui.cond, scope));
+  protected* execIf(ui:UniIf, scope:Scope) {
+    const cond = this.toBool(yield* this.execExpr(ui.cond, scope));
     if (cond) {
-      this.execExpr(ui.trueStatement, scope);
+      return yield* this.execExpr(ui.trueStatement, scope);
     } else if (ui.falseStatement != null) {
-      this.execExpr(ui.falseStatement, scope);
+      return yield* this.execExpr(ui.falseStatement, scope);
     }
   }
 
@@ -256,9 +247,10 @@ export default class Engine {
   protected* execWhile(uw:UniWhile, scope:Scope) {
     const whileScope:Scope = Scope.createLocal(scope);
     whileScope.name = scope.name;
+    let ret;
     while (this.toBool(yield* this.execExpr(uw.cond, whileScope))) {
       try {
-        yield* this.execExpr(uw.statement, whileScope);
+        ret = yield* this.execExpr(uw.statement, whileScope);
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -269,14 +261,16 @@ export default class Engine {
         }
       }
     }
+    return ret;
   }
 
   protected* execDoWhile(udw:UniDoWhile, scope:Scope) {
     const doWhileScope:Scope = Scope.createLocal(scope);
     doWhileScope.name = scope.name;
+    let ret;
     do {
       try {
-        yield* this.execExpr(udw.statement, scope);
+        ret = yield* this.execExpr(udw.statement, scope);
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -287,18 +281,20 @@ export default class Engine {
         }
       }
     } while (this.toBool(yield* this.execExpr(udw.cond, scope)));
+    return ret;
   }
 
   protected* execSwitch(us:UniSwitch, scope:Scope) {
     const switchScope:Scope = Scope.createLocal(scope);
     switchScope.name = scope.name;
+    let ret;
     const cond = yield* this.execExpr(us.cond, scope);
     for (const unit of us.cases) {
       const condOfCase = yield* this.execExpr(unit.cond,switchScope);
       if (cond === condOfCase) {
         try {
           for (const statement of unit.statement) {
-            yield* this.execExpr(statement, scope);
+            ret = yield* this.execExpr(statement, scope);
           }
         } catch (e) {
           if (e instanceof Continue) {
@@ -311,6 +307,7 @@ export default class Engine {
         }
       } 
     }
+    return ret;
   }
 
   protected* execExpr(expr:UniExpr, scope:Scope):any {
@@ -446,77 +443,68 @@ export default class Engine {
           return ret;
         }
         case '[]':
-          return scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
-        case '.':
-          return scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
+        case '.': {
+          const ret = scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
+          yield ret;
+          return ret;
+        }
         // case '()': {
         //   const umc = new UniMethodCall(null,(<UniIdent>left).name,((UniArray)right).items);
         //   return this.execExpr(umc,scope);
         // }
         // 		case ".":
         // 			return this.execExpr(getLeftReference(new UniBinOp(op,left,right),scope),scope);
-        case '==':
-          return this.execExpr(left, scope) 
-          === this.execExpr(right, scope);
-        case '!=':
-          return this.execExpr(left, scope) 
-          !== this.execExpr(right, scope);
-        case '<':
-          return this.toDouble(this.execExpr(left, scope)) 
-          < this.toDouble(this.execExpr(right, scope));
-        case '<=': {
-          const l = yield* this.execExpr(left, scope);
-          const r = yield* this.execExpr(right, scope);
-          const b = (this.toDouble(l) <= this.toDouble(r));
-          yield b;
-          return b;
-        }
-        case '>':
-          return this.toDouble(this.execExpr(left, scope)) 
-          > this.toDouble(this.execExpr(right, scope));
-        case '>=':
-          return this.toDouble(this.execExpr(left, scope)) 
-          >= this.toDouble(this.execExpr(right, scope));
-      
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-        case '%': {
-          const objL = yield* this.execExpr(left, scope);
-          const objR = yield* this.execExpr(right, scope);
-          if (typeof objL === 'number' && typeof objR === 'number') {
-            const numL = <number>objL;
-            const numR = <number>objR;
-            let ret;
-            switch (op) {
-              case '+':
-                ret = numL + numR;
-                break;
-              case '-':
-                ret = numL - numR;
-                break;
-              case '*':
-                ret = numL * numR;
-                break;
-              case '/':
-                ret = numL / numR;
-                break;
-              case '%':
-                ret = numL % numR;
-                break;
-            }
-            yield ret;
-            return ret;
-          }
+        default:
           break;
-        }
+      }
+
+      const l = yield* this.execExpr(left, scope);
+      const r = yield* this.execExpr(right, scope);
+      let ret = null;
+      switch (op) {
+        case '==':
+          ret = l === r;
+          break;
+        case '!=':
+          ret = l !== r;
+          break;
+        case '<':
+          ret = l < r;
+          break;
+        case '>':
+          ret = l > r;
+          break;
+        case '>=':
+          ret = l >= r;
+          break;
+        case '<=':
+          ret = l <= r;
+          break; 
+        case '+':
+          ret = l + r;
+          break;
+        case '-':
+          ret = l - r;
+          break;
+        case '*':
+          ret = l * r;
+          break;
+        case '/':
+          ret = l / r;
+          break;
+        case '%':
+          ret = l % r;
+          break;
         case '&&':
-          return this.toBool(this.execExpr(left, scope))
-              && this.toBool(this.execExpr(right, scope));
-        case '||':
-          return this.toBool(this.execExpr(left, scope))
-              || this.toBool(this.execExpr(right, scope));
+          ret = l && r;
+          break;
+        case '&&':
+          ret = l || r;
+          break;
+      }
+      if (ret !== null) {
+        yield ret;
+        return ret;
       }
       // 複合代入演算子
       if (op.length > 1 && op.charAt(op.length - 1) === '=') {
