@@ -365,11 +365,11 @@ export default class Engine {
       return yield* this.execBinOp(<UniBinOp>expr, scope);
     } else if (expr instanceof UniTernaryOp) {
       const condOp = <UniTernaryOp> expr;
-      return this.toBool(this.execExpr(condOp.cond, scope))
-          ? this.execExpr(condOp.trueExpr, scope)
-          : this.execExpr(condOp.falseExpr, scope);
+      return this.toBool(yield* this.execExpr(condOp.cond, scope))
+          ? yield* this.execExpr(condOp.trueExpr, scope)
+          : yield* this.execExpr(condOp.falseExpr, scope);
     } else if (expr instanceof UniArray) {
-      return this.execArray(<UniArray> expr, scope);
+      return yield* this.execArray(<UniArray> expr, scope);
     } else if (expr instanceof UniCast) {
       return this.execCast(<UniCast>expr, scope);
     }
@@ -436,15 +436,16 @@ export default class Engine {
       return yield* this.execBinOp(binOp.operator, scope, binOp.left, binOp.right);
     } else if (typeof arg === 'string' && left instanceof UniExpr && right instanceof UniExpr) {
       const op = <string>arg;
+      let ret = null;
       switch (op) {
         case '=': {
-          const ret = this.execAssign(this.getAddress(left,scope),yield* this.execExpr(right, scope),scope);
+          ret = this.execAssign(this.getAddress(left,scope),yield* this.execExpr(right, scope),scope);
           yield ret;
           return ret;
         }
         case '[]':
         case '.': {
-          const ret = scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
+          ret = scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
           yield ret;
           return ret;
         }
@@ -460,7 +461,6 @@ export default class Engine {
 
       const l = yield* this.execExpr(left, scope);
       const r = yield* this.execExpr(right, scope);
-      let ret = null;
       switch (op) {
         case '==':
           ret = l === r;
@@ -577,6 +577,13 @@ export default class Engine {
       return scope.getAddress(ui.name);
     } else if (expr instanceof UniUnaryOp) {
       const uuo = <UniUnaryOp>expr;
+      if (uuo.operator === '*') {
+        let refAddress = null;
+        for (const execExpr of this.execExpr(uuo.expr,scope)) {
+          refAddress = execExpr;
+        }
+        return refAddress;
+      }
     } else if (expr instanceof UniBinOp) {
       const ubo = <UniBinOp>expr;
       if (ubo.operator === '[]') {
@@ -598,8 +605,14 @@ export default class Engine {
   execCast(arg0: any, arg1: any): any {
     throw new Error('execCast not implemented.');
   }
-  execArray(arg0: any, arg1: any): any {
-    throw new Error('MeexecArraythod not implemented.');
+  *execArray(uniArray:UniArray, scope:Scope) {
+    const elements = uniArray.items;
+    const array:any[] = [];
+    for (const element of elements) {
+      const e = yield* this.execExpr(element, scope);
+      array.push(e);
+    }
+    return array;
   }
   execImple(arg0: any, arg1: any): any {
     throw new Error('execImple not implemented.');
@@ -610,6 +623,15 @@ export default class Engine {
     for (const def of decVar.variables) {
       // なぜかこのconstがundefinedになってしまう。
       value = yield* this.execExpr(def.value, scope);
+      if (def.typeSuffix !== '') {
+        const regexp = /[(\d+)]/gi;
+        const matches_array = def.typeSuffix.match(regexp);
+        if (matches_array !== null) {
+          for (let i = value.length; i < matches_array[0]; ++i) {
+            value.push(0);
+          }
+        }
+      }
       scope.setTop(def.name,value,type);
     }
     return value;

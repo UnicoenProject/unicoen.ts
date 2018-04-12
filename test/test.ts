@@ -145,4 +145,20 @@ describe('node', () => {
     const ret = engine.execute(program); 
     assert.equal(ret, 34);
   });
+
+  it(`int main(){int arr[5] = {1, 2, 3}};return arr[1];}`, () => {
+    const arrDef = new UniVariableDef(
+      'arr', new UniArray([new UniIntLiteral(1), new UniIntLiteral(2), new UniIntLiteral(3)]),'[5]');
+    const arrDec = new UniVariableDec(null,'int', [arrDef]);
+    
+    const returnStatement = new UniReturn(new UniBinOp('[]',new UniIdent('arr'), new UniIntLiteral(1)));
+    const mainBlock = new UniBlock('main', [arrDec, returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock('global', [mainFunc]);
+    const program = new UniProgram(globalBlock);
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 2);
+  });
+
 });
