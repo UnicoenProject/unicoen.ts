@@ -14,6 +14,16 @@
           "outFiles": [
               "${workspaceRoot}/dst/index.js"
           ]
-      }
+      },
+      {
+        // デバッグ設定の名称
+        "name": "Launch local file",
+        // デバッグ種別を指定（chrome/node/monoなど）
+        "type": "chrome",
+        // lanunchまたはattachを指定
+        "request": "launch",
+        // 読み込むHTMLファイルを指定（プロジェクトからのパスを指定）
+        "file": "${workspaceRoot}/dest/index.html"
+    },
   ]
 }
