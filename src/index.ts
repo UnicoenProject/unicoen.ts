@@ -31,6 +31,7 @@ import UniVariableDef from './node/UniVariableDef';
 import UniFunctionDec from './node/UniFunctionDec';
 import UniIntLiteral from './node/UniIntLiteral';
 import { assert } from 'chai';
+import CMapper from './mapper/CMapper';
 
 export default {
   CodeLocation,
@@ -63,4 +64,5 @@ export default {
   UniVariableDec,
   UniWhile,
   Engine,
+  CMapper,
 };

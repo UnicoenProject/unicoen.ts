@@ -7,35 +7,36 @@ import UniNumberLiteral from '../node/UniNumberLiteral';
 import UniReturn from '../node/UniReturn';
 import UniStatement from '../node/UniStatement';
 
-const antlr4 = require('antlr4');
-const CLexer = require('./CLexer');
-const CParser = require('./CParser');
-const CVisitor = require('./CVisitor');
-const antlr4tree = require('antlr4/tree/Tree.js');
-const RuleContext = require('antlr4/RuleContext');
+import { InputStream, CommonTokenStream } from 'antlr4';
+import { RuleContext }from 'antlr4/RuleContext';
+import { TerminalNode }from 'antlr4/tree/Tree';
+import { CLexer } from './CLexer';
+import { CParser } from './CParser';
+import { CVisitor } from './CVisitor';
 
-export default class CMapper extends CVisitor.CVisitor {
+export default class CMapper extends CVisitor {
 
-  constructor(isDebugMode) {
-    super();
-    this._isDebugMode = isDebugMode;
+  private isDebugMode:boolean = false;
+  private parser:CParser;
+  setIsDebugMode(isDebugMode:boolean) {
+    this.isDebugMode = isDebugMode;
   }
 
   parse(code) {
-    const chars = new antlr4.InputStream(code);
+    const chars = new InputStream(code);
     const [tree, parser] = this.parseCore(chars);
     return this.visit(tree);
   }
 
   getRawTree(code) {
-    const chars = new antlr4.InputStream(code);
+    const chars = new InputStream(code);
     return this.parseCore(chars);
   }
 
   parseCore(chars) {
-    const lexer = new CLexer.CLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    this.parser = new CParser.CParser(tokens);
+    const lexer = new CLexer(chars);
+    const tokens = new CommonTokenStream(lexer);
+    this.parser = new CParser(tokens);
     this.parser.buildParseTrees = true;
     const tree = this.parser.compilationUnit();
     return [tree, this.parser];
@@ -47,10 +48,10 @@ export default class CMapper extends CVisitor.CVisitor {
     return this.parser.ruleNames[node.ruleIndex];
   }
   private isInstanceofRuleContext(ctx) {
-    return ctx instanceof RuleContext.RuleContext;
+    return ctx instanceof RuleContext;
   }
   public visit(node) {
-    if (!this._isDebugMode) {
+    if (!this.isDebugMode) {
       return node.accept(this);
     }
     if (!this.isInstanceofRuleContext(node)) {
@@ -82,33 +83,83 @@ export default class CMapper extends CVisitor.CVisitor {
 
   visitTerminal(node) {
     const text = node.getText();
-    if (this._isDebugMode) {
+    if (this.isDebugMode) {
       const _plus = 'visit TERMINAL : ' + text;
       console.log(_plus);
     }
     const symbol = node.getSymbol();
-    if (this.getSymbolicName(symbol) === 'Constant') {
+    const symbolName = this.getSymbolicName(symbol);
+    if (symbolName === 'Constant') {
       return new UniNumberLiteral(Number(text),null,null,null,null,null,null);
     }
     return text;
   }
 
-  visitTranslationUnit(node) {
-    const block = super.visitTranslationUnit(node);
+  visitCompilationUnit(node) {
+    const [block, eof] = super.visitCompilationUnit(node);
     const program = new UniProgram(block);
     return program;
   }
+
+  visitTranslationUnit(node) {
+    const block: UniBlock = new UniBlock(null, []);
+    if (Array.isArray(node.children)) {
+      node.children.map(function (n) {
+        const ruleName = this.getRuleName(n);
+        const ret = this.visit(n);
+        if (ruleName === 'externalDeclaration') {
+          block.body.push(ret);
+        } else if (ruleName === 'translationUnit') {
+          block.merge(ret);
+        }
+      },                this);
+    }
+    return block;
+  }
+
+  visitDirectDeclarator(node) {
+    let name: string = null;
+    const modifiers: string[] = null;
+    const returnType: string = null;
+    let params: UniParam[] = null;
+    const block: UniBlock = null;
+    let marge:UniFunctionDec;
+    if (Array.isArray(node.children)) {
+      node.children.map(function (n) {
+        const ruleName = this.getRuleName(n);
+        const ret = this.visit(n);
+        if (ruleName === 'directDeclarator') {
+          marge = ret;
+        } else if (ruleName === 'parameterTypeList') {
+          params = ret;
+        } else {
+          const symbol = n.getSymbol();
+          const symbolName = this.getSymbolicName(symbol);
+          if (symbolName === 'Identifier') {
+            name = ret;
+          }
+        }
+      },                this);
+    }
+    const funcDec = new UniFunctionDec(name, modifiers, returnType, params, block);    
+    if (marge) {
+      funcDec.merge(marge);
+    }
+    return funcDec;
+  }
+
   visitDeclarator(node) {
     const text:string = super.visitDeclaration(node);
     return text;
   }
 
   visitFunctionDefinition(node) {
-    let name: string = null;
+    const name: string = null;
     const modifiers: string[] = null;
     let returnType: string = null;
     const params: UniParam[] = null;
     let block: UniBlock = null;
+    let marge:UniFunctionDec;
     if (Array.isArray(node.children)) {
       node.children.map(function (n) {
         const ruleName = this.getRuleName(n);
@@ -116,13 +167,16 @@ export default class CMapper extends CVisitor.CVisitor {
         if (ruleName === 'declarationSpecifiers') {
           returnType = ret;
         } else if (ruleName === 'declarator') {
-          name = ret;
+          marge = ret;
         } else if (ruleName === 'compoundStatement') {
           block = ret;
         }
       },                this);
     }
     const funcDec = new UniFunctionDec(name, modifiers, returnType, params, block);
+    if (marge) {
+      funcDec.merge(marge);
+    }
     return funcDec;
   }
 
@@ -185,7 +239,7 @@ export default class CMapper extends CVisitor.CVisitor {
 
   // public visitStringLiteral(ctx) {
   //   const target = ctx.children.find((child) => {
-  //     if (child instanceof antlr4tree.TerminalNode) {
+  //     if (child instanceof TerminalNode) {
   //       if (child.symbol.type === CParser.StringLiteral) {
   //         return true;
   //       }
@@ -211,4 +265,3 @@ export default class CMapper extends CVisitor.CVisitor {
     },                  []);
   }
 }
-// exports.CMapper = CMapper;

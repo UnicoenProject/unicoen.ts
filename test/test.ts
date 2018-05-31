@@ -20,6 +20,7 @@ import UniUnaryOp from '../src/node/UniUnaryOp';
 import UniIntLiteral from '../src/node/UniIntLiteral';
 import UniMethodCall from '../src/node/UniMethodCall';
 import UniIf from '../src/node/UniIf';
+import CMapper from '../src/mapper/CMapper';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {
@@ -161,4 +162,14 @@ describe('node', () => {
     assert.equal(ret, 2);
   });
 
+});
+
+describe('mapper', () => {
+  it(`int main(){}`, () => {
+    const text = 'int main(){}';
+    const cmapper = new CMapper();
+    const tree = cmapper.parse(text);
+    const program = new UniProgram(new UniBlock(null, [new UniFunctionDec('main',null,'int',null,new UniBlock(null,[]))]));
+    assert.isOk(program.equals(tree));
+  });
 });
