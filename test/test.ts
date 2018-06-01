@@ -38,15 +38,6 @@ describe('node_helper', () => {
 });
 
 describe('node', () => {
-  // it(`UniIntLiteral`, () => {
-  //   const uniIntLiteral = new UniIntLiteral(10);
-  //   const uniIntLitera2 = new UniIntLiteral(20);
-  //   const uniIntLitera3 = new UniIntLiteral(30);
-  //   const ret = new UniBinOp('+', uniIntLiteral, uniIntLitera2);    
-  //   assert.equal(uniIntLiteral.toString(), 'IntLiteral(10)');
-  //   assert.isOk(uniIntLitera2.equals(uniIntLitera3));
-  // });
-
   it(`int main(){return 0;}`, () => {
     const returnValue = new UniIntLiteral(0);
     const returnStatement = new UniReturn(returnValue);
@@ -165,11 +156,30 @@ describe('node', () => {
 });
 
 describe('mapper', () => {
+  const cmapper = new CMapper();
+  cmapper.setIsDebugMode(true);
+
   it(`int main(){}`, () => {
+    const mainBlock = new UniBlock('main', []);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock('global', [mainFunc]);
+    const program = new UniProgram(globalBlock);
+
     const text = 'int main(){}';
-    const cmapper = new CMapper();
     const tree = cmapper.parse(text);
-    const program = new UniProgram(new UniBlock(null, [new UniFunctionDec('main',null,'int',null,new UniBlock(null,[]))]));
+    assert.isOk(program.equals(tree));
+  });
+  
+  it(`int main(){return 0;}`, () => {
+    const returnValue = new UniIntLiteral(0);
+    const returnStatement = new UniReturn(returnValue);
+    const mainBlock = new UniBlock('main', [returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock('global', [mainFunc]);
+    const program = new UniProgram(globalBlock);
+
+    const text = 'int main(){return 0;}';
+    const tree = cmapper.parse(text);
     assert.isOk(program.equals(tree));
   });
 });

@@ -13,6 +13,7 @@ import { TerminalNode }from 'antlr4/tree/Tree';
 import { CLexer } from './CLexer';
 import { CParser } from './CParser';
 import { CVisitor } from './CVisitor';
+import UniIntLiteral from '../node/UniIntLiteral';
 
 export default class CMapper extends CVisitor {
 
@@ -90,7 +91,16 @@ export default class CMapper extends CVisitor {
     const symbol = node.getSymbol();
     const symbolName = this.getSymbolicName(symbol);
     if (symbolName === 'Constant') {
-      return new UniNumberLiteral(Number(text),null,null,null,null,null,null);
+      const filterInt =  (value) => {
+        if (/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
+          return Number(value);
+        return NaN;
+      };
+      const number = filterInt(text);
+      if (isNaN(number)) {
+        return new UniNumberLiteral(Number(text),null,null,null,null,null,null);
+      }
+      return new UniIntLiteral(number);
     }
     return text;
   }
@@ -102,7 +112,7 @@ export default class CMapper extends CVisitor {
   }
 
   visitTranslationUnit(node) {
-    const block: UniBlock = new UniBlock(null, []);
+    const block: UniBlock = new UniBlock('global', []);
     if (Array.isArray(node.children)) {
       node.children.map(function (n) {
         const ruleName = this.getRuleName(n);
@@ -155,9 +165,9 @@ export default class CMapper extends CVisitor {
 
   visitFunctionDefinition(node) {
     const name: string = null;
-    const modifiers: string[] = null;
+    const modifiers: string[] = [];
     let returnType: string = null;
-    const params: UniParam[] = null;
+    const params: UniParam[] = [];
     let block: UniBlock = null;
     let marge:UniFunctionDec;
     if (Array.isArray(node.children)) {
@@ -177,6 +187,7 @@ export default class CMapper extends CVisitor {
     if (marge) {
       funcDec.merge(marge);
     }
+    funcDec.block.blockLabel = funcDec.name;
     return funcDec;
   }
 
