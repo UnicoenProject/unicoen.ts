@@ -66,3 +66,6 @@ export default {
   Engine,
   CMapper,
 };
+const text = 'int main(){int i=1;return i;}';
+const tree = new CMapper().parse(text);
+console.log(tree);

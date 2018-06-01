@@ -3,22 +3,23 @@ import UniParam from '../node/UniParam';
 import UniBlock from '../node/UniBlock';
 import UniFunctionDec from '../node/UniFunctionDec';
 import UniStringLiteral from '../node/UniStringLiteral';
+import UniIntLiteral from '../node/UniIntLiteral';
 import UniNumberLiteral from '../node/UniNumberLiteral';
 import UniReturn from '../node/UniReturn';
 import UniStatement from '../node/UniStatement';
 
-import { InputStream, CommonTokenStream } from 'antlr4';
+import { InputStream, CommonTokenStream, ParserRuleContext } from 'antlr4';
 import { RuleContext }from 'antlr4/RuleContext';
-import { TerminalNode }from 'antlr4/tree/Tree';
+import { TerminalNode, RuleNode, ParseTree }from 'antlr4/tree/Tree';
 import { CLexer } from './CLexer';
 import { CParser } from './CParser';
 import { CVisitor } from './CVisitor';
-import UniIntLiteral from '../node/UniIntLiteral';
 
 export default class CMapper extends CVisitor {
 
   private isDebugMode:boolean = false;
   private parser:CParser;
+  
   setIsDebugMode(isDebugMode:boolean) {
     this.isDebugMode = isDebugMode;
   }
@@ -42,35 +43,8 @@ export default class CMapper extends CVisitor {
     const tree = this.parser.compilationUnit();
     return [tree, this.parser];
   }
-  getSymbolicName(symbol) {
-    return this.parser.symbolicNames[symbol.type];
-  }
-  getRuleName(node) {
-    return this.parser.ruleNames[node.ruleIndex];
-  }
-  private isInstanceofRuleContext(ctx) {
-    return ctx instanceof RuleContext;
-  }
-  public visit(node) {
-    if (!this.isDebugMode) {
-      return node.accept(this);
-    }
-    if (!this.isInstanceofRuleContext(node)) {
-      return node.accept(this);
-    }
-    // if (Array.isArray(node)) {
-    //   return node.map(function (element) {
-    //     return this.visit(element);
-    //   },              this);
-    // }
-    const ruleName = this.getRuleName(node);
-    console.log('*** visit Rule : ' + ruleName + ' ***');
-    const ret = node.accept(this);
-    console.log('returned: ' + ret);
-    return ret;
-  }
 
-  visitChildren(node) {
+  visitChildren(node:RuleNode) {
     const n = node.getChildCount();
     const list:any[] = [];
     for (let i = 0; i < n;++i) {
@@ -82,7 +56,34 @@ export default class CMapper extends CVisitor {
     return flatten;
   }
 
-  visitTerminal(node) {
+  public visit(node:ParseTree) {
+    if (!this.isDebugMode) {
+      return node.accept(this);
+    }
+    if (!this.isInstanceofRuleContext(node)) {
+      return node.accept(this);
+    }
+    const ruleName = this.getRuleName(node);
+    console.log('*** visit Rule : ' + ruleName + ' ***');
+    const ret = node.accept(this);
+    console.log('returned: ' + ret);
+    return ret;
+  }
+
+  isNonEmptyNode(node:ParseTree):boolean {
+    if (node instanceof ParserRuleContext) {
+      const n = node.getChildCount();
+      if (n > 1) {
+        return true;
+      }
+      // n === 1 && node.children.exists[isNonEmptyNode]
+      return n === 1;
+    } else {
+      return true;
+    }
+  }
+
+  visitTerminal(node:TerminalNode) {
     const text = node.getText();
     if (this.isDebugMode) {
       const _plus = 'visit TERMINAL : ' + text;
@@ -103,6 +104,77 @@ export default class CMapper extends CVisitor {
       return new UniIntLiteral(number);
     }
     return text;
+  }
+
+  private flatten(obj:any) {
+    if (Array.isArray(obj)) {
+      if (obj.length === 1) {
+        return this.flatten(obj[0]);
+      }
+      const ret = [];
+      obj.forEach((it:any) => {
+        ret.push(this.flatten(it));
+      });
+      return ret;
+    }
+
+    if (obj instanceof Map) {
+      if (obj.size === 1) {
+        return this.flatten(obj.get(obj.keys[0]));
+      }
+      const ret = new Map<any, any>();
+      obj.forEach((value: any, key: any) => {
+        ret.set(key, this.flatten(value));
+      });
+      return ret;
+    }
+
+    return obj;
+  }
+
+  // tslint:disable-next-line:prefer-array-literal
+  public castToList<T>(obj:any):Array<T> {
+    const temp = this.flatten(obj);
+    const ret = [];
+    if (temp instanceof Map) {
+      const add = temp.has('add');
+      temp.forEach((value: any, key: any) => {
+        switch (key) {
+          case 'add': {
+            if (value instanceof Map) {
+              ret.push(this.castTo<T>(value));
+            } else if (Array.isArray(value)) {
+              value.forEach((it:any) => {
+                const t = this.castTo(it);
+                if (t != null) {
+                  ret.push(t);
+                }
+              });
+            } else {
+              ret.push(this.castToList(value));
+            }
+          } 
+            break;
+          default:
+            if (!add) {
+              ret.push(this.castToList(value));
+            }
+            break;
+        }    
+      });
+    } else if (Array.isArray(temp)) {
+      temp.forEach((it:any) => {
+        ret.push(this.castToList(it));
+      });
+    } else {
+      ret.push(this.castTo(it));
+    }
+    return ret;
+  }
+  
+  public castTo<T>(obj:any):T {
+    const v:T = null;
+    return v;
   }
 
   visitCompilationUnit(node) {
@@ -260,19 +332,15 @@ export default class CMapper extends CVisitor {
   //   const text = this.visit(target);
   //   return new UniStringLiteral(text.substring(1, text.length - 1));
   // }
-
-  private flatten(array) {
-    if (!Array.isArray(array)) {
-      return array;
-    }
-    if (array.length === 1) {
-      return array[0];
-    }
-    return array.reduce((a, c) => {
-      if (Array.isArray(c)) {
-        return a.concat(this.flatten(c));
-      }
-      return a.concat(c);
-    },                  []);
+    
+  getSymbolicName(symbol) {
+    return this.parser.symbolicNames[symbol.type];
   }
+  getRuleName(node) {
+    return this.parser.ruleNames[node.ruleIndex];
+  }
+  private isInstanceofRuleContext(ctx) {
+    return ctx instanceof RuleContext;
+  }
+
 }
