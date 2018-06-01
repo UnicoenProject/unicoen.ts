@@ -26,7 +26,9 @@ class Node {
       }
     }
     if (children) {
-      children.forEach((element, index, array) => {element.superClassName = this.className;});
+      children.forEach((element, index, array) => { 
+        element.superClassName = this.className; 
+      });
       this.children = children;
     }
   }
