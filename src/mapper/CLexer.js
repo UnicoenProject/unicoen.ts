@@ -1,4 +1,4 @@
-// Generated from C.g4 by ANTLR 4.7.1
+// Generated from C:\Users\RYOSUKE\eclipse\java-oxygen\eclipse\..\..\..\eclipse-workspace\net.unicoen\UniMapperGenerator\src-gen\C.g4 by ANTLR 4.7.1
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 

@@ -13,12 +13,14 @@ import UniCast from './node/UniCast';
 import UniContinue from './node/UniContinue';
 import UniDoWhile from './node/UniDoWhile';
 import UniEmptyStatement from './node/UniEmptyStatement';
+import UniFunctionDec from './node/UniFunctionDec';
 import UniFor from './node/UniFor';
 import UniIdent from './node/UniIdent';
 import UniIf from './node/UniIf';
 import UniWhile from './node/UniWhile';
 import UniUnaryOp from './node/UniUnaryOp';
 import UniTernaryOp from './node/UniTernaryOp';
+import UniStatement from './node/UniStatement';
 import UniStringLiteral from './node/UniStringLiteral';
 import UniReturn from './node/UniReturn';
 import UniVariableDec from './node/UniVariableDec';
@@ -28,7 +30,6 @@ import UniMethodCall from './node/UniMethodCall';
 import UniProgram from './node/UniProgram';
 import Engine, { ControlException } from './interpreter/Engine';
 import UniVariableDef from './node/UniVariableDef';
-import UniFunctionDec from './node/UniFunctionDec';
 import UniIntLiteral from './node/UniIntLiteral';
 import { assert } from 'chai';
 import CMapper from './mapper/CMapper';
@@ -56,6 +57,7 @@ export default {
   UniMethodCall,
   UniProgram,
   UniReturn,
+  UniStatement,
   UniStringLiteral,
   UniSwitch,
   UniSwitchUnit,
