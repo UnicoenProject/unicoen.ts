@@ -9,14 +9,16 @@ export default class UniUnaryOp extends UniExpr {
   public constructor(operator?: string, expr?: UniExpr) {
     super();
     if (operator === undefined && expr === undefined) {
-      this.operator = null;
-      this.expr = null;
+      this.operator = '';
+      this.expr = new UniExpr();
     } else if (operator === undefined || expr === undefined) {
       throw new Error('invalid arguments');
     } else {
       this.operator = operator;
       this.expr = expr;
     }
+    this.fields.set('operator', String);
+    this.fields.set('expr');
   }
 
   public toString(): string {

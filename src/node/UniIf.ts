@@ -11,9 +11,9 @@ export default class UniIf extends UniStatement {
   public constructor(cond?: UniExpr, trueStatement?: UniStatement, falseStatement?: UniStatement) {
     super();
     if (cond === undefined && trueStatement === undefined && falseStatement === undefined) {
-      this.cond = null;
-      this.trueStatement = null;
-      this.falseStatement = null;
+      this.cond = new UniExpr();
+      this.trueStatement = new UniStatement();
+      this.falseStatement = new UniStatement();
     } else if (cond === undefined || trueStatement === undefined || falseStatement === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -21,6 +21,9 @@ export default class UniIf extends UniStatement {
       this.trueStatement = trueStatement;
       this.falseStatement = falseStatement;
     }
+    this.fields.set('cond');
+    this.fields.set('trueStatement');
+    this.fields.set('falseStatement');
   }
 
   public toString(): string {

@@ -9,10 +9,11 @@ export default class UniReturn extends UniStatement {
   public constructor(value?: UniExpr) {
     super();
     if (value === undefined) {
-      this.value = null;
+      this.value = new UniExpr();
     } else {
       this.value = value;
     }
+    this.fields.set('value');
   }
 
   public toString(): string {

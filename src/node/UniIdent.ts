@@ -8,10 +8,11 @@ export default class UniIdent extends UniExpr {
   public constructor(name?: string) {
     super();
     if (name === undefined) {
-      this.name = null;
+      this.name = '';
     } else {
       this.name = name;
     }
+    this.fields.set('name', String);
   }
 
   public toString(): string {

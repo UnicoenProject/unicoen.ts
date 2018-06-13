@@ -9,14 +9,16 @@ export default class UniBlock extends UniStatement {
   public constructor(blockLabel?: string, body?: UniStatement[]) {
     super();
     if (blockLabel === undefined && body === undefined) {
-      this.blockLabel = null;
-      this.body = null;
+      this.blockLabel = '';
+      this.body = [];
     } else if (blockLabel === undefined || body === undefined) {
       throw new Error('invalid arguments');
     } else {
       this.blockLabel = blockLabel;
       this.body = body;
     }
+    this.fields.set('blockLabel', String);
+    this.fields.set('body');
   }
 
   public toString(): string {

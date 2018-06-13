@@ -156,6 +156,7 @@ describe('node', () => {
 });
 
 describe('mapper', () => {
+  return;
   const cmapper = new CMapper();
   cmapper.setIsDebugMode(true);
 

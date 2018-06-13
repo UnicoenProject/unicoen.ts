@@ -245,7 +245,7 @@ export default class CMapper extends CVisitor {
 			}
 			_nextTokenIndex = i
 		}*/
-		return node.text;
+		return token.text;
 	}
 
 	private flatten(obj:any) {
@@ -309,20 +309,18 @@ export default class CMapper extends CVisitor {
 	        ret.push(this.castToList(it, clazz));
 	      });
 	    } else {
-	      ret.push(this.castTo(it, clazz));
+	      ret.push(this.castTo(temp, clazz));
 	    }
 	    return ret;
 	  }
 	
 	  public castTo<T extends Function|String>(obj:any, clazz:any) {
-	    const t = new clazz();
 	    const temp = this.flatten(obj);
-	    const instance = clazz;
-	    // val fields = clazz.fields
+			const instance = new clazz();
+			const fields = instance.fileds;
 	    const fieldsName = [];
 	    for (let it in instance) {
-	      it = null;
-	      fieldsName.push(it);
+				fieldsName.push(it);
 	    }
 	    if (temp instanceof Map) {
 	      if (clazz instanceof String) {
@@ -333,23 +331,25 @@ export default class CMapper extends CVisitor {
 	            case 'add': {
 	              builder += this.castTo<T>(value, clazz);
 	            }
+	            break;
 	            default: {
 	              if (!hasAdd) {
 	                builder += this.castTo<T>(value, clazz);
 	              }
 	            }
+	            break;
 	          }
 	        });
 	        return (builder.length > 0) ? builder : null;
 	      }
 	      temp.forEach((value: any, key: any) => {
 	        if (fieldsName.includes(key)) {
-	          const field:Function|String = instance['key'];
-	          if (Array.isArray(field)) {
-	            instance['key'] = this.castToList(value, field);
+	          const field:Function = fields.get(key);
+	          if (Array.isArray(value)) {
+	            instance[key] = this.castToList(value, field);
 	            // instance["key"] = value.castToList((field.genericType as ParameterizedType).actualTypeArguments.get(0) as Class<?>);
 	          } else {
-	            instance['key'] = this.castTo(value, field);
+	            instance[key] = this.castTo(value, field);
 	          }
 	        }
 	      });
@@ -397,27 +397,34 @@ export default class CMapper extends CVisitor {
 					case 20: {
 						left.push(this.visit(it));
 					}
+					break;
 					case 368: {
 						right.push(this.visit(it));
 					}
+					break;
 					case 372: {
 						right.push(this.visit(it));
 					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					case CParser.Plus: {
 						operator.push(this.flatten(this.visit(it)));
 					}
+					break;
 					case CParser.Minus: {
 						operator.push(this.flatten(this.visit(it)));
 					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			}
 		}
@@ -438,15 +445,18 @@ export default class CMapper extends CVisitor {
 					case 1124: {
 						body.push(this.visit(it));
 					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			}
 		}
@@ -474,6 +484,7 @@ export default class CMapper extends CVisitor {
 							else
 								add.push(this.visit(it));
 						}
+						break;
 						case 146: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
@@ -483,6 +494,7 @@ export default class CMapper extends CVisitor {
 							else
 								add.push(this.visit(it));
 						}
+						break;
 						case 1133: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
@@ -492,15 +504,18 @@ export default class CMapper extends CVisitor {
 							else
 								add.push(this.visit(it));
 						}
+						break;
 						default: {
 							none.push(this.visit(it));
 						}
+						break;
 					}
 				} else if (it instanceof TerminalNode) {
 					switch (it.symbol.type) {
 						default: {
 							none.push(this.visit(it));
 						}
+						break;
 					}
 				}
 			}
@@ -520,12 +535,14 @@ export default class CMapper extends CVisitor {
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			}
 		}
@@ -546,15 +563,18 @@ export default class CMapper extends CVisitor {
 					case 1234: {
 						expr.push(this.visit(it));
 					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			}
 		}
@@ -575,15 +595,18 @@ export default class CMapper extends CVisitor {
 					case 1244: {
 						body.push(this.visit(it));
 					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			}
 		}
@@ -611,6 +634,7 @@ export default class CMapper extends CVisitor {
 							else
 								add.push(this.visit(it));
 						}
+						break;
 						case 166: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
@@ -620,6 +644,7 @@ export default class CMapper extends CVisitor {
 							else
 								add.push(this.visit(it));
 						}
+						break;
 						case 1251: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
@@ -629,15 +654,18 @@ export default class CMapper extends CVisitor {
 							else
 								add.push(this.visit(it));
 						}
+						break;
 						default: {
 							none.push(this.visit(it));
 						}
+						break;
 					}
 				} else if (it instanceof TerminalNode) {
 					switch (it.symbol.type) {
 						default: {
 							none.push(this.visit(it));
 						}
+						break;
 					}
 				}
 			}
@@ -663,21 +691,26 @@ export default class CMapper extends CVisitor {
 					case 1262: {
 						returnType.push(this.visit(it));
 					}
+					break;
 					case 1265: {
 						name.push(this.visit(it));
 					}
+					break;
 					case 1269: {
 						block.push(this.visit(it));
 					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					default: {
 						none.push(this.visit(it));
 					}
+					break;
 				}
 			}
 		}

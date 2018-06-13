@@ -11,9 +11,9 @@ export default class UniVariableDef extends UniDecralation {
   public constructor(name?: string, value?: UniExpr, typeSuffix?: string) {
     super();
     if (name === undefined && value === undefined && typeSuffix === undefined) {
-      this.name = null;
-      this.value = null;
-      this.typeSuffix = null;
+      this.name = '';
+      this.value = new UniExpr();
+      this.typeSuffix = '';
     } else if (name === undefined || value === undefined || typeSuffix === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -21,6 +21,9 @@ export default class UniVariableDef extends UniDecralation {
       this.value = value;
       this.typeSuffix = typeSuffix;
     }
+    this.fields.set('name', String);
+    this.fields.set('value');
+    this.fields.set('typeSuffix', String);
   }
 
   public toString(): string {

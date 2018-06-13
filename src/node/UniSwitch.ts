@@ -11,14 +11,16 @@ export default class UniSwitch extends UniStatement {
   public constructor(cond?: UniExpr, cases?: UniSwitchUnit[]) {
     super();
     if (cond === undefined && cases === undefined) {
-      this.cond = null;
-      this.cases = null;
+      this.cond = new UniExpr();
+      this.cases = [];
     } else if (cond === undefined || cases === undefined) {
       throw new Error('invalid arguments');
     } else {
       this.cond = cond;
       this.cases = cases;
     }
+    this.fields.set('cond');
+    this.fields.set('cases');
   }
 
   public toString(): string {

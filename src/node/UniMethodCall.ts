@@ -10,9 +10,9 @@ export default class UniMethodCall extends UniExpr {
   public constructor(receiver?: UniExpr, methodName?: string, args?: UniExpr[]) {
     super();
     if (receiver === undefined && methodName === undefined && args === undefined) {
-      this.receiver = null;
-      this.methodName = null;
-      this.args = null;
+      this.receiver = new UniExpr();
+      this.methodName = '';
+      this.args = [];
     } else if (receiver === undefined || methodName === undefined || args === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -20,6 +20,9 @@ export default class UniMethodCall extends UniExpr {
       this.methodName = methodName;
       this.args = args;
     }
+    this.fields.set('receiver');
+    this.fields.set('methodName', String);
+    this.fields.set('args');
   }
 
   public toString(): string {

@@ -8,10 +8,11 @@ export default class UniStringLiteral extends UniExpr {
   public constructor(value?: string) {
     super();
     if (value === undefined) {
-      this.value = null;
+      this.value = '';
     } else {
       this.value = value;
     }
+    this.fields.set('value', String);
   }
 
   public toString(): string {

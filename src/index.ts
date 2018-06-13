@@ -28,9 +28,9 @@ import UniSwitchUnit from './node/UniSwitchUnit';
 import UniSwitch from './node/UniSwitch';
 import UniMethodCall from './node/UniMethodCall';
 import UniProgram from './node/UniProgram';
-import Engine, { ControlException } from './interpreter/Engine';
 import UniVariableDef from './node/UniVariableDef';
 import UniIntLiteral from './node/UniIntLiteral';
+import Engine, { ControlException } from './interpreter/Engine';
 import { assert } from 'chai';
 import CMapper from './mapper/CMapper';
 
@@ -68,6 +68,6 @@ export default {
   Engine,
   CMapper,
 };
-const text = 'int main(){int i=1;return i;}';
+const text = 'int main(){}';
 const tree = new CMapper().parse(text);
 console.log(tree);

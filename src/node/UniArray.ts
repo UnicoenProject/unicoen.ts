@@ -8,10 +8,11 @@ export default class UniArray extends UniExpr {
   public constructor(items?: UniExpr[]) {
     super();
     if (items === undefined) {
-      this.items = null;
+      this.items = [];
     } else {
       this.items = items;
     }
+    this.fields.set('items');
   }
 
   public toString(): string {

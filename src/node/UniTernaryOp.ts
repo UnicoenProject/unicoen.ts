@@ -10,9 +10,9 @@ export default class UniTernaryOp extends UniExpr {
   public constructor(cond?: UniExpr, trueExpr?: UniExpr, falseExpr?: UniExpr) {
     super();
     if (cond === undefined && trueExpr === undefined && falseExpr === undefined) {
-      this.cond = null;
-      this.trueExpr = null;
-      this.falseExpr = null;
+      this.cond = new UniExpr();
+      this.trueExpr = new UniExpr();
+      this.falseExpr = new UniExpr();
     } else if (cond === undefined || trueExpr === undefined || falseExpr === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -20,6 +20,9 @@ export default class UniTernaryOp extends UniExpr {
       this.trueExpr = trueExpr;
       this.falseExpr = falseExpr;
     }
+    this.fields.set('cond');
+    this.fields.set('trueExpr');
+    this.fields.set('falseExpr');
   }
 
   public toString(): string {

@@ -1,14 +1,14 @@
 import CodeRange from '../node_helper/CodeRange';
-require('../node_helper/Extension');
 export default abstract class UniNode {
   public comments: string[];
   public codeRange: CodeRange;
+  public fields: UniMap<string,Function>;
 
   public constructor();
   public constructor(comments: string[], codeRange: CodeRange);
   public constructor(comments?: string[], codeRange?: CodeRange) {
     if (comments === undefined && codeRange === undefined) {
-      this.comments = null;
+      this.comments = [];
       this.codeRange = null;
     } else if (comments === undefined || codeRange === undefined) {
       throw new Error('invalid arguments');
@@ -16,6 +16,8 @@ export default abstract class UniNode {
       this.comments = comments;
       this.codeRange = codeRange;
     }
+    this.fields.set('comments', String)
+;  this.fields.set('codeRange', CodeRange);
   }
 
   public toString(): string {

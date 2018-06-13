@@ -9,14 +9,16 @@ export default class UniCast extends UniExpr {
   public constructor(type?: string, value?: UniExpr) {
     super();
     if (type === undefined && value === undefined) {
-      this.type = null;
-      this.value = null;
+      this.type = '';
+      this.value = new UniExpr();
     } else if (type === undefined || value === undefined) {
       throw new Error('invalid arguments');
     } else {
       this.type = type;
       this.value = value;
     }
+    this.fields.set('type', String);
+    this.fields.set('value');
   }
 
   public toString(): string {

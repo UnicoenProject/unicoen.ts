@@ -12,11 +12,11 @@ export default class UniClassDec extends UniDecralation {
   public constructor(className?: string, modifiers?: string[], members?: UniDecralation[], superClass?: string[], interfaces?: string[]) {
     super();
     if (className === undefined && modifiers === undefined && members === undefined && superClass === undefined && interfaces === undefined) {
-      this.className = null;
-      this.modifiers = null;
-      this.members = null;
-      this.superClass = null;
-      this.interfaces = null;
+      this.className = '';
+      this.modifiers = [];
+      this.members = [];
+      this.superClass = [];
+      this.interfaces = [];
     } else if (className === undefined || modifiers === undefined || members === undefined || superClass === undefined || interfaces === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -26,6 +26,11 @@ export default class UniClassDec extends UniDecralation {
       this.superClass = superClass;
       this.interfaces = interfaces;
     }
+    this.fields.set('className', String);
+    this.fields.set('modifiers', String);
+    this.fields.set('members');
+    this.fields.set('superClass', String);
+    this.fields.set('interfaces', String);
   }
 
   public toString(): string {

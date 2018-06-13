@@ -12,6 +12,7 @@ export default class UniBoolLiteral extends UniExpr {
     } else {
       this.value = value;
     }
+    this.fields.set('value', Boolean);
   }
 
   public toString(): string {

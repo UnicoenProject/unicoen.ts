@@ -98,6 +98,9 @@ class Node {
     for (const field of this.members) {
       ret += `${s1}public ${field.name}: ${field.type};\n`;
     }
+    if (this.className === 'UniNode') {
+      ret += `${s1}public fields: UniMap<string,Function>;\n`;
+    }
     return ret;
   }
 
@@ -134,7 +137,15 @@ class Node {
     ret += `) {\n`;
 
     for (const field of this.members) {
-      ret += `${s3}this.${field.name} = null;\n`;
+      if (field.type === 'string') {
+        ret += `${s3}this.${field.name} = '';\n`;
+      } else if (field.type.includes('[]')) {
+        ret += `${s3}this.${field.name} = [];\n`;
+      } else if (field.type.includes('Uni')) {
+        ret += `${s3}this.${field.name} = new ${field.type}();\n`;
+      } else {
+        ret += `${s3}this.${field.name} = null;\n`;
+      }
     }
 
     ret += `${s2}}`;
@@ -153,6 +164,23 @@ class Node {
       ret += `${s3}this.${field.name} = ${field.name};\n`;
     }
     ret += `${s2}}\n`;
+
+    if (this.className === 'UniNode') {
+      ret += `${s1}this.fields.set('comments', String)\n;`;
+      ret += `${s1}this.fields.set('codeRange', CodeRange);\n`;
+    } else {
+      for (const field of this.members) {
+        ret += `${s1}this.fields.set('${field.name}', `;
+        if (field.type.includes(`string`)) {
+          ret += `String`;
+        } else if (field.type.includes(`boolean`)) {
+          ret += `Boolean`;
+        } else {
+          // ret += field.type;
+        }
+        ret += `);\n`;
+      }
+    }
     ret += `${s1}}\n`;
     return ret;
   }

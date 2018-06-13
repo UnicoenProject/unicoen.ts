@@ -14,11 +14,11 @@ export default class UniFunctionDec extends UniDecralation {
   public constructor(name?: string, modifiers?: string[], returnType?: string, params?: UniParam[], block?: UniBlock) {
     super();
     if (name === undefined && modifiers === undefined && returnType === undefined && params === undefined && block === undefined) {
-      this.name = null;
-      this.modifiers = null;
-      this.returnType = null;
-      this.params = null;
-      this.block = null;
+      this.name = '';
+      this.modifiers = [];
+      this.returnType = '';
+      this.params = [];
+      this.block = new UniBlock();
     } else if (name === undefined || modifiers === undefined || returnType === undefined || params === undefined || block === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -28,6 +28,11 @@ export default class UniFunctionDec extends UniDecralation {
       this.params = params;
       this.block = block;
     }
+    this.fields.set('name', String);
+    this.fields.set('modifiers', String);
+    this.fields.set('returnType', String);
+    this.fields.set('params');
+    this.fields.set('block');
   }
 
   public toString(): string {

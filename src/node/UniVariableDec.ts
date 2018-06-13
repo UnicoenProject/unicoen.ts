@@ -11,9 +11,9 @@ export default class UniVariableDec extends UniDecralation {
   public constructor(modifiers?: string[], type?: string, variables?: UniVariableDef[]) {
     super();
     if (modifiers === undefined && type === undefined && variables === undefined) {
-      this.modifiers = null;
-      this.type = null;
-      this.variables = null;
+      this.modifiers = [];
+      this.type = '';
+      this.variables = [];
     } else if (modifiers === undefined || type === undefined || variables === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -21,6 +21,9 @@ export default class UniVariableDec extends UniDecralation {
       this.type = type;
       this.variables = variables;
     }
+    this.fields.set('modifiers', String);
+    this.fields.set('type', String);
+    this.fields.set('variables');
   }
 
   public toString(): string {

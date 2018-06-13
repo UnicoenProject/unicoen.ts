@@ -8,10 +8,11 @@ export default class UniJump extends UniStatement {
   public constructor(dest?: string) {
     super();
     if (dest === undefined) {
-      this.dest = null;
+      this.dest = '';
     } else {
       this.dest = dest;
     }
+    this.fields.set('dest', String);
   }
 
   public toString(): string {

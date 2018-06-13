@@ -18,9 +18,9 @@ export default class UniNumberLiteral extends UniExpr {
       this.signed = null;
       this.bytes = null;
       this.isFloat = null;
-      this.type = null;
-      this.prefix = null;
-      this.sufix = null;
+      this.type = '';
+      this.prefix = '';
+      this.sufix = '';
     } else if (value === undefined || signed === undefined || bytes === undefined || isFloat === undefined || type === undefined || prefix === undefined || sufix === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -32,6 +32,13 @@ export default class UniNumberLiteral extends UniExpr {
       this.prefix = prefix;
       this.sufix = sufix;
     }
+    this.fields.set('value');
+    this.fields.set('signed', Boolean);
+    this.fields.set('bytes');
+    this.fields.set('isFloat', Boolean);
+    this.fields.set('type', String);
+    this.fields.set('prefix', String);
+    this.fields.set('sufix', String);
   }
 
   public toString(): string {
