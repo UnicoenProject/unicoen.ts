@@ -32,7 +32,7 @@ import UniVariableDef from './node/UniVariableDef';
 import UniIntLiteral from './node/UniIntLiteral';
 import Engine, { ControlException } from './interpreter/Engine';
 import { assert } from 'chai';
-import CMapper from './mapper/CMapper';
+import CMapper from './mapper/C/CMapper';
 
 export default {
   CodeLocation,
@@ -68,6 +68,6 @@ export default {
   Engine,
   CMapper,
 };
-const text = 'int main(){}';
+const text = 'int main(){return 0;}';
 const tree = new CMapper().parse(text);
 console.log(tree);
