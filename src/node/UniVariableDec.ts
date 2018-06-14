@@ -12,7 +12,7 @@ export default class UniVariableDec extends UniDecralation {
     super();
     if (modifiers === undefined && type === undefined && variables === undefined) {
       this.modifiers = [];
-      this.type = '';
+      this.type = null;
       this.variables = [];
     } else if (modifiers === undefined || type === undefined || variables === undefined) {
       throw new Error('invalid arguments');

@@ -1,8 +1,7 @@
-import UniSwitch from './UniSwitch';
-import UniExpr from './UniExpr';
 import UniStatement from './UniStatement';
+import UniExpr from './UniExpr';
 
-export default class UniSwitchUnit extends UniSwitch {
+export default class UniSwitchUnit extends UniStatement {
   public label: string;
   public cond: UniExpr;
   public statement: UniStatement[];
@@ -12,7 +11,7 @@ export default class UniSwitchUnit extends UniSwitch {
   public constructor(label?: string, cond?: UniExpr, statement?: UniStatement[]) {
     super();
     if (label === undefined && cond === undefined && statement === undefined) {
-      this.label = '';
+      this.label = null;
       this.cond = null;
       this.statement = [];
     } else if (label === undefined || cond === undefined || statement === undefined) {

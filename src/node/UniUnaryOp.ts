@@ -9,7 +9,7 @@ export default class UniUnaryOp extends UniExpr {
   public constructor(operator?: string, expr?: UniExpr) {
     super();
     if (operator === undefined && expr === undefined) {
-      this.operator = '';
+      this.operator = null;
       this.expr = null;
     } else if (operator === undefined || expr === undefined) {
       throw new Error('invalid arguments');

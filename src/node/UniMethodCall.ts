@@ -11,7 +11,7 @@ export default class UniMethodCall extends UniExpr {
     super();
     if (receiver === undefined && methodName === undefined && args === undefined) {
       this.receiver = null;
-      this.methodName = '';
+      this.methodName = null;
       this.args = [];
     } else if (receiver === undefined || methodName === undefined || args === undefined) {
       throw new Error('invalid arguments');

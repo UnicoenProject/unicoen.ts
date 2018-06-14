@@ -14,9 +14,9 @@ export default class UniFunctionDec extends UniDecralation {
   public constructor(name?: string, modifiers?: string[], returnType?: string, params?: UniParam[], block?: UniBlock) {
     super();
     if (name === undefined && modifiers === undefined && returnType === undefined && params === undefined && block === undefined) {
-      this.name = '';
+      this.name = null;
       this.modifiers = [];
-      this.returnType = '';
+      this.returnType = null;
       this.params = [];
       this.block = null;
     } else if (name === undefined || modifiers === undefined || returnType === undefined || params === undefined || block === undefined) {

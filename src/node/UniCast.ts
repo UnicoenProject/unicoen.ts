@@ -9,7 +9,7 @@ export default class UniCast extends UniExpr {
   public constructor(type?: string, value?: UniExpr) {
     super();
     if (type === undefined && value === undefined) {
-      this.type = '';
+      this.type = null;
       this.value = null;
     } else if (type === undefined || value === undefined) {
       throw new Error('invalid arguments');

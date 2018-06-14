@@ -1,4 +1,4 @@
-import CodeRange from '../node_helper/CodeRange';
+import CodeRange from '../node_helper/CodeRange';require('../node_helper/Extension');
 export default abstract class UniNode {
   public comments: string[];
   public codeRange: CodeRange;

@@ -75,6 +75,9 @@ class Node {
         ret += `import ${type} from '../node_helper/${type}';`;
       }
     }
+    if (this.className === 'UniNode') {
+      ret += `require('../node_helper/Extension');`;
+    }
     return ret;
   }
 
@@ -137,9 +140,10 @@ class Node {
     ret += `) {\n`;
 
     for (const field of this.members) {
-      if (field.type === 'string') {
-        ret += `${s3}this.${field.name} = '';\n`;
-      } else if (field.type.includes('[]')) {
+      // if (field.type === 'string') {
+      //   ret += `${s3}this.${field.name} = '';\n`;
+      // }
+      if (field.type.includes('[]')) {
         ret += `${s3}this.${field.name} = [];\n`;
       } else {
         ret += `${s3}this.${field.name} = null;\n`;
@@ -167,12 +171,12 @@ class Node {
     ret += `${s2}}\n`;
 
     if (this.className === 'UniNode') {
-      ret += `${s1}this.fields = new Map<string,Function>();\n`;
-      ret += `${s1}this.fields.set('comments', String);\n`;
-      ret += `${s1}this.fields.set('codeRange', CodeRange);\n`;
+      ret += `${s2}this.fields = new Map<string,Function>();\n`;
+      ret += `${s2}this.fields.set('comments', String);\n`;
+      ret += `${s2}this.fields.set('codeRange', CodeRange);\n`;
     } else {
       for (const field of this.members) {
-        ret += `${s1}this.fields.set('${field.name}', `;
+        ret += `${s2}this.fields.set('${field.name}', `;
         if (field.type.includes(`string`)) {
           ret += `String`;
         } else if (field.type.includes(`boolean`)) {
@@ -429,16 +433,14 @@ export default class Generator {
                       [`cond`, `Expr`],
                       [`cases`, `SwitchUnit[]`],
                     ],
-                    children:[
-                      new Node({ className :`SwitchUnit`,
-                        members:[
-                          [`label`, `string`],
-                          [`cond`, `Expr`],
-                          [`statement`, `Statement[]`],
-                        ],
-                      }),     
+                  }),
+                  new Node({ className :`SwitchUnit`,
+                    members:[
+                    [`label`, `string`],
+                    [`cond`, `Expr`],
+                    [`statement`, `Statement[]`],
                     ],
-                  }),   
+                  }), 
                 ],
               }),
               new Node({ className :`Decralation`, isAbstract: true,

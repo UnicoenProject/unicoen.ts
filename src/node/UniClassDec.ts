@@ -12,7 +12,7 @@ export default class UniClassDec extends UniDecralation {
   public constructor(className?: string, modifiers?: string[], members?: UniDecralation[], superClass?: string[], interfaces?: string[]) {
     super();
     if (className === undefined && modifiers === undefined && members === undefined && superClass === undefined && interfaces === undefined) {
-      this.className = '';
+      this.className = null;
       this.modifiers = [];
       this.members = [];
       this.superClass = [];

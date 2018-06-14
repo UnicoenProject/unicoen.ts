@@ -8,7 +8,7 @@ export default class UniJump extends UniStatement {
   public constructor(dest?: string) {
     super();
     if (dest === undefined) {
-      this.dest = '';
+      this.dest = null;
     } else {
       this.dest = dest;
     }

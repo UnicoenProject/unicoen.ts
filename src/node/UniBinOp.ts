@@ -10,7 +10,7 @@ export default class UniBinOp extends UniExpr {
   public constructor(operator?: string, left?: UniExpr, right?: UniExpr) {
     super();
     if (operator === undefined && left === undefined && right === undefined) {
-      this.operator = '';
+      this.operator = null;
       this.left = null;
       this.right = null;
     } else if (operator === undefined || left === undefined || right === undefined) {

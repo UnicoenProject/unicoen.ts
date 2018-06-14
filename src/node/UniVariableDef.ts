@@ -11,9 +11,9 @@ export default class UniVariableDef extends UniDecralation {
   public constructor(name?: string, value?: UniExpr, typeSuffix?: string) {
     super();
     if (name === undefined && value === undefined && typeSuffix === undefined) {
-      this.name = '';
+      this.name = null;
       this.value = null;
-      this.typeSuffix = '';
+      this.typeSuffix = null;
     } else if (name === undefined || value === undefined || typeSuffix === undefined) {
       throw new Error('invalid arguments');
     } else {

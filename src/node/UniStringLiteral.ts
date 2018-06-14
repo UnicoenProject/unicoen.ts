@@ -8,7 +8,7 @@ export default class UniStringLiteral extends UniExpr {
   public constructor(value?: string) {
     super();
     if (value === undefined) {
-      this.value = '';
+      this.value = null;
     } else {
       this.value = value;
     }

@@ -18,9 +18,9 @@ export default class UniNumberLiteral extends UniExpr {
       this.signed = null;
       this.bytes = null;
       this.isFloat = null;
-      this.type = '';
-      this.prefix = '';
-      this.sufix = '';
+      this.type = null;
+      this.prefix = null;
+      this.sufix = null;
     } else if (value === undefined || signed === undefined || bytes === undefined || isFloat === undefined || type === undefined || prefix === undefined || sufix === undefined) {
       throw new Error('invalid arguments');
     } else {
