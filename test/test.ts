@@ -20,7 +20,6 @@ import UniUnaryOp from '../src/node/UniUnaryOp';
 import UniIntLiteral from '../src/node/UniIntLiteral';
 import UniMethodCall from '../src/node/UniMethodCall';
 import UniIf from '../src/node/UniIf';
-import CMapper from '../src/mapper/C/CMapper';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {
@@ -156,7 +155,6 @@ describe('node', () => {
 });
 
 describe('mapper', () => {
-  return;
   const cmapper = new CMapper();
   cmapper.setIsDebugMode(true);
 

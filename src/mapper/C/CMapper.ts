@@ -65,7 +65,7 @@ export default class CMapper extends CVisitor {
 	parse(code) {
 	    const chars = new InputStream(code);
 	    const [tree, parser] = this.parseCore(chars);
-	    return this.visit(tree);
+	    return new UniProgram(this.visit(tree));
 	}
 	getRawTree(code) {
 	    const chars = new InputStream(code);
@@ -344,8 +344,8 @@ export default class CMapper extends CVisitor {
 	    temp.forEach((value: any, key: any) => {
 	      if (fieldsName.includes(key)) {
 	        const field:Function = fields.get(key);
-	        if (Array.isArray(field)) {
-	          instance[key] = this.castToList(value, field);
+	        if (Array.isArray(instance[key])) {
+	          instance[key] = this.flatten(this.castToList(value, field));
 	          // instance[key] = value.castToList((field.genericType as ParameterizedType).actualTypeArguments.get(0) as Class<?>);
 	        } else {
 	          instance[key] = this.castTo(value, field);
@@ -375,7 +375,7 @@ export default class CMapper extends CVisitor {
 	      return this.castTo<T>(first,clazz);
 	    }
 	  }
-	 return temp as T;
+	  return temp as T;
 	}
 
 	public visitUnaryExpression(ctx:CParser.UnaryExpressionContext) {
