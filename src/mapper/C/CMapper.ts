@@ -1,40 +1,40 @@
 // tslint:disable
-import CodeLocation from '../node_helper/CodeLocation';
-import CodeRange from '../node_helper/CodeRange';
-import UniNode from '../node/UniNode';
-import UniParam from '../node/UniParam';
-import UniExpr from '../node/UniExpr';
-import UniArray from '../node/UniArray';
-import UniNumberLiteral from '../node/UniNumberLiteral';
-import UniBinOp from '../node/UniBinOp';
-import UniBlock from '../node/UniBlock';
-import UniBoolLiteral from '../node/UniBoolLiteral';
-import UniBreak from '../node/UniBreak';
-import UniCast from '../node/UniCast';
-import UniContinue from '../node/UniContinue';
-import UniDoWhile from '../node/UniDoWhile';
-import UniEmptyStatement from '../node/UniEmptyStatement';
-import UniFunctionDec from '../node/UniFunctionDec';
-import UniFor from '../node/UniFor';
-import UniIdent from '../node/UniIdent';
-import UniIf from '../node/UniIf';
-import UniIntLiteral from '../node/UniIntLiteral';
-import UniWhile from '../node/UniWhile';
-import UniUnaryOp from '../node/UniUnaryOp';
-import UniTernaryOp from '../node/UniTernaryOp';
-import UniStatement from '../node/UniStatement';
-import UniStringLiteral from '../node/UniStringLiteral';
-import UniReturn from '../node/UniReturn';
-import UniVariableDec from '../node/UniVariableDec';
-import UniVariableDef from '../node/UniVariableDef';
-import UniSwitchUnit from '../node/UniSwitchUnit';
-import UniSwitch from '../node/UniSwitch';
-import UniMethodCall from '../node/UniMethodCall';
-import UniProgram from '../node/UniProgram';
+import CodeLocation from '../../node_helper/CodeLocation';
+import CodeRange from '../../node_helper/CodeRange';
+import UniNode from '../../node/UniNode';
+import UniParam from '../../node/UniParam';
+import UniExpr from '../../node/UniExpr';
+import UniArray from '../../node/UniArray';
+import UniNumberLiteral from '../../node/UniNumberLiteral';
+import UniBinOp from '../../node/UniBinOp';
+import UniBlock from '../../node/UniBlock';
+import UniBoolLiteral from '../../node/UniBoolLiteral';
+import UniBreak from '../../node/UniBreak';
+import UniCast from '../../node/UniCast';
+import UniContinue from '../../node/UniContinue';
+import UniDoWhile from '../../node/UniDoWhile';
+import UniEmptyStatement from '../../node/UniEmptyStatement';
+import UniFunctionDec from '../../node/UniFunctionDec';
+import UniFor from '../../node/UniFor';
+import UniIdent from '../../node/UniIdent';
+import UniIf from '../../node/UniIf';
+import UniIntLiteral from '../../node/UniIntLiteral';
+import UniWhile from '../../node/UniWhile';
+import UniUnaryOp from '../../node/UniUnaryOp';
+import UniTernaryOp from '../../node/UniTernaryOp';
+import UniStatement from '../../node/UniStatement';
+import UniStringLiteral from '../../node/UniStringLiteral';
+import UniReturn from '../../node/UniReturn';
+import UniVariableDec from '../../node/UniVariableDec';
+import UniVariableDef from '../../node/UniVariableDef';
+import UniSwitchUnit from '../../node/UniSwitchUnit';
+import UniSwitch from '../../node/UniSwitch';
+import UniMethodCall from '../../node/UniMethodCall';
+import UniProgram from '../../node/UniProgram';
 
 import { InputStream, CommonTokenStream, ParserRuleContext } from 'antlr4';
 import { RuleContext }from 'antlr4/RuleContext';
-import { TerminalNode, RuleNode, ParseTree }from 'antlr4/tree/Tree';
+import { TerminalNode, TerminalNodeImpl, RuleNode, ParseTree }from 'antlr4/tree/Tree';
 import { CLexer } from './CLexer';
 import { CParser } from './CParser';
 import { CVisitor } from './CVisitor';
@@ -275,114 +275,149 @@ export default class CMapper extends CVisitor {
 	}
 
 	// tslint:disable-next-line:prefer-array-literal
-	  public castToList<T extends Function|String>(obj:any, clazz:T):Array<T> {
-	    const temp = this.flatten(obj);
-	    const ret = [];
-	    if (temp instanceof Map) {
-	      const add = temp.has('add');
+	public castToList<T extends Function|String>(obj:any, clazz:T):Array<T> {
+	  const temp = this.flatten(obj);
+	  const ret = [];
+	  if (temp instanceof Map) {
+	    const add = temp.has('add');
+	    temp.forEach((value: any, key: any) => {
+	      switch (key) {
+	        case 'add': {
+	          if (value instanceof Map) {
+	            ret.push(this.castTo<T>(value, clazz));
+	          } else if (Array.isArray(value)) {
+	            value.forEach((it:any) => {
+	              const t = this.castTo(it, clazz);
+	              if (t != null) {
+	                ret.push(t);
+	              }
+	            });
+	          } else {
+	            ret.push(this.castToList(value, clazz));
+	          }
+	        } 
+	          break;
+	        default:
+	          if (!add) {
+	            ret.push(this.castToList(value, clazz));
+	          }
+	          break;
+	      }    
+	    });
+	  } else if (Array.isArray(temp)) {
+	    temp.forEach((it:any) => {
+	      ret.push(this.castToList(it, clazz));
+	    });
+	  } else {
+	    ret.push(this.castTo(temp, clazz));
+	  }
+	  return ret;
+	}
+	public castTo<T extends Function|String>(obj:any, clazz:any) {
+	  const temp = this.flatten(obj);
+	  const instance = new clazz();
+	  const fields = instance.fields;
+	  const fieldsName = [];
+	  for (let it in instance) {
+	    fieldsName.push(it);
+	  }
+	  if (temp instanceof Map) {
+	    if (clazz instanceof String) {
+	      let builder = '';
+	      const hasAdd = temp.has('add');
 	      temp.forEach((value: any, key: any) => {
 	        switch (key) {
 	          case 'add': {
-	            if (value instanceof Map) {
-	              ret.push(this.castTo<T>(value, clazz));
-	            } else if (Array.isArray(value)) {
-	              value.forEach((it:any) => {
-	                const t = this.castTo(it, clazz);
-	                if (t != null) {
-	                  ret.push(t);
-	                }
-	              });
-	            } else {
-	              ret.push(this.castToList(value, clazz));
-	            }
-	          } 
-	            break;
-	          default:
-	            if (!add) {
-	              ret.push(this.castToList(value, clazz));
-	            }
-	            break;
-	        }    
-	      });
-	    } else if (Array.isArray(temp)) {
-	      temp.forEach((it:any) => {
-	        ret.push(this.castToList(it, clazz));
-	      });
-	    } else {
-	      ret.push(this.castTo(temp, clazz));
-	    }
-	    return ret;
-	  }
-	
-	  public castTo<T extends Function|String>(obj:any, clazz:any) {
-	    const temp = this.flatten(obj);
-			const instance = new clazz();
-			const fields = instance.fileds;
-	    const fieldsName = [];
-	    for (let it in instance) {
-				fieldsName.push(it);
-	    }
-	    if (temp instanceof Map) {
-	      if (clazz instanceof String) {
-	        let builder = '';
-	        const hasAdd = temp.has('add');
-	        temp.forEach((value: any, key: any) => {
-	          switch (key) {
-	            case 'add': {
+	            builder += this.castTo<T>(value, clazz);
+	          }
+	          break;
+	          default: {
+	            if (!hasAdd) {
 	              builder += this.castTo<T>(value, clazz);
 	            }
-	            break;
-	            default: {
-	              if (!hasAdd) {
-	                builder += this.castTo<T>(value, clazz);
-	              }
-	            }
-	            break;
 	          }
-	        });
-	        return (builder.length > 0) ? builder : null;
-	      }
-	      temp.forEach((value: any, key: any) => {
-	        if (fieldsName.includes(key)) {
-	          const field:Function = fields.get(key);
-	          if (Array.isArray(value)) {
-	            instance[key] = this.castToList(value, field);
-	            // instance["key"] = value.castToList((field.genericType as ParameterizedType).actualTypeArguments.get(0) as Class<?>);
-	          } else {
-	            instance[key] = this.castTo(value, field);
-	          }
+	          break;
 	        }
 	      });
-	      return instance;
+	      return (builder.length > 0) ? builder : null;
 	    }
-	    if (Array.isArray(temp)) {
-	      if (clazz instanceof String) {
-	        let builder = '';
-	        temp.forEach((it:any) => {
-	          builder += (this.castTo(it, clazz));
-	        });
-	        return (builder.length > 0) ? builder : null;
-	      }
-	      const first = temp.find((it) => {
-	        return it instanceof clazz;
-	      });
-	      if (first === null) {
-	        try {
-	          return instance;
-	        } catch (e) {
-	          return null;
+	    temp.forEach((value: any, key: any) => {
+	      if (fieldsName.includes(key)) {
+	        const field:Function = fields.get(key);
+	        if (Array.isArray(field)) {
+	          instance[key] = this.castToList(value, field);
+	          // instance[key] = value.castToList((field.genericType as ParameterizedType).actualTypeArguments.get(0) as Class<?>);
+	        } else {
+	          instance[key] = this.castTo(value, field);
 	        }
-	      } else {
-	        return this.castTo<T>(first,clazz);
 	      }
-	    }
-	    return temp as T;
+	    });
+	    return instance;
 	  }
+	  if (Array.isArray(temp)) {
+	    if (clazz instanceof String) {
+	      let builder = '';
+	      temp.forEach((it:any) => {
+	        builder += (this.castTo(it, clazz));
+	      });
+	      return (builder.length > 0) ? builder : null;
+	    }
+	    const first = temp.find((it) => {
+	      return it instanceof clazz;
+	    });
+	    if (first === null) {
+	      try {
+	        return instance;
+	      } catch (e) {
+	        return null;
+	      }
+	    } else {
+	      return this.castTo<T>(first,clazz);
+	    }
+	  }
+	 return temp as T;
+	}
+
+	public visitUnaryExpression(ctx:CParser.UnaryExpressionContext) {
+		const map = new Map<string,any>();
+		const none = [];
+		map.set("none", none);
+		const ret = [];
+		const n = ctx.getChildCount();
+		for (let i = 0; i < n;++i) {
+			const it = ctx.getChild(i);	
+			if (it instanceof RuleContext) {
+				switch (it.invokingState) {
+					case 311: {
+						ret.push(this.visit(it));
+					}
+					break;
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			} else if (it instanceof TerminalNode) {
+				switch (it.symbol.type) {
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			}
+		}
+		if (ret != []) {
+			return ret;
+		}
+		const node = this.castTo(map, UniUnaryOp);
+		return node;
+	}
 
 	public visitAdditiveExpression(ctx:CParser.AdditiveExpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
+		const ret = [];
 		const left = [];
 		map.set("left", left);
 		const right = [];
@@ -394,15 +429,19 @@ export default class CMapper extends CVisitor {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
+					case 370: {
+						ret.push(this.visit(it));
+					}
+					break;
 					case 20: {
 						left.push(this.visit(it));
 					}
 					break;
-					case 368: {
+					case 374: {
 						right.push(this.visit(it));
 					}
 					break;
-					case 372: {
+					case 377: {
 						right.push(this.visit(it));
 					}
 					break;
@@ -428,7 +467,11 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castTo(map, UniBinOp);
+		if (ret != []) {
+			return ret;
+		}
+		const node = this.castTo(map, UniBinOp);
+		return node;
 	}
 
 	public visitCompoundStatement(ctx:CParser.CompoundStatementContext) {
@@ -442,7 +485,7 @@ export default class CMapper extends CVisitor {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1124: {
+					case 1126: {
 						body.push(this.visit(it));
 					}
 					break;
@@ -460,7 +503,8 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castTo(map, UniBlock);
+		const node = this.castTo(map, UniBlock);
+		return node;
 	}
 
 	public visitBlockItemList(ctx:CParser.BlockItemListContext) {
@@ -475,14 +519,14 @@ export default class CMapper extends CVisitor {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1130: {
+						case 1132: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
 									add.push(result);
 							}
 							else
-								add.push(this.visit(it));
+								add.push(results);
 						}
 						break;
 						case 146: {
@@ -492,17 +536,17 @@ export default class CMapper extends CVisitor {
 									add.push(result);
 							}
 							else
-								add.push(this.visit(it));
+								add.push(results);
 						}
 						break;
-						case 1133: {
+						case 1135: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
 									add.push(result);
 							}
 							else
-								add.push(this.visit(it));
+								add.push(results);
 						}
 						break;
 						default: {
@@ -520,48 +564,23 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castToList(map, UniStatement)
-	}
-
-	public visitBlockItem(ctx:CParser.BlockItemContext) {
-		const map = new Map<string,any>();
-		const none = [];
-		map.set("none", none);
-		const n = ctx.getChildCount();
-		for (let i = 0; i < n;++i) {
-			const it = ctx.getChild(i);	
-			if (it instanceof RuleContext) {
-				switch (it.invokingState) {
-					default: {
-						none.push(this.visit(it));
-					}
-					break;
-				}
-			} else if (it instanceof TerminalNode) {
-				switch (it.symbol.type) {
-					default: {
-						none.push(this.visit(it));
-					}
-					break;
-				}
-			}
-		}
-		this.castTo(map, UniStatement);
+		const node = this.castToList(map, UniStatement)
+		return node;
 	}
 
 	public visitJumpStatement(ctx:CParser.JumpStatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const expr = [];
-		map.set("expr", expr);
+		const value = [];
+		map.set("value", value);
 		const n = ctx.getChildCount();
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1234: {
-						expr.push(this.visit(it));
+					case 1236: {
+						value.push(this.visit(it));
 					}
 					break;
 					default: {
@@ -578,7 +597,8 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castTo(map, UniReturn);
+		const node = this.castTo(map, UniReturn);
+		return node;
 	}
 
 	public visitCompilationUnit(ctx:CParser.CompilationUnitContext) {
@@ -592,7 +612,7 @@ export default class CMapper extends CVisitor {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1244: {
+					case 1246: {
 						body.push(this.visit(it));
 					}
 					break;
@@ -610,7 +630,8 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castTo(map, UniBlock);
+		const node = this.castTo(map, UniBlock);
+		return node;
 	}
 
 	public visitTranslationUnit(ctx:CParser.TranslationUnitContext) {
@@ -625,14 +646,14 @@ export default class CMapper extends CVisitor {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1248: {
+						case 1250: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
 									add.push(result);
 							}
 							else
-								add.push(this.visit(it));
+								add.push(results);
 						}
 						break;
 						case 166: {
@@ -642,17 +663,17 @@ export default class CMapper extends CVisitor {
 									add.push(result);
 							}
 							else
-								add.push(this.visit(it));
+								add.push(results);
 						}
 						break;
-						case 1251: {
+						case 1253: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
 									add.push(result);
 							}
 							else
-								add.push(this.visit(it));
+								add.push(results);
 						}
 						break;
 						default: {
@@ -670,7 +691,8 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castToList(map, UniStatement)
+		const node = this.castToList(map, UniStatement)
+		return node;
 	}
 
 	public visitFunctionDefinition(ctx:CParser.FunctionDefinitionContext) {
@@ -688,15 +710,15 @@ export default class CMapper extends CVisitor {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1262: {
+					case 1264: {
 						returnType.push(this.visit(it));
 					}
 					break;
-					case 1265: {
+					case 1267: {
 						name.push(this.visit(it));
 					}
 					break;
-					case 1269: {
+					case 1271: {
 						block.push(this.visit(it));
 					}
 					break;
@@ -714,7 +736,25 @@ export default class CMapper extends CVisitor {
 				}
 			}
 		}
-		this.castTo(map, UniFunctionDec);
+		const node = this.castTo(map, UniFunctionDec);
+		return node;
+	}
+
+	public visitConstant(ctx:CParser.ConstantContext) {
+		const findFirst = (ctx) => {
+			const n = ctx.getChildCount();
+			for (let i = 0; i < n;++i) {
+				const it = ctx.getChild(i);	
+				if (it instanceof TerminalNodeImpl) {
+					if (it.symbol.type == CParser.Constant) {
+						return it;
+					}
+				}
+			}
+			return undefined;
+		};
+		const text = this.visit(findFirst(ctx)) as String;
+		return new UniIntLiteral(Number(text));
 	}
 
 }

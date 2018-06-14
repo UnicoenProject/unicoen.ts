@@ -534,5 +534,11 @@ CVisitor.prototype.visitDeclarationList = function(ctx) {
 };
 
 
+// Visit a parse tree produced by CParser#constant.
+CVisitor.prototype.visitConstant = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 
 exports.CVisitor = CVisitor;
