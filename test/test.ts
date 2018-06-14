@@ -20,6 +20,7 @@ import UniUnaryOp from '../src/node/UniUnaryOp';
 import UniIntLiteral from '../src/node/UniIntLiteral';
 import UniMethodCall from '../src/node/UniMethodCall';
 import UniIf from '../src/node/UniIf';
+import CMapper from '../src/mapper/C/CMapper';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {
@@ -156,29 +157,29 @@ describe('node', () => {
 
 describe('mapper', () => {
   const cmapper = new CMapper();
-  cmapper.setIsDebugMode(true);
+  // cmapper.setIsDebugMode(true);
 
   it(`int main(){}`, () => {
-    const mainBlock = new UniBlock('main', []);
+    const mainBlock = new UniBlock(null, []);
     const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
-    const globalBlock = new UniBlock('global', [mainFunc]);
+    const globalBlock = new UniBlock(null, [mainFunc]);
     const program = new UniProgram(globalBlock);
 
     const text = 'int main(){}';
     const tree = cmapper.parse(text);
-    assert.isOk(program.equals(tree));
+    assert.isOk(tree.equals(program));
   });
-  
+
   it(`int main(){return 0;}`, () => {
     const returnValue = new UniIntLiteral(0);
     const returnStatement = new UniReturn(returnValue);
-    const mainBlock = new UniBlock('main', [returnStatement]);
+    const mainBlock = new UniBlock(null, [returnStatement]);
     const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
-    const globalBlock = new UniBlock('global', [mainFunc]);
+    const globalBlock = new UniBlock(null, [mainFunc]);
     const program = new UniProgram(globalBlock);
 
     const text = 'int main(){return 0;}';
     const tree = cmapper.parse(text);
-    assert.isOk(program.equals(tree));
+    assert.isOk(tree.equals(program));
   });
 });
