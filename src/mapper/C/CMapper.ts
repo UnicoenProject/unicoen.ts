@@ -345,8 +345,12 @@ export default class CMapper extends CVisitor {
 	      if (fieldsName.includes(key)) {
 	        const field:Function = fields.get(key);
 	        if (Array.isArray(instance[key])) {
-	          instance[key] = this.flatten(this.castToList(value, field));
-	          // instance[key] = value.castToList((field.genericType as ParameterizedType).actualTypeArguments.get(0) as Class<?>);
+	       	  const list  = this.flatten(this.castToList(value, field));
+	          if(!Array.isArray(list)) {
+				instance[key] = [list];
+			  } else {
+				instance[key] = list;
+			  }
 	        } else {
 	          instance[key] = this.castTo(value, field);
 	        }
@@ -375,7 +379,10 @@ export default class CMapper extends CVisitor {
 	      return this.castTo<T>(first,clazz);
 	    }
 	  }
-	  return temp as T;
+	  		if(temp != null) {
+	  			return temp as T;
+	  		}
+	  		return instance;
 	}
 
 	public visitUnaryExpression(ctx:CParser.UnaryExpressionContext) {
@@ -471,6 +478,78 @@ export default class CMapper extends CVisitor {
 			return ret;
 		}
 		const node = this.castTo(map, UniBinOp);
+		return node;
+	}
+
+	public visitDeclarator(ctx:CParser.DeclaratorContext) {
+		const map = new Map<string,any>();
+		const none = [];
+		map.set("none", none);
+		const merge = [];
+		const n = ctx.getChildCount();
+		for (let i = 0; i < n;++i) {
+			const it = ctx.getChild(i);	
+			if (it instanceof RuleContext) {
+				switch (it.invokingState) {
+					case 714: {
+						merge.push(this.visit(it));
+					}
+					break;
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			} else if (it instanceof TerminalNode) {
+				switch (it.symbol.type) {
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			}
+		}
+		const node = this.castTo(map, UniFunctionDec);
+		merge.forEach((it:any) => { node.merge(this.castTo(it, UniFunctionDec));});
+		return node;
+	}
+
+	public visitDirectDeclarator(ctx:CParser.DirectDeclaratorContext) {
+		const map = new Map<string,any>();
+		const none = [];
+		map.set("none", none);
+		const name = [];
+		map.set("name", name);
+		const merge = [];
+		const n = ctx.getChildCount();
+		for (let i = 0; i < n;++i) {
+			const it = ctx.getChild(i);	
+			if (it instanceof RuleContext) {
+				switch (it.invokingState) {
+					case 96: {
+						merge.push(this.visit(it));
+					}
+					break;
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			} else if (it instanceof TerminalNode) {
+				switch (it.symbol.type) {
+					case CParser.Identifier: {
+						name.push(this.flatten(this.visit(it)));
+					}
+					break;
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			}
+		}
+		const node = this.castTo(map, UniFunctionDec);
+		merge.forEach((it:any) => { node.merge(this.castTo(it, UniFunctionDec));});
 		return node;
 	}
 
@@ -699,12 +778,11 @@ export default class CMapper extends CVisitor {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const name = [];
-		map.set("name", name);
 		const block = [];
 		map.set("block", block);
 		const returnType = [];
 		map.set("returnType", returnType);
+		const merge = [];
 		const n = ctx.getChildCount();
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
@@ -715,7 +793,7 @@ export default class CMapper extends CVisitor {
 					}
 					break;
 					case 1267: {
-						name.push(this.visit(it));
+						merge.push(this.visit(it));
 					}
 					break;
 					case 1271: {
@@ -737,6 +815,7 @@ export default class CMapper extends CVisitor {
 			}
 		}
 		const node = this.castTo(map, UniFunctionDec);
+		merge.forEach((it:any) => { node.merge(this.castTo(it, UniFunctionDec));});
 		return node;
 	}
 
