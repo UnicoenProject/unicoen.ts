@@ -18,7 +18,7 @@ export default class UniBlock extends UniStatement {
       this.body = body;
     }
     this.fields.set('blockLabel', String);
-    this.fields.set('body');
+    this.fields.set('body', UniStatement);
   }
 
   public toString(): string {

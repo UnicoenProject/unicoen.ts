@@ -12,10 +12,10 @@ export default class UniFor extends UniStatement {
   public constructor(init?: UniExpr, cond?: UniExpr, step?: UniExpr, statement?: UniStatement) {
     super();
     if (init === undefined && cond === undefined && step === undefined && statement === undefined) {
-      this.init = new UniExpr();
-      this.cond = new UniExpr();
-      this.step = new UniExpr();
-      this.statement = new UniStatement();
+      this.init = null;
+      this.cond = null;
+      this.step = null;
+      this.statement = null;
     } else if (init === undefined || cond === undefined || step === undefined || statement === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -24,10 +24,10 @@ export default class UniFor extends UniStatement {
       this.step = step;
       this.statement = statement;
     }
-    this.fields.set('init');
-    this.fields.set('cond');
-    this.fields.set('step');
-    this.fields.set('statement');
+    this.fields.set('init', UniExpr);
+    this.fields.set('cond', UniExpr);
+    this.fields.set('step', UniExpr);
+    this.fields.set('statement', UniStatement);
   }
 
   public toString(): string {

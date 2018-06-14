@@ -10,7 +10,7 @@ export default class UniCast extends UniExpr {
     super();
     if (type === undefined && value === undefined) {
       this.type = '';
-      this.value = new UniExpr();
+      this.value = null;
     } else if (type === undefined || value === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -18,7 +18,7 @@ export default class UniCast extends UniExpr {
       this.value = value;
     }
     this.fields.set('type', String);
-    this.fields.set('value');
+    this.fields.set('value', UniExpr);
   }
 
   public toString(): string {

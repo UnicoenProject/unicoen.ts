@@ -18,7 +18,7 @@ export default class UniFunctionDec extends UniDecralation {
       this.modifiers = [];
       this.returnType = '';
       this.params = [];
-      this.block = new UniBlock();
+      this.block = null;
     } else if (name === undefined || modifiers === undefined || returnType === undefined || params === undefined || block === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -31,8 +31,8 @@ export default class UniFunctionDec extends UniDecralation {
     this.fields.set('name', String);
     this.fields.set('modifiers', String);
     this.fields.set('returnType', String);
-    this.fields.set('params');
-    this.fields.set('block');
+    this.fields.set('params', UniParam);
+    this.fields.set('block', UniBlock);
   }
 
   public toString(): string {

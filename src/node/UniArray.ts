@@ -12,7 +12,7 @@ export default class UniArray extends UniExpr {
     } else {
       this.items = items;
     }
-    this.fields.set('items');
+    this.fields.set('items', UniExpr);
   }
 
   public toString(): string {

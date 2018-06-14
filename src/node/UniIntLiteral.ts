@@ -12,7 +12,7 @@ export default class UniIntLiteral extends UniNumberLiteral {
     } else {
       this.value = value;
     }
-    this.fields.set('value');
+    this.fields.set('value', Number);
   }
 
   public toString(): string {

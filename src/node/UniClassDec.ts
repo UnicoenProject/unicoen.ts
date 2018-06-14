@@ -28,7 +28,7 @@ export default class UniClassDec extends UniDecralation {
     }
     this.fields.set('className', String);
     this.fields.set('modifiers', String);
-    this.fields.set('members');
+    this.fields.set('members', UniDecralation);
     this.fields.set('superClass', String);
     this.fields.set('interfaces', String);
   }

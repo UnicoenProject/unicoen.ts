@@ -10,7 +10,7 @@ export default class UniUnaryOp extends UniExpr {
     super();
     if (operator === undefined && expr === undefined) {
       this.operator = '';
-      this.expr = new UniExpr();
+      this.expr = null;
     } else if (operator === undefined || expr === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -18,7 +18,7 @@ export default class UniUnaryOp extends UniExpr {
       this.expr = expr;
     }
     this.fields.set('operator', String);
-    this.fields.set('expr');
+    this.fields.set('expr', UniExpr);
   }
 
   public toString(): string {

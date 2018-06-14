@@ -99,7 +99,7 @@ class Node {
       ret += `${s1}public ${field.name}: ${field.type};\n`;
     }
     if (this.className === 'UniNode') {
-      ret += `${s1}public fields: UniMap<string,Function>;\n`;
+      ret += `${s1}public fields: Map<string,Function>;\n`;
     }
     return ret;
   }
@@ -141,11 +141,12 @@ class Node {
         ret += `${s3}this.${field.name} = '';\n`;
       } else if (field.type.includes('[]')) {
         ret += `${s3}this.${field.name} = [];\n`;
-      } else if (field.type.includes('Uni')) {
-        ret += `${s3}this.${field.name} = new ${field.type}();\n`;
       } else {
         ret += `${s3}this.${field.name} = null;\n`;
       }
+      // if (field.type.includes('Uni')) {
+      //   ret += `${s3}this.${field.name} = new ${field.type}();\n`;
+      // }
     }
 
     ret += `${s2}}`;
@@ -166,7 +167,8 @@ class Node {
     ret += `${s2}}\n`;
 
     if (this.className === 'UniNode') {
-      ret += `${s1}this.fields.set('comments', String)\n;`;
+      ret += `${s1}this.fields = new Map<string,Function>();\n`;
+      ret += `${s1}this.fields.set('comments', String);\n`;
       ret += `${s1}this.fields.set('codeRange', CodeRange);\n`;
     } else {
       for (const field of this.members) {
@@ -175,8 +177,12 @@ class Node {
           ret += `String`;
         } else if (field.type.includes(`boolean`)) {
           ret += `Boolean`;
+        } else if (field.type.includes(`number`)) {
+          ret += `Number`;
+        } else if (field.type.includes('[]')) {
+          ret += field.type.substr(0,field.type.length - 2);
         } else {
-          // ret += field.type;
+          ret += field.type;
         }
         ret += `);\n`;
       }

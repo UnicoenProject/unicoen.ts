@@ -13,7 +13,7 @@ export default class UniSwitchUnit extends UniSwitch {
     super();
     if (label === undefined && cond === undefined && statement === undefined) {
       this.label = '';
-      this.cond = new UniExpr();
+      this.cond = null;
       this.statement = [];
     } else if (label === undefined || cond === undefined || statement === undefined) {
       throw new Error('invalid arguments');
@@ -23,8 +23,8 @@ export default class UniSwitchUnit extends UniSwitch {
       this.statement = statement;
     }
     this.fields.set('label', String);
-    this.fields.set('cond');
-    this.fields.set('statement');
+    this.fields.set('cond', UniExpr);
+    this.fields.set('statement', UniStatement);
   }
 
   public toString(): string {

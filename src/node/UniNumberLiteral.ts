@@ -32,9 +32,9 @@ export default class UniNumberLiteral extends UniExpr {
       this.prefix = prefix;
       this.sufix = sufix;
     }
-    this.fields.set('value');
+    this.fields.set('value', Number);
     this.fields.set('signed', Boolean);
-    this.fields.set('bytes');
+    this.fields.set('bytes', Number);
     this.fields.set('isFloat', Boolean);
     this.fields.set('type', String);
     this.fields.set('prefix', String);

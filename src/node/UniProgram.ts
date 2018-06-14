@@ -9,11 +9,11 @@ export default class UniProgram extends UniNode {
   public constructor(block?: UniBlock) {
     super();
     if (block === undefined) {
-      this.block = new UniBlock();
+      this.block = null;
     } else {
       this.block = block;
     }
-    this.fields.set('block');
+    this.fields.set('block', UniBlock);
   }
 
   public toString(): string {

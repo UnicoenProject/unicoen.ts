@@ -23,7 +23,7 @@ export default class UniVariableDec extends UniDecralation {
     }
     this.fields.set('modifiers', String);
     this.fields.set('type', String);
-    this.fields.set('variables');
+    this.fields.set('variables', UniVariableDef);
   }
 
   public toString(): string {

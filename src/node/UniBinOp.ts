@@ -11,8 +11,8 @@ export default class UniBinOp extends UniExpr {
     super();
     if (operator === undefined && left === undefined && right === undefined) {
       this.operator = '';
-      this.left = new UniExpr();
-      this.right = new UniExpr();
+      this.left = null;
+      this.right = null;
     } else if (operator === undefined || left === undefined || right === undefined) {
       throw new Error('invalid arguments');
     } else {
@@ -21,8 +21,8 @@ export default class UniBinOp extends UniExpr {
       this.right = right;
     }
     this.fields.set('operator', String);
-    this.fields.set('left');
-    this.fields.set('right');
+    this.fields.set('left', UniExpr);
+    this.fields.set('right', UniExpr);
   }
 
   public toString(): string {

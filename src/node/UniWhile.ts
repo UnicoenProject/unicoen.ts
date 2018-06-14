@@ -10,16 +10,16 @@ export default class UniWhile extends UniStatement {
   public constructor(cond?: UniExpr, statement?: UniStatement) {
     super();
     if (cond === undefined && statement === undefined) {
-      this.cond = new UniExpr();
-      this.statement = new UniStatement();
+      this.cond = null;
+      this.statement = null;
     } else if (cond === undefined || statement === undefined) {
       throw new Error('invalid arguments');
     } else {
       this.cond = cond;
       this.statement = statement;
     }
-    this.fields.set('cond');
-    this.fields.set('statement');
+    this.fields.set('cond', UniExpr);
+    this.fields.set('statement', UniStatement);
   }
 
   public toString(): string {
