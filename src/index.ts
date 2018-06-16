@@ -68,4 +68,5 @@ export default {
   UniWhile,
   Engine,
   CMapper,
+  CPP14Mapper,
 };

@@ -623,7 +623,7 @@ export default class Engine {
     for (const def of decVar.variables) {
       // なぜかこのconstがundefinedになってしまう。
       value = yield* this.execExpr(def.value, scope);
-      if (def.typeSuffix !== '') {
+      if (def.typeSuffix != null && def.typeSuffix !== '') {
         const regexp = /[(\d+)]/gi;
         const matches_array = def.typeSuffix.match(regexp);
         if (matches_array !== null) {
