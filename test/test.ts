@@ -186,17 +186,18 @@ describe('mapper', () => {
   });
 
   it(`int main(){int i=0; return i;}`, () => {
-    const iEq0 = new UniVariableDef('i', new UniIntLiteral(1),'');
-    const iDec = new UniVariableDec(null,'int', [iEq0]);
-
-    const returnStatement = new UniReturn(iEq0);
-    const mainBlock = new UniBlock(null, [returnStatement]);
+    const iEq0 = new UniVariableDef('i', new UniIntLiteral(0), null);
+    const iDec = new UniVariableDec([], 'int', [iEq0]);
+    
+    const returnStatement = new UniReturn(new UniIdent('i'));
+    const mainBlock = new UniBlock(null, [iDec, returnStatement]);
     const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
     const globalBlock = new UniBlock(null, [mainFunc]);
     const program = new UniProgram(globalBlock);
-    const engine = new Engine();
+    const cmapper = new CPP14Mapper();
     
     const text = 'int main(){int i=0;return i;}';
     const tree = cmapper.parse(text);
+    assert.isOk(tree.equals(program));
   });
 });
