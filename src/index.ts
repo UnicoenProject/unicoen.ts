@@ -33,6 +33,7 @@ import UniIntLiteral from './node/UniIntLiteral';
 import Engine, { ControlException } from './interpreter/Engine';
 import { assert } from 'chai';
 import CMapper from './mapper/C/CMapper';
+import CPP14Mapper from './mapper/CPP14/CPP14Mapper';
 
 export default {
   CodeLocation,

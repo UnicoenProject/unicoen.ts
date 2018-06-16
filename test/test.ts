@@ -21,6 +21,7 @@ import UniIntLiteral from '../src/node/UniIntLiteral';
 import UniMethodCall from '../src/node/UniMethodCall';
 import UniIf from '../src/node/UniIf';
 import CMapper from '../src/mapper/C/CMapper';
+import CPP14Mapper from '../src/mapper/CPP14/CPP14Mapper';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {
@@ -156,7 +157,8 @@ describe('node', () => {
 });
 
 describe('mapper', () => {
-  const cmapper = new CMapper();
+  // const cmapper = new CMapper();
+  const cmapper = new CPP14Mapper();
   // cmapper.setIsDebugMode(true);
 
   it(`int main(){}`, () => {
@@ -181,5 +183,20 @@ describe('mapper', () => {
     const text = 'int main(){return 0;}';
     const tree = cmapper.parse(text);
     assert.isOk(tree.equals(program));
+  });
+
+  it(`int main(){int i=0; return i;}`, () => {
+    const iEq0 = new UniVariableDef('i', new UniIntLiteral(1),'');
+    const iDec = new UniVariableDec(null,'int', [iEq0]);
+
+    const returnStatement = new UniReturn(iEq0);
+    const mainBlock = new UniBlock(null, [returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock(null, [mainFunc]);
+    const program = new UniProgram(globalBlock);
+    const engine = new Engine();
+    
+    const text = 'int main(){int i=0;return i;}';
+    const tree = cmapper.parse(text);
   });
 });
