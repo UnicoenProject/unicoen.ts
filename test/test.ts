@@ -51,6 +51,21 @@ describe('node', () => {
     assert.equal(ret, 0);
   });
 
+  it(`int main(){int i=0; return i;}`, () => {
+    const iEq0 = new UniVariableDef('i', new UniIntLiteral(0), null);
+    const iDec = new UniVariableDec([], 'int', [iEq0]);
+    
+    const returnStatement = new UniReturn(new UniIdent('i'));
+    const mainBlock = new UniBlock(null, [iDec, returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock(null, [mainFunc]);
+    const program = new UniProgram(globalBlock);
+    
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 0);
+  });
+
   it(`int main(){int sum=0;for(int i=1;i<=10;++i){sum += i;}return sum;}`, () => {
 
     const sumEq0 = new UniVariableDef('sum', new UniIntLiteral(0),'');
@@ -183,6 +198,10 @@ describe('mapper', () => {
     const text = 'int main(){return 0;}';
     const tree = cmapper.parse(text);
     assert.isOk(tree.equals(program));
+
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 0);
   });
 
   it(`int main(){int i=0; return i;}`, () => {
@@ -194,10 +213,44 @@ describe('mapper', () => {
     const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
     const globalBlock = new UniBlock(null, [mainFunc]);
     const program = new UniProgram(globalBlock);
-    const cmapper = new CPP14Mapper();
     
     const text = 'int main(){int i=0;return i;}';
     const tree = cmapper.parse(text);
     assert.isOk(tree.equals(program));
+
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 0);
+  });
+
+  it(`int main(){int sum=0;for(int i=1;i<=10;++i){sum += i;}return sum;}`, () => {
+
+    const sumEq0 = new UniVariableDef('sum', new UniIntLiteral(0),null);
+    const sumDec = new UniVariableDec([],'int', [sumEq0]);
+
+    const i = new UniVariableDef('i', new UniIntLiteral(1),null);
+    const iDec = new UniVariableDec([],'int', [i]);
+    const cond = new UniBinOp('<=', new UniIdent('i'), new UniIntLiteral(10));    
+    const step = new UniUnaryOp('++_',new UniIdent('i'));
+    
+    const sumPlusI = new UniBinOp('+=', new UniIdent('sum'), new UniIdent('i')); 
+    const forBlock = new UniBlock(null, [sumPlusI]);
+
+    const forState = new UniFor(iDec, cond, step, forBlock);
+    
+    const sum = new UniIdent('sum');
+    const returnStatement = new UniReturn(sum);
+    const mainBlock = new UniBlock(null, [sumDec, forState, returnStatement]);
+    const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+    const globalBlock = new UniBlock(null, [mainFunc]);
+    const program = new UniProgram(globalBlock);
+
+    const text = 'int main(){int sum=0;for(int i=1;i<=10;++i){sum += i;}return sum;}';
+    const tree = cmapper.parse(text);
+    assert.isOk(tree.equals(program));
+
+    const engine = new Engine();
+    const ret = engine.execute(program); 
+    assert.equal(ret, 55);
   });
 });
