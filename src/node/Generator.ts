@@ -183,6 +183,8 @@ class Node {
           ret += `Boolean`;
         } else if (field.type.includes(`number`)) {
           ret += `Number`;
+        } else if (field.type.includes(`any`)) {
+          ret += `Object`;
         } else if (field.type.includes('[]')) {
           ret += field.type.substr(0,field.type.length - 2);
         } else {
@@ -234,7 +236,8 @@ class Node {
     for (const field of this.members) {
       if (field.type === 'string' 
       || field.type === 'number' 
-      || field.type === 'boolean') {
+      || field.type === 'boolean' 
+      || field.type === 'any') {
         ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name} === that.${field.name})`;
       } else {
         ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name}.equals(that.${field.name}))`;
@@ -318,7 +321,7 @@ export default class Generator {
             children: [
               new Node({ className :`NumberLiteral`,
                 members:[
-                // [`value`, `number`],
+                [`value`, `any`],
                 [`signed`, `boolean`],
                 [`bytes`, `number`],
                 [`isFloat`, `boolean`],
