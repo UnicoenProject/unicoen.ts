@@ -1,7 +1,6 @@
 import UniExpr from './UniExpr';
 
 export default class UniNumberLiteral extends UniExpr {
-  public value: number;
   public signed: boolean;
   public bytes: number;
   public isFloat: boolean;
@@ -10,21 +9,19 @@ export default class UniNumberLiteral extends UniExpr {
   public sufix: string;
 
   public constructor();
-  public constructor(value: number, signed: boolean, bytes: number, isFloat: boolean, type: string, prefix: string, sufix: string);
-  public constructor(value?: number, signed?: boolean, bytes?: number, isFloat?: boolean, type?: string, prefix?: string, sufix?: string) {
+  public constructor(signed: boolean, bytes: number, isFloat: boolean, type: string, prefix: string, sufix: string);
+  public constructor(signed?: boolean, bytes?: number, isFloat?: boolean, type?: string, prefix?: string, sufix?: string) {
     super();
-    if (value === undefined && signed === undefined && bytes === undefined && isFloat === undefined && type === undefined && prefix === undefined && sufix === undefined) {
-      this.value = null;
+    if (signed === undefined && bytes === undefined && isFloat === undefined && type === undefined && prefix === undefined && sufix === undefined) {
       this.signed = null;
       this.bytes = null;
       this.isFloat = null;
       this.type = null;
       this.prefix = null;
       this.sufix = null;
-    } else if (value === undefined || signed === undefined || bytes === undefined || isFloat === undefined || type === undefined || prefix === undefined || sufix === undefined) {
+    } else if (signed === undefined || bytes === undefined || isFloat === undefined || type === undefined || prefix === undefined || sufix === undefined) {
       throw new Error('invalid arguments');
     } else {
-      this.value = value;
       this.signed = signed;
       this.bytes = bytes;
       this.isFloat = isFloat;
@@ -32,7 +29,6 @@ export default class UniNumberLiteral extends UniExpr {
       this.prefix = prefix;
       this.sufix = sufix;
     }
-    this.fields.set('value', Number);
     this.fields.set('signed', Boolean);
     this.fields.set('bytes', Number);
     this.fields.set('isFloat', Boolean);
@@ -49,7 +45,6 @@ export default class UniNumberLiteral extends UniExpr {
     if (obj == null || !(obj instanceof UniNumberLiteral)) return false;
     const that: UniNumberLiteral = <UniNumberLiteral>obj;
     return super.equals(that)
-        && (this.value == null ? that.value == null : this.value === that.value)
         && (this.signed == null ? that.signed == null : this.signed === that.signed)
         && (this.bytes == null ? that.bytes == null : this.bytes === that.bytes)
         && (this.isFloat == null ? that.isFloat == null : this.isFloat === that.isFloat)
@@ -60,9 +55,6 @@ export default class UniNumberLiteral extends UniExpr {
 
   public merge(that: UniNumberLiteral) {
     super.merge(that);
-    if (that.value != null) {
-      this.value = that.value;
-    }
     if (that.signed != null) {
       this.signed = that.signed;
     }

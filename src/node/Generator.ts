@@ -318,7 +318,7 @@ export default class Generator {
             children: [
               new Node({ className :`NumberLiteral`,
                 members:[
-                [`value`, `number`],
+                // [`value`, `number`],
                 [`signed`, `boolean`],
                 [`bytes`, `number`],
                 [`isFloat`, `boolean`],
@@ -330,6 +330,16 @@ export default class Generator {
                   new Node({ className :`IntLiteral`,
                     members:[
                       [`value`, `number`],
+                    ],
+                  }),
+                  new Node({ className :`DoubleLiteral`,
+                    members:[
+                      [`value`, `number`],
+                    ],
+                  }),
+                  new Node({ className :`CharacterLiteral`,
+                    members:[
+                      [`value`, `string`],
                     ],
                   }),
                 ],
@@ -417,6 +427,14 @@ export default class Generator {
                       [`init`, `Expr`],
                       [`cond`, `Expr`],
                       [`step`, `Expr`],
+                      [`statement`, `Statement`],
+                    ]}),     
+                  new Node({ className :`EnhancedFor`,
+                    members:[
+                      [`modifiers`, `string[]`],
+                      [`type`, `string`],
+                      [`name`, `string`],
+                      [`container`, `Expr`],
                       [`statement`, `Statement`],
                     ]}),     
                   new Node({ className :`While`,
