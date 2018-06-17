@@ -56,11 +56,16 @@ export default class Engine {
 
   public constructor() { }
   
+  private isDebugMode:boolean = false;
+  public setDebugMode(enable:boolean) {
+    this.isDebugMode = enable;
+  }
   protected state:ExecState = null;
   protected currentScope:Scope = null;
   public getCurrentExpr():UniNode {
     return this.state.getCurrentExpr();
   }
+  
 
   private setGlobalObjects(node:UniNode, global:Scope) {
     if (node instanceof UniProgram) {
@@ -114,9 +119,11 @@ export default class Engine {
     do {
       node = gen.next();
       ret = node.value;
-      console.log(ret);
-      // console.log(this.getCurrentExpr());
-      // console.log(this.state.make());
+      if (this.isDebugMode) {
+        console.log(ret);
+        // console.log(this.getCurrentExpr());
+        // console.log(this.state.make());
+      }
     } while (!node.done);
     return ret;
   }
@@ -335,9 +342,9 @@ export default class Engine {
       let ret:any = null;
       if (mc.receiver != null) {
         const receiver:any = yield* this.execExpr(mc.receiver, scope);
-        ret = yield* this.execMethodCall(receiver, mc.methodName, args);
+        ret = yield* this.execMethodCall(receiver, mc.methodName.name, args);
       } else {
-        const func:any = scope.get(mc.methodName);
+        const func:any = scope.get(mc.methodName.name);
         if (func instanceof UniFunctionDec) {
           ret = yield* this.execFunc(func,scope,mc.args);
         }else {
@@ -526,6 +533,11 @@ export default class Engine {
   }
 
   *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
+    // 一時的な措置
+    // ToDo: prefixかpostfixか区別するfieldをUnaryOpに追加する
+    if (uniOp.operator === '++' || uniOp.operator === '--') {
+      uniOp.operator += '_';
+    }
     switch (uniOp.operator) {
       case '!':
         return !this.toBool(yield* this.execExpr(uniOp.expr, scope));

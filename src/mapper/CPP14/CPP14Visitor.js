@@ -114,6 +114,12 @@ CPP14Visitor.prototype.visitIdexpressionlapper = function(ctx) {
 };
 
 
+// Visit a parse tree produced by CPP14Parser#functioncallexpression.
+CPP14Visitor.prototype.visitFunctioncallexpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by CPP14Parser#postfixexpression.
 CPP14Visitor.prototype.visitPostfixexpression = function(ctx) {
   return this.visitChildren(ctx);
