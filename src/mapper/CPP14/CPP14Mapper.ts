@@ -328,7 +328,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 	    fieldsName.push(it);
 	  }
 	  if (temp instanceof Map) {
-	    if (clazz instanceof String) {
+	    if (clazz === String) {
 	      let builder = '';
 	      const hasAdd = temp.has('add');
 	      temp.forEach((value: any, key: any) => {
@@ -354,22 +354,22 @@ export default class CPP14Mapper extends CPP14Visitor {
 	       	  const list  = this.flatten(this.castToList(value, field));
 	          if(!Array.isArray(list)) {
 							instance[key] = [list];
-						} else {
+							} else {
 							instance[key] = list;
+							}
+						} else if (value.length == 0
+							&& (field == UniExpr || field == UniStatement )){
+							instance[key] = null;
+						} else {
+							instance[key] = this.castTo(value, field);
 						}
-					} else if (value.length == 0
-						&& (field == UniExpr || field == UniStatement )){
-						instance[key] = null;
-					} else {
-						instance[key] = this.castTo(value, field);
-					}
 	      }
 	    });
 	    return instance;
 	  }
 	  if (Array.isArray(temp)) {
-	    if (clazz instanceof String) {
-	      let builder = '';
+	    if (clazz === String) {
+	      let builder:string = '';
 	      temp.forEach((it:any) => {
 	        builder += (this.castTo(it, clazz));
 	      });
@@ -2429,8 +2429,8 @@ export default class CPP14Mapper extends CPP14Visitor {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const arrayLength = [];
-		map.set("arrayLength", arrayLength);
+		const typeSuffix = [];
+		map.set("typeSuffix", typeSuffix);
 		const name = [];
 		map.set("name", name);
 		const value = [];
@@ -2448,10 +2448,6 @@ export default class CPP14Mapper extends CPP14Visitor {
 						name.push(this.visit(it));
 					}
 					break;
-					case 1383: {
-						arrayLength.push(this.visit(it));
-					}
-					break;
 					case 1393: {
 						value.push(this.visit(it));
 					}
@@ -2464,11 +2460,15 @@ export default class CPP14Mapper extends CPP14Visitor {
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
 					case CPP14Parser.LeftBracket: {
-						name.push(this.flatten(this.visit(it)));
+						typeSuffix.push(this.flatten(this.visit(it)));
+					}
+					break;
+					case CPP14Parser.Integerliteral: {
+						typeSuffix.push(this.flatten(this.visit(it)));
 					}
 					break;
 					case CPP14Parser.RightBracket: {
-						name.push(this.flatten(this.visit(it)));
+						typeSuffix.push(this.flatten(this.visit(it)));
 					}
 					break;
 					default: {

@@ -168,9 +168,25 @@ const testData = [
     },
     ret: 34,
   },
+  {
+    input:`int main(){int arr[5] = {1, 2, 3};return arr[1];}`,
+    node:() => {
+      const arrDef = new UniVariableDef(
+        'arr', new UniArray([new UniIntLiteral(1), new UniIntLiteral(2), new UniIntLiteral(3)]),'[5]');
+      const arrDec = new UniVariableDec([],'int', [arrDef]);
+      
+      const returnStatement = new UniReturn(new UniBinOp('[]',new UniIdent('arr'), new UniIntLiteral(1)));
+      const mainBlock = new UniBlock(null, [arrDec, returnStatement]);
+      const mainFunc = new UniFunctionDec('main',[],'int',[],mainBlock);
+      const globalBlock = new UniBlock(null, [mainFunc]);
+      const program = new UniProgram(globalBlock);
+      return program;
+    },
+    ret: 2,
+  },
 ];
 
-describe('node', () => {
+describe('node exec', () => {
   for (const test of testData) {
     it(test.input, () => {
       const node = test.node();
