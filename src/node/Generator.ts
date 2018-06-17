@@ -377,7 +377,7 @@ export default class Generator {
               new Node({ className :`MethodCall`,
                 members:[
                 [`receiver`, `Expr`],
-                [`methodName`, `string`],
+                [`methodName`, `Ident`],
                 [`args`, `Expr[]`],
                 ]}),
               new Node({ className :`UnaryOp`,

@@ -1,13 +1,14 @@
 import UniExpr from './UniExpr';
+import UniIdent from './UniIdent';
 
 export default class UniMethodCall extends UniExpr {
   public receiver: UniExpr;
-  public methodName: string;
+  public methodName: UniIdent;
   public args: UniExpr[];
 
   public constructor();
-  public constructor(receiver: UniExpr, methodName: string, args: UniExpr[]);
-  public constructor(receiver?: UniExpr, methodName?: string, args?: UniExpr[]) {
+  public constructor(receiver: UniExpr, methodName: UniIdent, args: UniExpr[]);
+  public constructor(receiver?: UniExpr, methodName?: UniIdent, args?: UniExpr[]) {
     super();
     if (receiver === undefined && methodName === undefined && args === undefined) {
       this.receiver = null;
@@ -21,12 +22,12 @@ export default class UniMethodCall extends UniExpr {
       this.args = args;
     }
     this.fields.set('receiver', UniExpr);
-    this.fields.set('methodName', String);
+    this.fields.set('methodName', UniIdent);
     this.fields.set('args', UniExpr);
   }
 
   public toString(): string {
-    return 'MethodCall(' + this.methodName + ')';
+    return 'MethodCall(' + ')';
   }
 
   public equals(obj: any): boolean {
@@ -34,7 +35,7 @@ export default class UniMethodCall extends UniExpr {
     const that: UniMethodCall = <UniMethodCall>obj;
     return super.equals(that)
         && (this.receiver == null ? that.receiver == null : this.receiver.equals(that.receiver))
-        && (this.methodName == null ? that.methodName == null : this.methodName === that.methodName)
+        && (this.methodName == null ? that.methodName == null : this.methodName.equals(that.methodName))
         && (this.args == null ? that.args == null : this.args.equals(that.args));
   }
 
