@@ -60,11 +60,16 @@ export default class Engine {
   public setDebugMode(enable:boolean) {
     this.isDebugMode = enable;
   }
-  protected state:ExecState = null;
+  protected currentState:ExecState = null;
+  protected states:ExecState[] = [];
   protected currentScope:Scope = null;
   public getCurrentExpr():UniNode {
-    return this.state.getCurrentExpr();
+    return this.currentState.getCurrentExpr();
   }
+  public getCurrentState():ExecState {
+    return this.currentState;
+  }
+  protected execStepItr:IterableIterator<any> = null;
   
 
   private setGlobalObjects(node:UniNode, global:Scope) {
@@ -96,12 +101,35 @@ export default class Engine {
     }
   }
 
+  public startStepExecution(dec:UniProgram):ExecState {
+    this.execStepItr = this.executeStepByStep(dec);
+    return this.stepExecute();
+  }
+
+  public stepExecute():ExecState {
+    if (this.execStepItr == null) {
+      return this.getCurrentState();
+    }
+    const node = this.execStepItr.next();
+    const ret = node.value;
+    if (this.isDebugMode) {
+      console.log(ret);
+      // console.log(this.getCurrentExpr());
+      // console.log(this.currentState.make());
+    }
+    if (node.done) {
+      this.execStepItr = null;
+    }
+    this.states.push(this.currentState.make());
+    return this.states[this.states.length - 1];
+  }
+
   public* executeStepByStep(dec:UniProgram) {
     const main:UniFunctionDec = this.getEntryPoint(dec);
     if (main != null) {
       const global:Scope = Scope.createGlobal();
       this.setGlobalObjects(dec, global);
-      this.state = new ExecState(global);
+      this.currentState = new ExecState(global);
       // loadLibarary(global);
       // firePreExecAll(global);
       const value = yield* this.execFunc(main, global, null);
@@ -122,7 +150,7 @@ export default class Engine {
       if (this.isDebugMode) {
         console.log(ret);
         // console.log(this.getCurrentExpr());
-        // console.log(this.state.make());
+        // console.log(this.currentState.make());
       }
     } while (!node.done);
     return ret;
@@ -319,7 +347,7 @@ export default class Engine {
 
   protected* execExpr(expr:UniExpr, scope:Scope):any {
     // firePreExec(expr, scope);
-    this.state.setCurrentExpr(expr);
+    this.currentState.setCurrentExpr(expr);
     const value = yield* this._execExpr(expr, scope);
     // firePostExec(expr, scope, value);
     return value;
