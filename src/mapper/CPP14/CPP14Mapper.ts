@@ -37,52 +37,73 @@ import UniMethodCall from '../../node/UniMethodCall';
 import UniProgram from '../../node/UniProgram';
 
 import { InputStream, CommonTokenStream, ParserRuleContext } from 'antlr4';
+import { Token }from 'antlr4/Token';
 import { RuleContext }from 'antlr4/RuleContext';
 import { TerminalNode, TerminalNodeImpl, RuleNode, ParseTree }from 'antlr4/tree/Tree';
 import { CPP14Lexer } from './CPP14Lexer';
 import { CPP14Parser } from './CPP14Parser';
 import { CPP14Visitor } from './CPP14Visitor';
 
+class Comment {
+	constructor(readonly contents:string[], public parent:ParseTree){
+	}
+}
+
 export default class CPP14Mapper extends CPP14Visitor {
 
 	private isDebugMode:boolean = false;
 	private parser:CPP14Parser;
-	// val List<Comment> _comments = new ArrayList<Comment>;
-	// var CommonTokenStream _stream;
-	// var UniNode _lastNode;
-	// var int _nextTokenIndex;
-
-	/*static class Comment {
-		val List<String> contents
-		var ParseTree parent
-
-		new(List<String> contents, ParseTree parent) {
-			this.contents = contents
-			this.parent = parent
-		}
-	}*/
+	private  _comments:Comment[] = [];
+	private _lastNode:UniNode;
+	private _nextTokenIndex:number;
+	private _stream:CommonTokenStream;
 
 	setIsDebugMode(isDebugMode:boolean) {
 	    this.isDebugMode = isDebugMode;
 	}
 
-	parse(code) {
-	    const chars = new InputStream(code);
-	    const [tree, parser] = this.parseCore(chars);
-	    return new UniProgram(this.visit(tree));
-	}
 	getRawTree(code) {
-	    const chars = new InputStream(code);
-	    return this.parseCore(chars);
+		const chars = new InputStream(code);
+		const lexer = new CPP14Lexer(chars);
+		const tokens = new CommonTokenStream(lexer);
+		this.parser = new CPP14Parser(tokens);
+		this.parser.buildParseTrees = true;
+		const tree = this.parser.translationunit();
+		return [tree, this.parser];
 	}
+
+	parse(code) {
+		return this.parseCore(new InputStream(code));
+	}
+
 	
 	parseCore(chars) {
-	    const lexer = new CPP14Lexer(chars);
-	    const tokens = new CommonTokenStream(lexer);
-	    this.parser = new CPP14Parser(tokens);
-	    this.parser.buildParseTrees = true;
-	    const tree = this.parser.translationunit();
-	    return [tree, this.parser];
+		const lexer = new CPP14Lexer(chars);
+		const tokens = new CommonTokenStream(lexer);
+		this.parser = new CPP14Parser(tokens);
+		this.parser.buildParseTrees = true;
+		const tree = this.parser.translationunit();
+
+		this._comments = [];
+		this._stream = tokens;
+		this._lastNode = null;
+		this._nextTokenIndex = 0;
+	
+		const ret = new UniProgram(this.visit(tree));
+		ret.codeRange = ret.block.codeRange;
+		
+		if (this._lastNode !== null) {
+			const count = this._stream.tokens.length - 1
+			for (var i = this._nextTokenIndex; i < count; i++) {
+				const hiddenToken = this._stream.tokens[i]; // Includes skipped tokens (maybe)
+				if (this._lastNode.comments === null) {
+					this._lastNode.comments = [];
+				}
+				this._lastNode.comments += hiddenToken.text
+			}
+		}
+
+	  return ret;
 	}
 	
 	/*def parseFile(String path) {
@@ -94,14 +115,6 @@ export default class CPP14Mapper extends CPP14Visitor {
 		}
 	}
 
-	def parseCore(CharStream chars) {
-		parseCore(chars, [parser|parser.translationunit])
-	}
-
-	def parse(String code, Function1<CPP14Parser, ParseTree> parseAction) {
-		parseCore(new ANTLRInputStream(code), parseAction)
-	}
-
 	def parseFile(String path, Function1<CPP14Parser, ParseTree> parseAction) {
 		val inputStream = new FileInputStream(path)
 		try {
@@ -110,31 +123,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 			inputStream.close
 		}
 	}
-
-	def parseCore(CharStream chars, Function1<CPP14Parser, ParseTree> parseAction) {
-		val lexer = new CPP14Lexer(chars)
-		val tokens = new CommonTokenStream(lexer)
-		val parser = new CPP14Parser(tokens)
-		val tree = parseAction.apply(parser) // parse
-		_comments.clear()
-		_stream = tokens
-		_lastNode = null
-		_nextTokenIndex = 0
-
-		val ret = tree.visit.flatten
-
-		if (_lastNode !== null) {
-			val count = _stream.size - 1
-			for (var i = _nextTokenIndex; i < count; i++) {
-				val hiddenToken = _stream.get(i) // Includes skipped tokens (maybe)
-				if (_lastNode.comments === null) {
-					_lastNode.comments = newArrayList
-				}
-				_lastNode.comments += hiddenToken.text
-			}
-		}
-		ret
-	}*/
+	*/
 
 	public visitChildren(node:RuleNode) {
 	    const n = node.getChildCount();
@@ -148,57 +137,56 @@ export default class CPP14Mapper extends CPP14Visitor {
 	    return flatten;
 	  }
 
-	public visit(node:ParseTree) {
-	    if (!this.isDebugMode) {
-	      return node.accept(this);
+	public visit(tree:ParseTree) {
+		const result = (() => {
+			if (!this.isDebugMode) {
+	      return tree.accept(this);
 	    }
-	    if (!(node instanceof RuleContext)) {
-	      return node.accept(this);
+	    if (!(tree instanceof RuleContext)) {
+	      return tree.accept(this);
 	    }
-	    const ruleName = this.getRuleName(node);
+	    const ruleName = this.getRuleName(tree);
 	    console.log('*** visit Rule : ' + ruleName + ' ***');
-	    const ret = node.accept(this);
-	    console.log('returned: ' + ret);
-	    return ret;
+	    const result = tree.accept(this);
+	    console.log('returned: ' + result);
+	    return result;
+		})();
+	    
 
-		/*val node = if (result instanceof List<?>) {
-				if(result.size == 1) result.get(0) else result
-			} else {
-				result
-			}
-		if (node instanceof UniNode) {
-			if (tree instanceof RuleContext)
-			{
-				val start = (tree as ParserRuleContext).start
-				val stop = (tree as ParserRuleContext).stop
-				val begin = new CodeLocation(start.charPositionInLine,start.line)
-				val endPos = stop.charPositionInLine
-				val length = 1 + stop.stopIndex - stop.startIndex
-				val end = new CodeLocation(endPos + length, stop.line)
-				node.codeRange = new CodeRange(begin,end)
-			}
-			var List<String> contents = newArrayList
-			for (var i = _comments.size - 1; i >= 0 && _comments.get(i).parent == tree; i--) {
-				_comments.get(i).contents += contents
-				contents = _comments.get(i).contents
-				_comments.remove(i)
-			}
-			if (contents.size > 0) {
-				if (node.comments === null) {
-					node.comments = contents
-				} else {
-					node.comments += contents
+			const node = (Array.isArray(result) && result.length == 1) ? result[0] : result;
+			if (node instanceof UniNode) {
+				if(tree instanceof RuleContext) {
+					const start = tree.start;
+					const begin = new CodeLocation(start.column,start.line);
+					const stop = tree.stop;
+					const endPos = stop.column;
+					const length = 1 + stop.stop - stop.start;
+					const end = new CodeLocation(endPos + length, stop.line);
+					node.codeRange = new CodeRange(begin,end);
 				}
+				let contents:string[]  = [];
+				for (let i = this._comments.length - 1; i >= 0 && this._comments[i].parent == tree; i--) {
+					for(const content of contents) {
+						this._comments[i].contents.push(content);
+					}
+					contents = this._comments[i].contents;
+					this._comments.splice(i, 1);
+				}
+				if (contents.length > 0) {
+					if (node.comments === null) {
+						node.comments = contents;
+					} else {
+						node.comments = node.comments.concat(contents);
+					}
+				}
+				this._lastNode = node;
+			} else {
+				for (var i = this._comments.length - 1; i >= 0 && this._comments[i].parent == tree; i--) {
+					this._comments[i].parent = this._comments[i].parent.parent
+				}
+				this._lastNode = null
 			}
-			_lastNode = node
-		} else {
-			for (var i = _comments.size - 1; i >= 0 && _comments.get(i).parent == tree; i--) {
-				_comments.get(i).parent = _comments.get(i).parent.parent
-			}
-			_lastNode = null
-		}
-
-		result*/
+			return result;
 	}
 
 	isNonEmptyNode(node:ParseTree):boolean {
@@ -224,31 +212,31 @@ export default class CPP14Mapper extends CPP14Visitor {
 		}
 
 		const token = node.symbol;
-		/*if (token.type > 0) {
-			val count = token.tokenIndex
-			val List<String> contents = newArrayList
-			var i = _nextTokenIndex
+		if (token.type > 0) {
+			const count = token.tokenIndex;
+			const contents:string[] = [];
+			let i = this._nextTokenIndex;
 			for (; i < count; i++) {
-				val hiddenToken = _stream.get(i) // Includes skipped tokens (maybe)
-				if (_lastNode !== null && _stream.get(_nextTokenIndex - 1).line == hiddenToken.line) {
-					if (_lastNode.comments === null) {
-						_lastNode.comments = newArrayList
+				const hiddenToken = this._stream.tokens[i]; // Includes skipped tokens (maybe)
+				if (this._lastNode !== null && this._stream.tokens[this._nextTokenIndex - 1].line == hiddenToken.line) {
+					if (this._lastNode.comments === null) {
+						this._lastNode.comments = [];
 					}
-					_lastNode.comments += hiddenToken.text
+					this._lastNode.comments += hiddenToken.text;
 				} else {
-					contents += hiddenToken.text
+					contents.push(hiddenToken.text);
 				}
 			}
-			val count2 = _stream.size - 1
-			for (i = count + 1; i < count2 && _stream.get(i).channel == Token.HIDDEN_CHANNEL &&
-				_stream.get(count).line == _stream.get(i).line; i++) {
-				contents += _stream.get(i).text
+			const count2 = this._stream.tokens.length - 1;
+			for (i = count + 1; i < count2 && this._stream.tokens[i].channel == Token.HIDDEN_CHANNEL &&
+				this._stream.tokens[count].line == this._stream.tokens[i].line; i++) {
+				contents.push(this._stream.tokens[i].text);
 			}
-			if (contents.size > 0) {
-				_comments.add(new Comment(contents, node.parent))
+			if (contents.length > 0) {
+				this._comments.push(new Comment(contents, node.parent));
 			}
-			_nextTokenIndex = i
-		}*/
+			this._nextTokenIndex = i;
+		}
 		return token.text;
 	}
 
@@ -280,8 +268,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 	    return obj;
 	}
 
-	// tslint:disable-next-line:prefer-array-literal
-	public castToList<T extends Function|String>(obj:any, clazz:T):Array<T> {
+	public castToList<T extends Function|String>(obj:any, clazz:T):T[] {
 	  const temp = this.flatten(obj);
 	  const ret = [];
 	  if (temp instanceof Map) {
