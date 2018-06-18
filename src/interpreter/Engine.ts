@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-import Stack from 'ts-data.stack';
 import Scope from './Scope';
 import UniExpr from '../node/UniExpr';
 import UniMethodCall from '../node/UniMethodCall';
@@ -36,6 +35,7 @@ import UniSwitch from '../node/UniSwitch';
 import ExecState from './ExecState';
 import UniNumberLiteral from '../node/UniNumberLiteral';
 import RuntimeException from './RuntimeException';
+import { clone }from '../node_helper/clone';
 
 export class ControlException extends RuntimeException {
 }
@@ -99,8 +99,8 @@ export default class Engine {
     if (node.done) {
       this.execStepItr = null;
     }
-    this.states.push(this.currentState.make());
-    return this.states[this.states.length - 1];
+    this.currentState.make();
+    return clone(this.currentState);
   }
 
   public* executeStepByStep(dec:UniProgram) {
