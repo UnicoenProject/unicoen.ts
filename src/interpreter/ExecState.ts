@@ -98,7 +98,9 @@ export default class ExecState {
       for (let i = this.stacks.length - 1; 0 <= i; --i) {
         const stack = this.stacks[i];
         if (stack.name === stackName) {
-          stack.addVariable(decVar.type, decVar.name, value, depth);
+          for (const v of decVar.variables) {
+            stack.addVariable(decVar.type, v.name, value, depth);
+          } 
           break;
         }
       }
@@ -108,7 +110,7 @@ export default class ExecState {
 	// 引数(variables)あり版も必要
   public addStack(_name:string):string {
     let name = _name;
-    if (this.stacks.length !== 0) {
+    if (this.stacks.length === 0) {
       const stack:Stack = new Stack(name, this.stackOffset);
       this.stacks.push(stack);
     } else {
