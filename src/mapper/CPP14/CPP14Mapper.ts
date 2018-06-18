@@ -53,15 +53,15 @@ export default class CPP14Mapper extends CPP14Visitor {
 
 	private isDebugMode:boolean = false;
 	private parser:CPP14Parser;
-	private  _comments:Comment[] = [];
+	private	_comments:Comment[] = [];
 	private _lastNode:UniNode;
 	private _nextTokenIndex:number;
 	private _stream:CommonTokenStream;
 
 	setIsDebugMode(isDebugMode:boolean) {
-	    this.isDebugMode = isDebugMode;
+		this.isDebugMode = isDebugMode;
 	}
-
+	
 	getRawTree(code) {
 		const chars = new InputStream(code);
 		const lexer = new CPP14Lexer(chars);
@@ -88,7 +88,6 @@ export default class CPP14Mapper extends CPP14Visitor {
 		this._stream = tokens;
 		this._lastNode = null;
 		this._nextTokenIndex = 0;
-	
 		const ret = new UniProgram(this.visit(tree));
 		ret.codeRange = ret.block.codeRange;
 		
@@ -102,8 +101,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 				this._lastNode.comments += hiddenToken.text
 			}
 		}
-
-	  return ret;
+		return ret;
 	}
 	
 	/*def parseFile(String path) {
@@ -114,7 +112,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 			inputStream.close
 		}
 	}
-
+	
 	def parseFile(String path, Function1<CPP14Parser, ParseTree> parseAction) {
 		val inputStream = new FileInputStream(path)
 		try {
@@ -122,88 +120,86 @@ export default class CPP14Mapper extends CPP14Visitor {
 		} finally {
 			inputStream.close
 		}
-	}
-	*/
+	}*/
 
 	public visitChildren(node:RuleNode) {
-	    const n = node.getChildCount();
-	    const list:any[] = [];
-	    for (let i = 0; i < n;++i) {
-	      const c = node.getChild(i);
-	      const childResult = this.visit(c);
-	      list.push(childResult);
-	    }
-	    const flatten = this.flatten(list);
-	    return flatten;
-	  }
+		const n = node.getChildCount();
+		const list:any[] = [];
+		for (let i = 0; i < n;++i) {
+			const c = node.getChild(i);
+			const childResult = this.visit(c);
+			list.push(childResult);
+		}
+		const flatten = this.flatten(list);
+		return flatten;
+	}
 
 	public visit(tree:ParseTree) {
 		const result = (() => {
 			if (!this.isDebugMode) {
-	      return tree.accept(this);
-	    }
-	    if (!(tree instanceof RuleContext)) {
-	      return tree.accept(this);
-	    }
-	    const ruleName = this.getRuleName(tree);
-	    console.log('*** visit Rule : ' + ruleName + ' ***');
-	    const result = tree.accept(this);
-	    console.log('returned: ' + result);
-	    return result;
-		})();
-	    
-
-			const node = (Array.isArray(result) && result.length == 1) ? result[0] : result;
-			if (node instanceof UniNode) {
-				if(tree instanceof RuleContext) {
-					const start = tree.start;
-					const begin = new CodeLocation(start.column,start.line);
-					const stop = tree.stop;
-					const endPos = stop.column;
-					const length = 1 + stop.stop - stop.start;
-					const end = new CodeLocation(endPos + length, stop.line);
-					node.codeRange = new CodeRange(begin,end);
-				}
-				let contents:string[]  = [];
-				for (let i = this._comments.length - 1; i >= 0 && this._comments[i].parent == tree; i--) {
-					for(const content of contents) {
-						this._comments[i].contents.push(content);
-					}
-					contents = this._comments[i].contents;
-					this._comments.splice(i, 1);
-				}
-				if (contents.length > 0) {
-					if (node.comments === null) {
-						node.comments = contents;
-					} else {
-						node.comments = node.comments.concat(contents);
-					}
-				}
-				this._lastNode = node;
-			} else {
-				for (var i = this._comments.length - 1; i >= 0 && this._comments[i].parent == tree; i--) {
-					this._comments[i].parent = this._comments[i].parent.parent
-				}
-				this._lastNode = null
+				return tree.accept(this);
 			}
+	 		if (!(tree instanceof RuleContext)) {
+				return tree.accept(this);
+			}
+			const ruleName = this.getRuleName(tree);
+			console.log('*** visit Rule : ' + ruleName + ' ***');
+			const result = tree.accept(this);
+			console.log('returned: ' + result);
 			return result;
+		})();
+
+		const node = (Array.isArray(result) && result.length == 1) ? result[0] : result;
+		if (node instanceof UniNode) {
+			if(tree instanceof RuleContext) {
+				const start = tree.start;
+				const begin = new CodeLocation(start.column,start.line);
+				const stop = tree.stop;
+				const endPos = stop.column;
+				const length = 1 + stop.stop - stop.start;
+				const end = new CodeLocation(endPos + length, stop.line);
+				node.codeRange = new CodeRange(begin,end);
+			}
+			let contents:string[]  = [];
+			for (let i = this._comments.length - 1; i >= 0 && this._comments[i].parent == tree; i--) {
+				for(const content of contents) {
+					this._comments[i].contents.push(content);
+				}
+				contents = this._comments[i].contents;
+				this._comments.splice(i, 1);
+			}
+			if (contents.length > 0) {
+				if (node.comments === null) {
+					node.comments = contents;
+				} else {
+					node.comments = node.comments.concat(contents);
+				}
+			}
+			this._lastNode = node;
+		} else {
+			for (var i = this._comments.length - 1; i >= 0 && this._comments[i].parent == tree; i--) {
+				this._comments[i].parent = this._comments[i].parent.parent
+			}
+			this._lastNode = null
+		}
+		return result;
 	}
 
 	isNonEmptyNode(node:ParseTree):boolean {
-	    if (node instanceof ParserRuleContext) {
-	      const n = node.getChildCount();
-	      if (n > 1) {
-	        return true;
-	      }
-	      // n === 1 && node.children.exists[isNonEmptyNode]
-	      return n === 1;
-	    } else {
-	      return true;
-	    }
+		if (node instanceof ParserRuleContext) {
+			const n = node.getChildCount();
+			if (n > 1) {
+			return true;
+			}
+			// n === 1 && node.children.exists[isNonEmptyNode]
+			return n === 1;
+		} else {
+			return true;
+		}
 	}
 	
 	getRuleName(node) {
-	  return this.parser.ruleNames[node.ruleIndex];
+		return this.parser.ruleNames[node.ruleIndex];
 	}
 
 	public visitTerminal(node:TerminalNode) {
@@ -241,144 +237,144 @@ export default class CPP14Mapper extends CPP14Visitor {
 	}
 
 	private flatten(obj:any) {
-	    if (Array.isArray(obj)) {
-	      if (obj.length === 1) {
-	        return this.flatten(obj[0]);
-	      }
-	      const ret = [];
-	      obj.forEach((it:any) => {
-	        ret.push(this.flatten(it));
-	      });
-	      return ret;
-	    }
+		if (Array.isArray(obj)) {
+			if (obj.length === 1) {
+			return this.flatten(obj[0]);
+			}
+			const ret = [];
+			obj.forEach((it:any) => {
+			ret.push(this.flatten(it));
+			});
+			return ret;
+		}
 	
-	    if (obj instanceof Map) {
-	      if (obj.size === 1) {
-	        for (const value of obj.values()) {
-	          return this.flatten(value);
-	        }
-	      }
-	      const ret = new Map<any, any>();
-	      obj.forEach((value: any, key: any) => {
-	        ret.set(key, this.flatten(value));
-	      });
-	      return ret;
-	    }
+		if (obj instanceof Map) {
+			if (obj.size === 1) {
+			for (const value of obj.values()) {
+				return this.flatten(value);
+			}
+			}
+			const ret = new Map<any, any>();
+			obj.forEach((value: any, key: any) => {
+			ret.set(key, this.flatten(value));
+			});
+			return ret;
+		}
 	
-	    return obj;
+		return obj;
 	}
 
 	public castToList<T extends Function|String>(obj:any, clazz:T):T[] {
-	  const temp = this.flatten(obj);
-	  const ret = [];
-	  if (temp instanceof Map) {
-	    const add = temp.has('add');
-	    temp.forEach((value: any, key: any) => {
-	      switch (key) {
-	        case 'add': {
-	          if (value instanceof Map) {
-	            ret.push(this.castTo<T>(value, clazz));
-	          } else if (Array.isArray(value)) {
-	            value.forEach((it:any) => {
-	              const t = this.castTo(it, clazz);
-	              if (t != null) {
-	                ret.push(t);
-	              }
-	            });
-	          } else {
-	            ret.push(this.castToList(value, clazz));
-	          }
-	        } 
-	          break;
-	        default:
-	          if (!add) {
-	            ret.push(this.castToList(value, clazz));
-	          }
-	          break;
-	      }    
-	    });
-	  } else if (Array.isArray(temp)) {
-	    temp.forEach((it:any) => {
-	      ret.push(this.castToList(it, clazz));
-	    });
-	  } else {
-	    ret.push(this.castTo(temp, clazz));
-	  }
-	  return ret;
+		const temp = this.flatten(obj);
+		const ret = [];
+		if (temp instanceof Map) {
+		const add = temp.has('add');
+		temp.forEach((value: any, key: any) => {
+			switch (key) {
+			case 'add': {
+				if (value instanceof Map) {
+				ret.push(this.castTo<T>(value, clazz));
+				} else if (Array.isArray(value)) {
+				value.forEach((it:any) => {
+					const t = this.castTo(it, clazz);
+					if (t != null) {
+					ret.push(t);
+					}
+				});
+				} else {
+				ret.push(this.castToList(value, clazz));
+				}
+			} 
+				break;
+			default:
+				if (!add) {
+				ret.push(this.castToList(value, clazz));
+				}
+				break;
+			}	
+		});
+		} else if (Array.isArray(temp)) {
+		temp.forEach((it:any) => {
+			ret.push(this.castToList(it, clazz));
+		});
+		} else {
+		ret.push(this.castTo(temp, clazz));
+		}
+		return ret;
 	}
 	public castTo<T extends Function|String>(obj:any, clazz:any) {
-	  const temp = this.flatten(obj);
-	  const instance = new clazz();
-	  const fields = instance.fields;
-	  const fieldsName = [];
-	  for (let it in instance) {
-	    fieldsName.push(it);
-	  }
-	  if (temp instanceof Map) {
-	    if (clazz === String) {
-	      let builder = '';
-	      const hasAdd = temp.has('add');
-	      temp.forEach((value: any, key: any) => {
-	        switch (key) {
-	          case 'add': {
-	            builder += this.castTo<T>(value, clazz);
-	          }
-	          break;
-	          default: {
-	            if (!hasAdd) {
-	              builder += this.castTo<T>(value, clazz);
-	            }
-	          }
-	          break;
-	        }
-	      });
-	      return (builder.length > 0) ? builder : null;
-	    }
-	    temp.forEach((value: any, key: any) => {
-	      if (fieldsName.includes(key)) {
-	        const field:Function = fields.get(key);
-	        if (Array.isArray(instance[key])) {
-	       	  const list  = this.flatten(this.castToList(value, field));
-	          if(!Array.isArray(list)) {
-	            instance[key] = [list];
-	          } else {
-	            instance[key] = list;
-	          }
-	        } else if (value.length == 0
-	          && (field == UniExpr || field == UniStatement )){
-	          instance[key] = null;
-	        } else {
-	          instance[key] = this.castTo(value, field);
-	        }
-	      }
-	    });
-	    return instance;
-	  }
-	  if (Array.isArray(temp)) {
-	    if (clazz === String) {
-	      let builder = '';
-	      temp.forEach((it:any) => {
-	        builder += (this.castTo(it, clazz));
-	      });
-	      return (builder.length > 0) ? builder : null;
-	    }
-	    const first = temp.find((it) => {
-	      return it instanceof clazz;
-	    });
-	    if (first === null) {
-	      try {
-	        return instance;
-	      } catch (e) {
-	        return null;
-	      }
-	    } else {
-	      return this.castTo<T>(first,clazz);
-	    }
-	  }
-	  if(temp != null) {
-	    return temp as T;
-	  }
-	  return instance;
+		const temp = this.flatten(obj);
+		const instance = new clazz();
+		const fields = instance.fields;
+		const fieldsName = [];
+		for (let it in instance) {
+		fieldsName.push(it);
+		}
+		if (temp instanceof Map) {
+		if (clazz === String) {
+			let builder = '';
+			const hasAdd = temp.has('add');
+			temp.forEach((value: any, key: any) => {
+			switch (key) {
+				case 'add': {
+				builder += this.castTo<T>(value, clazz);
+				}
+				break;
+				default: {
+				if (!hasAdd) {
+					builder += this.castTo<T>(value, clazz);
+				}
+				}
+				break;
+			}
+			});
+			return (builder.length > 0) ? builder : null;
+		}
+		temp.forEach((value: any, key: any) => {
+			if (fieldsName.includes(key)) {
+			const field:Function = fields.get(key);
+			if (Array.isArray(instance[key])) {
+			 		const list	= this.flatten(this.castToList(value, field));
+				if(!Array.isArray(list)) {
+				instance[key] = [list];
+				} else {
+				instance[key] = list;
+				}
+			} else if (value.length == 0
+				&& (field == UniExpr || field == UniStatement )){
+				instance[key] = null;
+			} else {
+				instance[key] = this.castTo(value, field);
+			}
+			}
+		});
+		return instance;
+		}
+		if (Array.isArray(temp)) {
+		if (clazz === String) {
+			let builder = '';
+			temp.forEach((it:any) => {
+			builder += (this.castTo(it, clazz));
+			});
+			return (builder.length > 0) ? builder : null;
+		}
+		const first = temp.find((it) => {
+			return it instanceof clazz;
+		});
+		if (first === null) {
+			try {
+			return instance;
+			} catch (e) {
+			return null;
+			}
+		} else {
+			return this.castTo<T>(first,clazz);
+		}
+		}
+		if(temp != null) {
+		return temp as T;
+		}
+		return instance;
 	}
 
 	public visitTranslationunit(ctx:CPP14Parser.TranslationunitContext) {
