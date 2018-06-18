@@ -488,7 +488,9 @@ export default class Engine {
       let ret = null;
       switch (op) {
         case '=': {
-          ret = this.execAssign(this.getAddress(left,scope),yield* this.execExpr(right, scope),scope);
+          const r = yield* this.execExpr(right, scope);
+          const l = this.getAddress(left,scope)
+          ret = this.execAssign(l,r,scope);
           yield ret;
           return ret;
         }
@@ -614,6 +616,14 @@ export default class Engine {
               return this.execAssign(address, num - 1, scope);
           }
         }
+      case '&':{
+        const adr = this.getAddress(uniOp.expr,scope);
+        return adr;
+      }
+      case '*': {
+        const v = scope.getValue(<number>(yield* this.execExpr(uniOp.expr, scope)));
+        return v;
+      }
       case '()':
         const v = yield* this.execExpr(uniOp.expr,scope);
         return v;
@@ -672,9 +682,16 @@ export default class Engine {
     throw new Error('execImple not implemented.');
   }
   *execVariableDec(decVar:UniVariableDec, scope:Scope) {
-    const type:string = decVar.type;
     let value;
     for (const def of decVar.variables) {
+      while (def.name.startsWith('*')) {
+        def.name = def.name.substring(1);
+        decVar.type += '*';
+      }
+      while (def.name.startsWith('&')) {
+        def.name = def.name.substring(1);
+        decVar.type += '&';
+      }
       // なぜかこのconstがundefinedになってしまう。
       value = yield* this.execExpr(def.value, scope);
       if (def.typeSuffix != null && def.typeSuffix !== '') {
@@ -686,9 +703,32 @@ export default class Engine {
           }
         }
       }
+      if (decVar.type.endsWith('*') && !(Array.isArray(value))) {
+        const address:number = value;// int
+        if (scope.isMallocArea(address)) {
+          const size:number = scope.getMallocSize(address);
+          const type = decVar.type.substring(0,decVar.type.length - 1);
+          const typeSize = this.sizeof(type);
+          for (let i = 0;i < size;i += typeSize) {
+            scope.typeOnMemory.set(address + i, type);
+          }
+        }
+      }
+      const type:string = decVar.type;
       scope.setTop(def.name,value,type);
     }
     return value;
+  }
+
+  public sizeof(type:string):number {
+    if (type.includes('char')) {
+      return 1;
+    } else if (type.includes('short')) {
+      return 2;
+    } else if (type.includes('double')) {
+      return 8;
+    }
+    return 4;
   }
 
   toDouble(obj: any): number {

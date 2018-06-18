@@ -1,12 +1,38 @@
 import unicoen from './unicoen';
 const cmapper = new unicoen.CPP14Mapper();
-const text = `int main(){
-  int i=1;
-  return i;
+
+const text = `int main()
+{
+  char ca = 'a';
+  int a=1;
+  int b=2;
+  int *pa = &b;
+  *pa = *pa;
+  a = b;
+  int arr[5] = {1,2,3};
+  a = 2[arr];
+  a=arr[0];
+  arr[4]=6;
+  a = 5;
+  int c=a+b;
 }`;
 const tree = cmapper.parse(text);
 const engine = new unicoen.Engine();
 let ret = engine.startStepExecution(tree); 
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
+ret = engine.stepExecute();
 ret = engine.stepExecute();
 ret = engine.stepExecute();
 ret = engine.stepExecute();
