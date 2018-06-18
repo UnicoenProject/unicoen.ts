@@ -60,6 +60,9 @@ export default class Engine {
   public setDebugMode(enable:boolean) {
     this.isDebugMode = enable;
   }
+
+  private isCurrentExprSet:boolean = false;
+
   protected currentState:ExecState = null;
   protected states:ExecState[] = [];
   protected currentScope:Scope = null;
@@ -89,6 +92,7 @@ export default class Engine {
     if (this.execStepItr == null) {
       return this.getCurrentState();
     }
+    this.isCurrentExprSet = false;
     const node = this.execStepItr.next();
     const ret = node.value;
     if (this.isDebugMode) {
@@ -354,7 +358,10 @@ export default class Engine {
 
   protected* execExpr(expr:UniExpr, scope:Scope):any {
     // firePreExec(expr, scope);
-    this.currentState.setCurrentExpr(expr);
+    if (!this.isCurrentExprSet) {
+      this.currentState.setCurrentExpr(expr);
+      this.isCurrentExprSet = true;
+    }
     const value = yield* this._execExpr(expr, scope);
     // firePostExec(expr, scope, value);
     return value;
