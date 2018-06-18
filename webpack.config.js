@@ -15,9 +15,10 @@ const babelLoader = {
 
 module.exports = {
   entry: {
+    generator: './src/node/Generator.ts',
+    unicoen: './src/unicoen.ts',
     index: './src/index.ts',
     test: './test/test.ts',
-    generator: './src/node/Generator.ts'
   },
   output: {
     path: require("path").resolve("./dst/"),
