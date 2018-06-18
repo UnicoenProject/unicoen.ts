@@ -233,14 +233,16 @@ class Node {
     } else {
       ret += `${s2}return that !== null`;
     }
-    for (const field of this.members) {
-      if (field.type === 'string' 
-      || field.type === 'number' 
-      || field.type === 'boolean' 
-      || field.type === 'any') {
-        ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name} === that.${field.name})`;
-      } else {
-        ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name}.equals(that.${field.name}))`;
+    if (this.className !== 'UniNode') {
+      for (const field of this.members) {
+        if (field.type === 'string' 
+        || field.type === 'number' 
+        || field.type === 'boolean' 
+        || field.type === 'any') {
+          ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name} === that.${field.name})`;
+        } else {
+          ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name}.equals(that.${field.name}))`;
+        }
       }
     }
 

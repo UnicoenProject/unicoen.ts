@@ -28,9 +28,7 @@ export default abstract class UniNode {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniNode)) return false;
     const that: UniNode = <UniNode>obj;
-    return that !== null
-        && (this.comments == null ? that.comments == null : this.comments.equals(that.comments))
-        && (this.codeRange == null ? that.codeRange == null : this.codeRange.equals(that.codeRange));
+    return that !== null;
   }
 
   public merge(that: UniNode) {
