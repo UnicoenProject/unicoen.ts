@@ -489,7 +489,7 @@ export default class Engine {
       switch (op) {
         case '=': {
           const r = yield* this.execExpr(right, scope);
-          const l = this.getAddress(left,scope)
+          const l = this.getAddress(left,scope);
           ret = this.execAssign(l,r,scope);
           yield ret;
           return ret;
@@ -616,7 +616,7 @@ export default class Engine {
               return this.execAssign(address, num - 1, scope);
           }
         }
-      case '&':{
+      case '&': {
         const adr = this.getAddress(uniOp.expr,scope);
         return adr;
       }
@@ -624,9 +624,10 @@ export default class Engine {
         const v = scope.getValue(<number>(yield* this.execExpr(uniOp.expr, scope)));
         return v;
       }
-      case '()':
+      case '()': {
         const v = yield* this.execExpr(uniOp.expr,scope);
         return v;
+      }
     }
     throw new RuntimeException('Unkown binary operator: ' + uniOp.operator);
   }
