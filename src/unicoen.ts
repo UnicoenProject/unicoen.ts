@@ -32,6 +32,7 @@ import UniVariableDef from './node/UniVariableDef';
 import UniIntLiteral from './node/UniIntLiteral';
 import Engine from './interpreter/Engine';
 import CMapper from './mapper/C/CMapper';
+import CPP14Engine from './interpreter/CPP14Engine';
 import CPP14Mapper from './mapper/CPP14/CPP14Mapper';
 
 export default {
@@ -69,5 +70,6 @@ export default {
   UniWhile,
   Engine,
   CMapper,
+  CPP14Engine,
   CPP14Mapper,
 };

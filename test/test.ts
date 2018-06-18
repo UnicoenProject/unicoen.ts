@@ -11,7 +11,6 @@ import UniBlock from '../src/node/UniBlock';
 import UniFunctionDec from '../src/node/UniFunctionDec';
 import UniParam from '../src/node/UniParam';
 import UniProgram from '../src/node/UniProgram';
-import Engine from '../src/interpreter/Engine';
 import UniVariableDec from '../src/node/UniVariableDec';
 import UniIdent from '../src/node/UniIdent';
 import UniFor from '../src/node/UniFor';
@@ -21,7 +20,9 @@ import UniIntLiteral from '../src/node/UniIntLiteral';
 import UniMethodCall from '../src/node/UniMethodCall';
 import UniIf from '../src/node/UniIf';
 import CMapper from '../src/mapper/C/CMapper';
+import Engine from '../src/interpreter/Engine';
 import CPP14Mapper from '../src/mapper/CPP14/CPP14Mapper';
+import CPP14Engine from '../src/interpreter/CPP14Engine';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {
@@ -190,7 +191,7 @@ describe('node exec', () => {
   for (const test of testData) {
     it(test.input, () => {
       const node = test.node();
-      const engine = new Engine();
+      const engine = new CPP14Engine();
       engine.setDebugMode(false);
       const ret = engine.execute(node); 
       assert.equal(ret, test.ret);
@@ -208,7 +209,7 @@ describe('mapper', () => {
       assert.isOk(tree.equals(node));
     });
     it(test.input + ' exec', () => {
-      const engine = new Engine();
+      const engine = new CPP14Engine();
       const ret = engine.execute(tree); 
       assert.equal(ret, test.ret);
     });

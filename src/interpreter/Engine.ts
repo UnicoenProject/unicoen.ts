@@ -40,13 +40,13 @@ import { clone }from '../node_helper/clone';
 export class ControlException extends RuntimeException {
 }
 
-class Break extends ControlException {
+export class Break extends ControlException {
 }
 
-class Continue extends ControlException {
+export class Continue extends ControlException {
 }
 
-class Return extends ControlException {
+export class Return extends ControlException {
   public constructor(public readonly value: any) {
     super();
   }
@@ -577,11 +577,6 @@ export default class Engine {
   }
 
   *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
-    // 一時的な措置
-    // ToDo: prefixかpostfixか区別するfieldをUnaryOpに追加する
-    if (uniOp.operator === '++' || uniOp.operator === '--') {
-      uniOp.operator += '_';
-    }
     switch (uniOp.operator) {
       case '!':
         return !this.toBool(yield* this.execExpr(uniOp.expr, scope));
