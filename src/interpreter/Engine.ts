@@ -70,35 +70,14 @@ export default class Engine {
     return this.currentState;
   }
   protected execStepItr:IterableIterator<any> = null;
-  
 
-  private setGlobalObjects(node:UniNode, global:Scope) {
-    if (node instanceof UniProgram) {
-      const block:UniBlock = node.block;
-      this.setGlobalObjects(block, global);
-    } else if (node instanceof UniBlock) {
-      for (const stateOfBlock of node.body) {
-        this.setGlobalObjects(stateOfBlock, global);
-      }
-    } else if (node instanceof UniDecralation) {
-      const dec = node;
-      if (dec instanceof UniFunctionDec) {
-        // 関数のセット
-        if ('main' !== dec.name) {
-          global.setTop(dec.name, dec, dec.returnType);
-        }
-      } else if (dec instanceof UniVariableDec) {
-        // グローバル変数のセット
-        this.execExpr(node, global);
-      } else if (dec instanceof UniClassDec) {
-        // structのセット
-        for (const member of dec.members) {
-          if (member instanceof UniFunctionDec) {
-            this.setGlobalObjects(member, global);
-          }
-        }
-      }
-    }
+  public getIsWaitingForStdin():boolean {
+    // To implement
+    return false;
+  }
+
+  public isStepExecutionRunning():boolean {
+    return this.execStepItr != null;
   }
 
   public startStepExecution(dec:UniProgram):ExecState {
@@ -183,7 +162,35 @@ export default class Engine {
     }
     return entry;
   }
-      
+
+  private setGlobalObjects(node:UniNode, global:Scope) {
+    if (node instanceof UniProgram) {
+      const block:UniBlock = node.block;
+      this.setGlobalObjects(block, global);
+    } else if (node instanceof UniBlock) {
+      for (const stateOfBlock of node.body) {
+        this.setGlobalObjects(stateOfBlock, global);
+      }
+    } else if (node instanceof UniDecralation) {
+      const dec = node;
+      if (dec instanceof UniFunctionDec) {
+        // 関数のセット
+        if ('main' !== dec.name) {
+          global.setTop(dec.name, dec, dec.returnType);
+        }
+      } else if (dec instanceof UniVariableDec) {
+        // グローバル変数のセット
+        this.execExpr(node, global);
+      } else if (dec instanceof UniClassDec) {
+        // structのセット
+        for (const member of dec.members) {
+          if (member instanceof UniFunctionDec) {
+            this.setGlobalObjects(member, global);
+          }
+        }
+      }
+    }
+  }
 
   public static executeSimpleExpr(expr:UniExpr) :any;
   public static executeSimpleExpr(expr:UniExpr, scope:Scope):any;
