@@ -1,3 +1,6 @@
+const webpack = require('webpack');
+// optimization.minimizerを上書きするために必要なプラグイン
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 const threadLoader = {
   loader: 'thread-loader',
@@ -13,7 +16,10 @@ const babelLoader = {
   }
 };
 
-module.exports = {
+
+module.exports = (env, argv) => {
+  const IS_DEVELOPMENT = argv.mode === 'development';
+  return {
   entry: {
     generator: './src/node/Generator.ts',
     unicoen: './src/unicoen.ts',
@@ -45,5 +51,23 @@ module.exports = {
     }
     ]
   },
-  devtool: 'inline-source-map'
+  devtool: IS_DEVELOPMENT ? 'inline-source-map' : 'none',
+  optimization: {
+    // developmentモードでビルドした場合
+    // minimizer: [] となるため、consoleは残されたファイルが出力される
+    // puroductionモードでビルドした場合
+    // minimizer: [ new UglifyJSPlugin({... となるため、consoleは削除したファイルが出力される
+    minimizer: IS_DEVELOPMENT
+      ? []
+      : [
+        new UglifyJSPlugin({
+          uglifyOptions: {
+            compress: {
+              drop_console: true
+            }
+          }
+        })
+      ]
+    }
+  }
 }
