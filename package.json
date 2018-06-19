@@ -53,7 +53,9 @@
     "webpack-stream": "^4.0.3"
   },
   "dependencies": {
+    "@types/mathjs": "^4.4.0",
     "@types/node": "^9.4.0",
+    "mathjs": "^5.0.0",
     "ts-data.stack": "^1.0.6",
     "typescript-dotnet-es6": "^4.9.11"
   }

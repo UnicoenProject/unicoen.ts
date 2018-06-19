@@ -36,6 +36,7 @@ import ExecState from './ExecState';
 import UniNumberLiteral from '../node/UniNumberLiteral';
 import RuntimeException from './RuntimeException';
 import { clone }from '../node_helper/clone';
+import math = require('mathjs');
 
 export class ControlException extends RuntimeException {
 }
@@ -690,7 +691,13 @@ export default class Engine {
         decVar.type += '&';
       }
       // なぜかこのconstがundefinedになってしまう。
-      value = yield* this.execExpr(def.value, scope);
+      if (def.value != null) {
+        value = yield* this.execExpr(def.value, scope);
+      } else {
+        const a = math.pow(2,32);
+        value = math.randomInt(0, <number>a);
+        yield value;
+      }
       if (def.typeSuffix != null && def.typeSuffix !== '') {
         const regexp = /[(\d+)]/gi;
         const matches_array = def.typeSuffix.match(regexp);

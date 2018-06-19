@@ -190,6 +190,22 @@ const testData = [
     node: null,
     ret: 3,
   },
+  {
+    input: `int main()
+    {
+      double x = 1.0;
+      double e = 0.0000000005;
+      int i;
+      for(i=0;e<fabs(x*x-2);++i)
+      {
+        x -= ((x*x)-2) / (2*x);
+      }
+    
+      return x;
+    }`,
+    node: null,
+    ret: 1.4142135623746899,
+  },
 ];
 
 describe('node exec', () => {
