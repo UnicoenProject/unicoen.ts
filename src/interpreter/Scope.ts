@@ -39,6 +39,7 @@ export default class Scope {
   public children: Scope[] = [];
   public readonly variableAddress: Map<string, number> = new Map();
   public readonly variableTypes: Map<string, string> = new Map();
+  public readonly functionAddress: Map<string, number>;
   public readonly mallocData: Map<number, number>;
   public readonly objectOnMemory: Map<number, any>;
   public readonly typeOnMemory: Map<number, string>;
@@ -62,6 +63,7 @@ export default class Scope {
       this.mallocData = new Map();
       this.objectOnMemory = new Map();
       this.typeOnMemory = new Map();
+      this.functionAddress = new Map();
     } else {
       parent.children.push(this);
       this.depth = parent.depth + 1;
@@ -72,6 +74,7 @@ export default class Scope {
       this.mallocData = parent.mallocData;
       this.objectOnMemory = parent.objectOnMemory;
       this.typeOnMemory = parent.typeOnMemory;
+      this.functionAddress = parent.functionAddress;
     }
   }
 
@@ -223,6 +226,30 @@ export default class Scope {
     this.objectOnMemory.set(this.address.codeAddress, value);
     this.typeOnMemory.set(this.address.codeAddress, type);
     return this.address.codeAddress++;
+  }
+
+  // 関数を登録
+  public setFunc(key:string, value:any, type:string):void {
+    const addr = this.address.stackAddress;
+    this.setTop(key,value,type);
+    this.functionAddress.set(key,addr);
+  }
+  
+  public isFunc(nameOrAddr:string|number):boolean {
+    for (const [key, value] of this.functionAddress.entries()) {
+      if (typeof nameOrAddr === 'string') {
+        const name = nameOrAddr;
+        if (key === name) {
+          return true;
+        }
+      } else if (typeof nameOrAddr === 'number') {
+        const addr = nameOrAddr;
+        if (value === addr) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
     
   /** 現在のスコープに新しい変数を定義し、代入します */

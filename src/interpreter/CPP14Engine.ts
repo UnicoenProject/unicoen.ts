@@ -10,6 +10,28 @@ export default class CPP14Engine extends Engine {
     super();
   }
 
+  protected loadLibarary(global:Scope) {
+    this.includeStdio(global);
+    this.includeStdlib(global);
+    this.includeMath(global);
+  }
+  
+  protected includeStdio(global:Scope) {
+  }
+
+  protected includeStdlib(global:Scope) {
+    global.setFunc('abs', (x:number) => {
+      if (0 <= x) {
+        return x;
+      } else {
+        return -x;
+      }
+    },             'int');
+  }
+
+  protected includeMath(global:Scope) {
+  }
+
   protected* execBinOp(arg:string|UniBinOp, scope:Scope, left?:UniExpr, right?:UniExpr):any {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
       const binOp = <UniBinOp>arg;

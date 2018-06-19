@@ -170,7 +170,7 @@ const testData = [
     ret: 34,
   },
   {
-    input:`int main(){int arr[5] = {1, 2, 3};return arr[1];}`,
+    input: `int main(){int arr[5] = {1, 2, 3};return arr[1];}`,
     node:() => {
       const arrDef = new UniVariableDef(
         'arr', new UniArray([new UniIntLiteral(1), new UniIntLiteral(2), new UniIntLiteral(3)]),'[5]');
@@ -185,10 +185,18 @@ const testData = [
     },
     ret: 2,
   },
+  {
+    input: `int main(){int x = abs(-3);return x;}`,
+    node: null,
+    ret: 3,
+  },
 ];
 
 describe('node exec', () => {
   for (const test of testData) {
+    if (test.node == null) {
+      continue;
+    }
     it(test.input, () => {
       const node = test.node();
       const engine = new CPP14Engine();
@@ -204,10 +212,12 @@ describe('mapper', () => {
     const cmapper = new CPP14Mapper();
     const text = test.input;
     const tree = cmapper.parse(text);
-    it(test.input + ' node', () => {
-      const node = test.node();
-      assert.isOk(tree.equals(node));
-    });
+    if (test.node != null) {
+      it(test.input + ' node', () => {
+        const node = test.node();
+        assert.isOk(tree.equals(node));
+      });
+    }
     it(test.input + ' exec', () => {
       const engine = new CPP14Engine();
       const ret = engine.execute(tree); 

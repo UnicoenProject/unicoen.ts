@@ -59,6 +59,8 @@ export default class ExecState {
       let value:any = scope.objectOnMemory.get(address);
       if (value instanceof UniNode)
         continue;
+      if (value instanceof Function)
+        continue;
       if (~type.indexOf('[') && ~type.indexOf(']')) {
         const length = Number(type.substring(type.lastIndexOf('[') + 1, type.length - 1));
         const list:any[] = [];

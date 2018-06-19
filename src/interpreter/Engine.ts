@@ -64,8 +64,6 @@ export default class Engine {
   private isCurrentExprSet:boolean = false;
 
   protected currentState:ExecState = null;
-  protected states:ExecState[] = [];
-  protected currentScope:Scope = null;
   public getCurrentExpr():UniNode {
     return this.currentState.getCurrentExpr();
   }
@@ -81,6 +79,10 @@ export default class Engine {
 
   public isStepExecutionRunning():boolean {
     return this.execStepItr != null;
+  }
+
+  protected loadLibarary(global:Scope) {
+
   }
 
   public startStepExecution(dec:UniProgram):ExecState {
@@ -112,6 +114,7 @@ export default class Engine {
     if (main != null) {
       const global:Scope = Scope.createGlobal();
       this.setGlobalObjects(dec, global);
+      this.loadLibarary(global);
       this.currentState = new ExecState(global);
       // loadLibarary(global);
       // firePreExecAll(global);
@@ -380,7 +383,6 @@ export default class Engine {
       for (let i = 0; mc.args !== null && i < mc.args.length; i++) {
         args.push(yield* this.execExpr(mc.args[i], scope));
       }
-      this.currentScope = scope;
       let ret:any = null;
       if (mc.receiver != null) {
         const receiver:any = yield* this.execExpr(mc.receiver, scope);
@@ -389,11 +391,10 @@ export default class Engine {
         const func:any = scope.get(mc.methodName.name);
         if (func instanceof UniFunctionDec) {
           ret = yield* this.execFunc(func,scope,mc.args);
-        }else {
+        } else {
           ret = yield* this.execFuncCall(func, args);
         }
       }
-      this.currentScope = null;
       return ret;
     } else if (expr instanceof UniIdent) {
       const ret = scope.get((<UniIdent> expr).name);
@@ -745,9 +746,17 @@ export default class Engine {
 	  return expr.value;
   }
   
-  execFuncCall(arg0: any, arg1: any): any {
-    throw new Error('execFuncCall not implemented.');
+  private *execFuncCall(func: any, arg: any[]): any {
+    if (func == null) {
+      throw new RuntimeException('func is null');
+    } else if (func instanceof Function) {
+      const ret = (<Function>func).apply(this, arg);
+      yield ret;
+      return ret;
+    }
+    throw new Error('Not support function type: ' + func);
   }  
+
   execMethodCall(arg0: any, arg1: any, arg2: any): any {
     throw new Error('execMethodCall not implemented.');
   }
