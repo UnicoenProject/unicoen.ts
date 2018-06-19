@@ -52,4 +52,27 @@ export default class CPP14Engine extends Engine {
     }
     return yield* super.execUnaryOp(uniOp,scope);
   }
+
+	
+  public sizeofElement(type:string):number {
+    if (type.includes('*')) {
+      return 4;
+    }    else if (type.includes('char')) {
+      return 1;
+    }    else if (type.includes('short')) {
+      return 2;
+    }    else if (type.includes('double')) {
+      return 8;
+    }
+    return 4;
+  }
+
+  public sizeof(type:string):number {
+    let length = 1;
+    if (type.includes('[') && type.includes(']')) {
+      length = Number(type.substring(type.lastIndexOf('[') + 1, type.length - 1));
+    }
+    const typeSize = this.sizeofElement(type);
+    return typeSize * length;
+  }
 }
