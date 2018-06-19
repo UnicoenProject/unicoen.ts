@@ -1,6 +1,7 @@
 // インターフェイス統合によるコアクラスの拡張
 declare interface Array<T> {
   equals(array:T[]): boolean;
+  isEmpty():boolean;
 }
 
 // Warn if overriding existing method
@@ -33,3 +34,41 @@ Array.prototype.equals = function (array) {
 };
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
+
+if (Array.prototype.isEmpty)
+  console.warn('Overriding existing Array.prototype.isEmpty. Possible causes: New API defines the method, there\'s a framework conflict or you\'ve got double inclusions in your code.');
+
+Array.prototype.isEmpty = function () {
+  return this.length === 0;
+};
+// Hide method from for-in loops
+Object.defineProperty(Array.prototype, 'isEmpty', { enumerable: false });
+
+
+interface Map<K, V> {
+  containsKey(key: K):boolean;
+  containsValue(value: V):boolean;
+}
+
+if (Map.prototype.containsKey)
+  console.warn('Overriding existing Map.prototype.containsKey. Possible causes: New API defines the method, there\'s a framework conflict or you\'ve got double inclusions in your code.');
+
+Map.prototype.containsKey = function (key) {
+  return this.has(key);
+};
+// Hide method from for-in loops
+Object.defineProperty(Map.prototype, 'containsKey', { enumerable: false });
+
+if (Map.prototype.containsValue)
+  console.warn('Overriding existing Map.prototype.containsValue. Possible causes: New API defines the method, there\'s a framework conflict or you\'ve got double inclusions in your code.');
+
+Map.prototype.containsValue = function (value) {
+  for (const v of this.values()) {
+    if (v === value) {
+      return true;
+    }
+  }
+  return false;
+};
+// Hide method from for-in loops
+Object.defineProperty(Map.prototype, 'containsValue', { enumerable: false });

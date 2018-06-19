@@ -235,21 +235,15 @@ export default class Scope {
     this.functionAddress.set(key,addr);
   }
   
+  public isFunc(name:string):boolean;
+  public isFunc(addr:number):boolean;
   public isFunc(nameOrAddr:string|number):boolean {
-    for (const [key, value] of this.functionAddress.entries()) {
-      if (typeof nameOrAddr === 'string') {
-        const name = nameOrAddr;
-        if (key === name) {
-          return true;
-        }
-      } else if (typeof nameOrAddr === 'number') {
-        const addr = nameOrAddr;
-        if (value === addr) {
-          return true;
-        }
-      }
-      return false;
+    if (typeof nameOrAddr === 'string') {
+      return this.functionAddress.containsKey(nameOrAddr);
+    } else if (typeof nameOrAddr === 'number') {
+      return this.functionAddress.containsValue(nameOrAddr);
     }
+    throw new Error('invalid arg type.');
   }
     
   /** 現在のスコープに新しい変数を定義し、代入します */

@@ -112,7 +112,7 @@ export default class ExecState {
 	// 引数(variables)あり版も必要
   public addStack(_name:string):string {
     let name = _name;
-    if (this.stacks.length === 0) {
+    if (this.stacks.isEmpty()) {
       const stack:Stack = new Stack(name, this.stackOffset);
       this.stacks.push(stack);
     } else {
