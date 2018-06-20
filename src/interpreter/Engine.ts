@@ -71,6 +71,18 @@ export default class Engine {
   public getCurrentState():ExecState {
     return this.currentState;
   }
+
+  private _stdout:string = '';
+  public getStdout(): string {
+    return this._stdout;
+  }
+  public stdout(text:string):void {
+    this._stdout += text;
+  }
+  private clearStdout() {
+    this._stdout = '';
+  }
+  
   protected execStepItr:IterableIterator<any> = null;
 
   public getIsWaitingForStdin():boolean {
@@ -118,6 +130,7 @@ export default class Engine {
       this.setGlobalObjects(dec, global);
       this.loadLibarary(global);
       this.currentState = new ExecState(global);
+      this.clearStdout();
       // loadLibarary(global);
       // firePreExecAll(global);
       // 初期化が完了して1行目に入る前の状態で最初は返す。

@@ -1,4 +1,5 @@
 import * as math from 'mathjs';
+import * as agh from 'agh.sprintf';
 import Engine from './Engine';
 import UniBinOp from '../node/UniBinOp';
 import Scope from './Scope';
@@ -21,15 +22,26 @@ export default class CPP14Engine extends Engine {
     global.setFunc('sizeof', (arg:string|number[]) => {
       if (typeof arg ===  'string') {
         return this.sizeof(<string>arg);
-      }      else if (Array.isArray(arg)) {
+      } else if (Array.isArray(arg)) {
         return this.sizeof(this.bytesToStr(arg));
       }
       throw new Error('Unsupported type of argument.');
-    },             'int');
+    },             'FUNCTION');
     
   }
   
   protected includeStdio(global:Scope) {
+    global.setFunc('printf', function () {
+      const arg = [];
+      for (let i = 0; i < arguments.length; ++i) {
+        arg.push(arguments[i]);
+      }
+      const output = agh.sprintf(...arg).replace('\\n','\n');
+      this.stdout(output);
+      const byteCount = (str:string) => encodeURIComponent(str).replace(/%../g,'x').length;
+      const count = byteCount(output);
+      return count;
+    },             'FUNCTION');
   }
 
   protected includeStdlib(global:Scope) {
@@ -37,113 +49,113 @@ export default class CPP14Engine extends Engine {
       const byteSize = x;
       const heapAddress = global.malloc(byteSize);
       return heapAddress;
-    },             'int');
+    },             'FUNCTION');
     global.setFunc('free', (x:number) => {
       const address = x;
       const size = global.getMallocSize(address);
       return global.removeOnMemory(address, size);
-    },             'int');
+    },             'FUNCTION');
     global.setFunc('rand', (x:number) => {
       return Math.round(Math.random() * Math.pow(0, Math.pow(2,32)));
-    },             'int');
+    },             'FUNCTION');
     global.setFunc('abs', (x:number) => {
       return Math.abs(x);
-    },             'int');
+    },             'FUNCTION');
   }
 
   protected includeMath(global:Scope) {
     global.setFunc('acos', (x:number) => {
       return Math.acos(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('asin', (x:number) => {
       return Math.asin(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('atan', (x:number) => {
       return Math.atan(x);
-    },             'double');
+    },             'FUNCTION');
     
     global.setFunc('cos', (x:number) => {
       return Math.cos(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('sin', (x:number) => {
       return Math.sin(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('tan', (x:number) => {
       return Math.tan(x);
-    },             'double');
+    },             'FUNCTION');
 
     global.setFunc('cosh', (x:number) => {
       return Math.cosh(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('sinh', (x:number) => {
       return Math.sinh(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('tanh', (x:number) => {
       return Math.tanh(x);
-    },             'double');
+    },             'FUNCTION');
 
     global.setFunc('exp', (x:number) => {
       return Math.exp(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('exp2', (x:number) => {
       return Math.pow(2.0, x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('expm1', (x:number) => {
       return Math.expm1(x);
-    },             'double');
+    },             'FUNCTION');
 
     global.setFunc('log', (x:number) => {
       return Math.log(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('log10', (x:number) => {
       return Math.log10(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('log1p', (x:number) => {
       return Math.log1p(x);
-    },             'double');
+    },             'FUNCTION');
 
     global.setFunc('cbrt', (x:number) => {
       return Math.cbrt(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('fabs', (x:number) => {
       return Math.abs(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('hypot', (x:number, y:number) => {
       return Math.hypot(x,y);
-    },             'double');
+    },             'FUNCTION');
 
     global.setFunc('pow', (x:number, y:number) => {
       return Math.pow(x,y);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('sqrt', (x:number) => {
       return Math.sqrt(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('ceil', (x:number) => {
       return Math.ceil(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('floor', (x:number) => {
       return Math.floor(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('rint', (x:number) => {
       throw new Error('Sorry! rint is not supported.');
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('round', (x:number) => {
       return Math.round(x);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('fdim', (x:number, y:number) => {
       const a = Math.abs(x);
       const b = Math.abs(y);
       return Math.abs(Math.max(a,b) - Math.min(a,b));
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('fmax', (x:number, y:number) => {
       return Math.max(x,y);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('fmin', (x:number, y:number) => {
       return Math.min(x,y);
-    },             'double');
+    },             'FUNCTION');
     global.setFunc('fmod', (x:number, y:number) => {
       return math.mod(x,y);
-    },             'double');
+    },             'FUNCTION');
   }
 
   // Byte[]
@@ -217,7 +229,7 @@ export default class CPP14Engine extends Engine {
       return 1;
     }    else if (type.includes('short')) {
       return 2;
-    }    else if (type.includes('double')) {
+    }    else if (type.includes('FUNCTION')) {
       return 8;
     }
     return 4;

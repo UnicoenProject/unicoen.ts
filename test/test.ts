@@ -206,6 +206,16 @@ const testData = [
     node: null,
     ret: 1.4142135623746899,
   },
+  {
+    input: `int main()
+    {
+      int x = fmin(2,3);
+      int y = printf("%u\\n",-12345);
+      return x+y
+    }`,
+    node: null,
+    ret: 13,// "4294954951\n" + 2
+  },
 ];
 
 describe('node exec', () => {
