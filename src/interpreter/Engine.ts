@@ -82,12 +82,28 @@ export default class Engine {
   private clearStdout() {
     this._stdout = '';
   }
+
+  private _stdin:string = '';
+  protected getStdin(): string {
+    return this._stdin;
+  }
+  public stdin(text:string):void {
+    this._stdin += text;
+  }
+  private clearStdin() {
+    this._stdin = '';
+  }
+
+  protected currentScope:Scope = null;
   
   protected execStepItr:IterableIterator<any> = null;
 
+  private isWaitingForStdin:boolean = false;
   public getIsWaitingForStdin():boolean {
-    // To implement
-    return false;
+    return this.isWaitingForStdin;
+  }
+  public setIsWaitingForStdin(enable:boolean) {
+    return this.isWaitingForStdin = enable;
   }
 
   public isStepExecutionRunning():boolean {
@@ -131,6 +147,7 @@ export default class Engine {
       this.loadLibarary(global);
       this.currentState = new ExecState(global);
       this.clearStdout();
+      this.clearStdin();
       // loadLibarary(global);
       // firePreExecAll(global);
       // 初期化が完了して1行目に入る前の状態で最初は返す。
@@ -402,6 +419,7 @@ export default class Engine {
       for (let i = 0; mc.args !== null && i < mc.args.length; i++) {
         args.push(yield* this.execExpr(mc.args[i], scope));
       }
+      this.currentScope = scope;
       let ret:any = null;
       if (mc.receiver != null) {
         const receiver:any = yield* this.execExpr(mc.receiver, scope);
@@ -414,6 +432,7 @@ export default class Engine {
           ret = yield* this.execFuncCall(func, args);
         }
       }
+      this.currentScope = null;
       return ret;
     } else if (expr instanceof UniIdent) {
       const ret = scope.get((<UniIdent> expr).name);

@@ -1,5 +1,6 @@
 import * as math from 'mathjs';
 import * as agh from 'agh.sprintf';
+import { sscanf } from 'scanf';
 import Engine from './Engine';
 import UniBinOp from '../node/UniBinOp';
 import Scope from './Scope';
@@ -32,15 +33,55 @@ export default class CPP14Engine extends Engine {
   
   protected includeStdio(global:Scope) {
     global.setFunc('printf', function () {
-      const arg = [];
+      const args = [];
       for (let i = 0; i < arguments.length; ++i) {
-        arg.push(arguments[i]);
+        args.push(arguments[i]);
       }
-      const output = agh.sprintf(...arg).replace('\\n','\n');
+      const output = agh.sprintf(...args).replace('\\n','\n');
       this.stdout(output);
       const byteCount = (str:string) => encodeURIComponent(str).replace(/%../g,'x').length;
       const count = byteCount(output);
       return count;
+    },             'FUNCTION');
+
+    global.setFunc('scanf', function* () {
+      if (arguments.length === 0) {
+        return 0;
+      }
+      const format = arguments[0];
+      const args = [];
+      for (let i = 1; i < arguments.length; ++i) {
+        args.push(arguments[i]);
+      }
+
+      this.clearStdin();
+      ////////////////////////////////////////////
+      this.setIsWaitingForStdin(true);// yield and set stdin
+      yield;
+      ////////////////////////////////////////////
+      const input = this.getStdin();
+      this.setIsWaitingForStdin(false);
+
+      const values = sscanf(input, format);
+      if (Array.isArray(values)) {
+        const length = Math.min(args.length, values.length);
+        for (let i = 0; i < length; ++i) {
+          const addr:number = args[i];
+          const type:string = this.currentScope.getType(addr);
+          if (type === 'double' || type === 'float') {
+            const value = Number.parseFloat(values[i]);
+            this.currentScope.set(addr, value);
+          } else {
+            const value = Number.parseInt(values[i]);
+            this.currentScope.set(addr, value);
+          }
+        }
+        return length;
+      } else {
+        const length = 1;
+        const addr = args[0];
+        return 1;
+      }
     },             'FUNCTION');
   }
 
