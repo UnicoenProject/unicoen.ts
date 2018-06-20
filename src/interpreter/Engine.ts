@@ -618,14 +618,6 @@ export default class Engine {
               return this.execAssign(address, num - 1, scope);
           }
         }
-      case '&': {
-        const adr = this.getAddress(uniOp.expr,scope);
-        return adr;
-      }
-      case '*': {
-        const v = scope.getValue(<number>(yield* this.execExpr(uniOp.expr, scope)));
-        return v;
-      }
       case '()': {
         const v = yield* this.execExpr(uniOp.expr,scope);
         return v;
@@ -698,20 +690,29 @@ export default class Engine {
       // なぜかこのconstがundefinedになってしまう。
       if (def.value != null) {
         value = yield* this.execExpr(def.value, scope);
-      } else {
-        const a = math.pow(2,32);
-        value = math.randomInt(0, <number>a);
-        yield value;
       }
+
+      // 配列の場合
       if (def.typeSuffix != null && def.typeSuffix !== '') {
         const regexp = /[(\d+)]/gi;
         const matches_array = def.typeSuffix.match(regexp);
         if (matches_array !== null) {
-          for (let i = value.length; i < matches_array[0]; ++i) {
-            value.push(0);
+          const length = Number.parseInt(matches_array[0]);
+          if (value != null) { // 初期化している場合。
+            for (let i = value.length; i < length; ++i) {
+              value.push(0);
+            }
           }
         }
       }
+
+      // 未初期化の配列でない変数の場合、乱数で初期化する。
+      if (def.value == null) {
+        const a = math.pow(2,32);
+        value = math.randomInt(0, <number>a);
+        yield value;
+      }
+
       if (decVar.type.endsWith('*') && !(Array.isArray(value))) {
         const address:number = value;// int
         if (scope.isMallocArea(address)) {

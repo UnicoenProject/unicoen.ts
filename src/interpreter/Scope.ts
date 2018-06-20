@@ -177,7 +177,14 @@ export default class Scope {
     }
     throw new UniRuntimeError(`variable ${key} is not defined.`);
   }
-
+  public malloc(byteSize:number):number {
+    const addr = this.address.heapAddress;
+    for (let i = 0;i < byteSize;++i) {
+      this.objectOnMemory.set(this.address.heapAddress++, Math.round(Math.random() * 255));
+    }
+    this.mallocData.set(addr, byteSize);
+    return addr;
+  }
   public setMallocSize(address:number, size:number):void {
 	  this.mallocData.set(address, size);
   }
