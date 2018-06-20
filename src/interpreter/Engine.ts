@@ -76,7 +76,7 @@ export default class Engine {
   public getStdout(): string {
     return this._stdout;
   }
-  public stdout(text:string):void {
+  protected stdout(text:string):void {
     this._stdout += text;
   }
   private clearStdout() {
