@@ -211,7 +211,7 @@ const testData = [
     {
       int x = fmin(2,3);
       int y = printf("%u\\n",-12345);
-      return x+y
+      return x+y;
     }`,
     node: null,
     ret: 13,// "4294954951\n" + 2
