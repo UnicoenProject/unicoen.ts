@@ -98,6 +98,7 @@ export default class Engine {
     this.isCurrentExprSet = false;
     const node = this.execStepItr.next();
     const ret = node.value;
+    this.currentState.setCurrenValue(ret);
     if (this.isDebugMode) {
       console.log(ret);
       // console.log(this.getCurrentExpr());
@@ -119,6 +120,10 @@ export default class Engine {
       this.currentState = new ExecState(global);
       // loadLibarary(global);
       // firePreExecAll(global);
+      // 初期化が完了して1行目に入る前の状態で最初は返す。
+      this.currentState.setCurrentExpr(dec);
+      yield true;
+      
       const value = yield* this.execFunc(main, global, null);
       // firePostExecAll(global, value);
       return value;

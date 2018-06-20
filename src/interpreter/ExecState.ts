@@ -5,6 +5,7 @@ import Variable from './Variable';
 import UniVariableDec from '../node/UniVariableDec';
 
 export default class ExecState {
+  private currentValue:any;
   private currentExpr:UniNode;
   private stacks:Stack[] = [];
   private readonly stackOffset:number = 0x10000;
@@ -160,6 +161,14 @@ export default class ExecState {
         break;
       }
     }
+  }
+
+  public getCurrentValue():any {
+    return this.currentValue;
+  }
+
+  public setCurrenValue(value:any) {
+    this.currentValue = value;
   }
 
   public getCurrentExpr():UniNode {
