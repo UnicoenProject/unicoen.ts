@@ -22,7 +22,7 @@ import UniIf from '../src/node/UniIf';
 import CMapper from '../src/mapper/C/CMapper';
 import Engine from '../src/interpreter/Engine';
 import CPP14Mapper from '../src/mapper/CPP14/CPP14Mapper';
-import CPP14Engine from '../src/interpreter/CPP14Engine';
+import CPP14Engine from '../src/interpreter/CPP14/CPP14Engine';
 
 describe('node_helper', () => {
   it(`CodeLocation`, () => {

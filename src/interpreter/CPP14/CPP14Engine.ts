@@ -1,14 +1,14 @@
 import * as math from 'mathjs';
 import * as agh from 'agh.sprintf';
-import { sscanf } from 'scanf';
-import Engine from './Engine';
-import UniBinOp from '../node/UniBinOp';
-import Scope from './Scope';
-import UniExpr from '../node/UniExpr';
-import UniUnaryOp from '../node/UniUnaryOp';
-import UniIdent from '../node/UniIdent';
-import UniStringLiteral from '../node/UniStringLiteral';
-import UniMethodCall from '../node/UniMethodCall';
+import Engine from '../Engine';
+import UniBinOp from '../../node/UniBinOp';
+import Scope from '../Scope';
+import UniExpr from '../../node/UniExpr';
+import UniUnaryOp from '../../node/UniUnaryOp';
+import UniIdent from '../../node/UniIdent';
+import UniStringLiteral from '../../node/UniStringLiteral';
+import UniMethodCall from '../../node/UniMethodCall';
+const sscanf = require('./scanf/scanf').sscanf;
 
 export default class CPP14Engine extends Engine {
 
@@ -51,6 +51,7 @@ export default class CPP14Engine extends Engine {
       ////////////////////////////////////////////
       const input = this.getStdin();
       this.clearStdin();
+      this.stdout(input + '\n');
       this.setIsWaitingForStdin(false);
       if (!Array.isArray(args) || args.length === 0) {
         return 0;
@@ -86,8 +87,12 @@ export default class CPP14Engine extends Engine {
 
   protected includeStdlib(global:Scope) {
     global.setFunc('malloc', (x:number) => {
-      const byteSize = x;
-      const heapAddress = global.malloc(byteSize);
+      const num = x;
+      const heapAddress = global.setHeap(this.randInt32(), '?');
+      for (let i = 1;i < num;++i) {
+        global.setHeap(this.randInt32(),'?');
+      }
+      global.setMallocSize(heapAddress, num);
       return heapAddress;
     },             'FUNCTION');
     global.setFunc('free', (x:number) => {
@@ -276,11 +281,13 @@ export default class CPP14Engine extends Engine {
   }
 
   public sizeof(type:string):number {
-    let length = 1;
-    if (type.includes('[') && type.includes(']')) {
-      length = Number(type.substring(type.lastIndexOf('[') + 1, type.length - 1));
-    }
-    const typeSize = this.sizeofElement(type);
-    return typeSize * length;
+    return 1;
+    // let length = 1;
+    // if (type.includes('[') && type.includes(']')) {
+    //   length = Number(type.substring(type.lastIndexOf('[') + 1, type.length - 1));
+    // }
+    // const typeSize = this.sizeofElement(type);
+    // return typeSize * length;
   }
+
 }

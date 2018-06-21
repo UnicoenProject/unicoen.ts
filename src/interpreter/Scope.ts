@@ -215,7 +215,7 @@ export default class Scope {
   
   
   public setHeap(value:any, type:string):number {
-    return this.setAreaImple(value, type, this.address, 'staticAddress');
+    return this.setAreaImple(value, type, this.address, 'heapAddress');
   }
 
   public setStatic(value:any, type:string):number {

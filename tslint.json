@@ -11,5 +11,12 @@
     "no-else-after-return":false,
     "no-increment-decrement":false,
     "variable-name":false
+  },
+  "linterOptions": {
+      "exclude": [
+        "node_modules",
+        "src/**/*.d.ts",
+        "src/node/Uni*.ts"
+      ]
   }
 }
