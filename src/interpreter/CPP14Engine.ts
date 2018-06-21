@@ -45,41 +45,40 @@ export default class CPP14Engine extends Engine {
     },             'FUNCTION');
 
     global.setFunc('scanf', function* () {
-      if (arguments.length === 0) {
-        return 0;
-      }
-      const format = arguments[0];
-      const args = [];
-      for (let i = 1; i < arguments.length; ++i) {
-        args.push(arguments[i]);
-      }
-
-      this.clearStdin();
-      ////////////////////////////////////////////
       this.setIsWaitingForStdin(true);// yield and set stdin
-      yield;
+      ////////////////////////////////////////////
+      const args = yield; // get args from next(args) from execUniMethodCall
       ////////////////////////////////////////////
       const input = this.getStdin();
+      this.clearStdin();
       this.setIsWaitingForStdin(false);
+      if (!Array.isArray(args) || args.length === 0) {
+        return 0;
+      }
+      const format = args[0];
+      args.shift();
 
       const values = sscanf(input, format);
+      const setValue = (addr, valueStr) => {
+        const type:string = this.currentScope.getType(addr);
+        if (type === 'double' || type === 'float') {
+          const value = Number.parseFloat(valueStr);
+          this.currentScope.set(addr, value);
+        } else {
+          const value = Number.parseInt(valueStr);
+          this.currentScope.set(addr, value);
+        }
+      };
       if (Array.isArray(values)) {
         const length = Math.min(args.length, values.length);
         for (let i = 0; i < length; ++i) {
           const addr:number = args[i];
-          const type:string = this.currentScope.getType(addr);
-          if (type === 'double' || type === 'float') {
-            const value = Number.parseFloat(values[i]);
-            this.currentScope.set(addr, value);
-          } else {
-            const value = Number.parseInt(values[i]);
-            this.currentScope.set(addr, value);
-          }
+          setValue(addr,values[i]);
         }
         return length;
       } else {
-        const length = 1;
         const addr = args[0];
+        setValue(addr,'' + values);
         return 1;
       }
     },             'FUNCTION');

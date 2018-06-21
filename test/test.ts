@@ -216,6 +216,18 @@ const testData = [
     node: null,
     ret: 13,// "4294954951\n" + 2
   },
+  {
+    input: `int main()
+    {
+      int x = 5;
+      double y = 3;
+      scanf("%d-%f",&x, &y);
+      return x + y;
+    }`,
+    node: null,
+    stdin: '10-2.3',
+    ret: 12.3,
+  },
 ];
 
 describe('node exec', () => {
@@ -246,6 +258,9 @@ describe('mapper', () => {
     }
     it(test.input + ' exec', () => {
       const engine = new CPP14Engine();
+      if (test.stdin) {
+        engine.stdin(test.stdin);
+      }
       const ret = engine.execute(tree); 
       assert.equal(ret, test.ret);
     });

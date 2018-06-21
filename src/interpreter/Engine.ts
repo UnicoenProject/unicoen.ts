@@ -147,7 +147,6 @@ export default class Engine {
       this.loadLibarary(global);
       this.currentState = new ExecState(global);
       this.clearStdout();
-      this.clearStdin();
       // loadLibarary(global);
       // firePreExecAll(global);
       // 初期化が完了して1行目に入る前の状態で最初は返す。
@@ -796,6 +795,14 @@ export default class Engine {
       throw new RuntimeException('func is null');
     } else if (func instanceof Function) {
       const ret = (<Function>func).apply(this, arg);
+      if (ret && (typeof ret.next === 'function')) {
+        let yieldObj = { done:false, value:null };
+        while (!yieldObj.done) {
+          yieldObj = ret.next(arg);
+          yield yieldObj.value;
+        }
+        return yieldObj.value;
+      }
       yield ret;
       return ret;
     }
