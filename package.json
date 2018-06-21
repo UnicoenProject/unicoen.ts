@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "tslint --fix 'src/**/*.ts' 'test/**/*.ts'",
     "dev": "npm run lint && webpack --mode development --watch",
-    "build": "npm run lint && webpack --mode production",
+    "lbuild": "npm run lint && webpack --mode production",
+    "build": "webpack --mode production",
     "node": "npm run build && node ./dst/generator.js && npm run build",
     "test": "npm run build && mocha dst/test.js",
     "server": "npm run build && webpack-dev-server"
