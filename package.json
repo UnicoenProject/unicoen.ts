@@ -58,7 +58,6 @@
     "@types/node": "^9.4.0",
     "agh.sprintf": "0.0.11",
     "mathjs": "^5.0.0",
-    "scanf": "^1.0.2",
     "ts-data.stack": "^1.0.6",
     "typescript-dotnet-es6": "^4.9.11"
   }

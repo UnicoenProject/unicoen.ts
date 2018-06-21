@@ -724,23 +724,28 @@ export default class Engine {
       }
 
       // 配列の場合
+      let length = 0;
       if (def.typeSuffix != null && def.typeSuffix !== '') {
         const regexp = /[(\d+)]/gi;
         const matches_array = def.typeSuffix.match(regexp);
         if (matches_array !== null) {
-          const length = Number.parseInt(matches_array[0]);
+          length = Number.parseInt(matches_array[0]);
           if (value != null) { // 初期化している場合。
             for (let i = value.length; i < length; ++i) {
               value.push(0);
+            }
+          } else {
+            value = [];
+            for (let i = 0; i < length; ++i) {
+              value.push(this.randInt32());
             }
           }
         }
       }
 
       // 未初期化の配列でない変数の場合、乱数で初期化する。
-      if (def.value == null) {
-        const a = math.pow(2,32);
-        value = math.randomInt(0, <number>a);
+      if (value == null) {
+        value = this.randInt32();
         yield value;
       }
 
@@ -811,5 +816,11 @@ export default class Engine {
 
   execMethodCall(arg0: any, arg1: any, arg2: any): any {
     throw new Error('execMethodCall not implemented.');
+  }
+  
+  protected randInt32():number {
+    const a = math.pow(2,32);
+    const v = math.randomInt(0, <number>a);
+    return v;
   }
 }
