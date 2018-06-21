@@ -1,5 +1,6 @@
 import * as math from 'mathjs';
 import * as agh from 'agh.sprintf';
+import { sscanf } from 'scanf';
 import Engine from './Engine';
 import UniBinOp from '../node/UniBinOp';
 import Scope from './Scope';
@@ -32,15 +33,54 @@ export default class CPP14Engine extends Engine {
   
   protected includeStdio(global:Scope) {
     global.setFunc('printf', function () {
-      const arg = [];
+      const args = [];
       for (let i = 0; i < arguments.length; ++i) {
-        arg.push(arguments[i]);
+        args.push(arguments[i]);
       }
-      const output = agh.sprintf(...arg).replace('\\n','\n');
+      const output = agh.sprintf(...args).replace('\\n','\n');
       this.stdout(output);
       const byteCount = (str:string) => encodeURIComponent(str).replace(/%../g,'x').length;
       const count = byteCount(output);
       return count;
+    },             'FUNCTION');
+
+    global.setFunc('scanf', function* () {
+      this.setIsWaitingForStdin(true);// yield and set stdin
+      ////////////////////////////////////////////
+      const args = yield; // get args from next(args) from execUniMethodCall
+      ////////////////////////////////////////////
+      const input = this.getStdin();
+      this.clearStdin();
+      this.setIsWaitingForStdin(false);
+      if (!Array.isArray(args) || args.length === 0) {
+        return 0;
+      }
+      const format = args[0];
+      args.shift();
+
+      const values = sscanf(input, format);
+      const setValue = (addr, valueStr) => {
+        const type:string = this.currentScope.getType(addr);
+        if (type === 'double' || type === 'float') {
+          const value = Number.parseFloat(valueStr);
+          this.currentScope.set(addr, value);
+        } else {
+          const value = Number.parseInt(valueStr);
+          this.currentScope.set(addr, value);
+        }
+      };
+      if (Array.isArray(values)) {
+        const length = Math.min(args.length, values.length);
+        for (let i = 0; i < length; ++i) {
+          const addr:number = args[i];
+          setValue(addr,values[i]);
+        }
+        return length;
+      } else {
+        const addr = args[0];
+        setValue(addr,'' + values);
+        return 1;
+      }
     },             'FUNCTION');
   }
 
