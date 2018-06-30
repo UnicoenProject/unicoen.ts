@@ -60,13 +60,19 @@ export default class Engine {
   public constructor() { }
   
   private isDebugMode:boolean = false;
+  private isCurrentExprSet:boolean = false;
+  protected currentState:ExecState = null;
+  private _stdout:string = '';
+  private _stdin:string = '';
+  protected currentScope:Scope = null;
+  protected execStepItr:IterableIterator<any> = null;
+  private isWaitingForStdin:boolean = false;
+  private filelist:Map<string,ArrayBuffer> = new Map<string,ArrayBuffer>();
+
   public setDebugMode(enable:boolean) {
     this.isDebugMode = enable;
   }
 
-  private isCurrentExprSet:boolean = false;
-
-  protected currentState:ExecState = null;
   public getCurrentExpr():UniNode {
     return this.currentState.getCurrentExpr();
   }
@@ -74,7 +80,6 @@ export default class Engine {
     return this.currentState;
   }
 
-  private _stdout:string = '';
   public getStdout(): string {
     return this._stdout;
   }
@@ -85,7 +90,6 @@ export default class Engine {
     this._stdout = '';
   }
 
-  private _stdin:string = '';
   protected getStdin(): string {
     return this._stdin;
   }
@@ -96,11 +100,6 @@ export default class Engine {
     this._stdin = '';
   }
 
-  protected currentScope:Scope = null;
-  
-  protected execStepItr:IterableIterator<any> = null;
-
-  private isWaitingForStdin:boolean = false;
   public getIsWaitingForStdin():boolean {
     return this.isWaitingForStdin;
   }
@@ -110,6 +109,18 @@ export default class Engine {
 
   public isStepExecutionRunning():boolean {
     return this.execStepItr != null;
+  }
+
+  public setFileList(filelist:Map<string,ArrayBuffer>) {
+    this.filelist = filelist;
+  }
+
+  public getFileList() {
+    return this.filelist;
+  }
+
+  public getFileFromFileList(filename:string):ArrayBuffer {
+    return this.filelist.get(filename);
   }
 
   protected loadLibarary(global:Scope) {
@@ -794,10 +805,17 @@ export default class Engine {
       // 配列の場合
       let length = 0;
       if (def.typeSuffix != null && def.typeSuffix !== '') {
-        const regexp = /[(\d+)]/gi;
-        const matches_array = def.typeSuffix.match(regexp);
-        if (matches_array !== null) {
-          length = Number.parseInt(matches_array[0]);
+        const sizes:number[] = [];
+        const typeSuffix:string = def.typeSuffix;
+        for (let k = 0; k<typeSuffix.length; ++k) {
+          const left = typeSuffix.indexOf('[', k);
+          const right = typeSuffix.indexOf(']', k);
+          const size = typeSuffix.slice(left+1,right);
+          sizes.push(Number.parseInt(size));
+          k = right;
+        }
+        if (0 < sizes.length) {
+          length = sizes[0];
           if (value != null) { // 初期化している場合。
             for (let i = value.length; i < length; ++i) {
               value.push(0);

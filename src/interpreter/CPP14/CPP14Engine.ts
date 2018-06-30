@@ -10,6 +10,7 @@ import UniStringLiteral from '../../node/UniStringLiteral';
 import UniMethodCall from '../../node/UniMethodCall';
 import UniCast from '../../node/UniCast';
 import UniCharacterLiteral from '../../node/UniCharacterLiteral';
+import File from '../File';
 const sscanf = require('./scanf/scanf').sscanf;
 
 export default class CPP14Engine extends Engine {
@@ -112,6 +113,83 @@ export default class CPP14Engine extends Engine {
         setValue(addr,'' + values);
         return 1;
       }
+    },            'FUNCTION');
+
+    global.setTop('fopen', function () {
+      if (arguments.length < 1)
+        return 0;
+      const args = [];
+      for (let i = 0; i < arguments.length; ++i) {
+        args.push(arguments[i]);
+      }
+      const filename = CPP14Engine.bytesToStr(args[0]);
+      const mode = CPP14Engine.bytesToStr(args[1]);
+      let ret = 0;
+      try {
+        switch (mode){
+            // テキスト
+          case 'r': {
+            const buf = this.getFileFromFileList(filename);
+            const file = new File(buf);
+            ret = global.setCode(file, 'FILE');
+            break;
+          }
+          case 'w':
+            // ret = global.setCode(bw, "FILE");
+            break;
+          case 'a':
+            break;
+          case 'rb':
+            break;
+          case 'r+':
+            break;
+          case 'w+':
+            break;
+          case 'a+':
+            break;
+            // バイナリ
+          case 'wb':
+            break;
+          case 'ab':
+            break;
+          case 'r+b':
+          case 'rb+':
+            break;
+          case 'w+b':
+          case 'wb+':
+            break;
+          case 'a+b':
+          case 'ab+':
+            break;
+          default:
+            break;
+        }
+      } catch (e) {
+        // TODO 自動生成された catch ブロック
+        // e.printStackTrace();
+      }
+      return ret; 
+    },            'FUNCTION');
+    global.setTop('fgetc', (arg:any) => {
+      let ch = -1;
+      const addr = <number>arg;
+      const fp:File = global.getValue(addr);
+      ch = fp.fgetc();
+      return ch;
+    },            'FUNCTION');
+    global.setTop('fgets', (s:number,n:number,stream:number) => {
+      const ch = -1;
+      const fp:File = global.getValue(stream);
+      const buf = fp.fgets(n);
+      if (buf === null) {
+        return 0;
+      }
+      const addr = <number>s;
+      for (let i = 0; i < buf.length; ++i) {
+        global.set(addr + i, buf[i]);
+        if (buf[i] === 0)break;
+      }
+      return s;
     },            'FUNCTION');
   }
 
