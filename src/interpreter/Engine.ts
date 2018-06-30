@@ -481,6 +481,14 @@ export default class Engine {
     // }
     throw new RuntimeException('Not support expr type: ' + expr);
   }
+ 
+  protected execCast(expr:UniCast, scope:Scope):any {
+    return this.execExpr(expr.value, scope);
+  }
+
+  protected execStringLiteral(expr:UniStringLiteral, scope:Scope):any {
+	  return expr.value;
+  }
   
   private* execFunc(fdec:UniFunctionDec, scope:Scope, args:UniExpr[]):any {
     const funcScope:Scope = Scope.createLocal(scope);
@@ -692,9 +700,7 @@ export default class Engine {
   execMethod(arg0: any, arg1: any, arg2: any): any {
     throw new Error('execMethod not implemented.');
   }
-  execCast(arg0: any, arg1: any): any {
-    throw new Error('execCast not implemented.');
-  }
+
   *execArray(uniArray:UniArray, scope:Scope) {
     const elements = uniArray.items;
     const array:any[] = [];
@@ -789,10 +795,6 @@ export default class Engine {
       return obj as boolean;
     }
     throw new Error('Cannot covert to boolean: ' + obj);
-  }
-
-  protected execStringLiteral(expr:UniStringLiteral, scope:Scope):string {
-	  return expr.value;
   }
   
   private *execFuncCall(func: any, arg: any[]): any {

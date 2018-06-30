@@ -177,14 +177,7 @@ export default class Scope {
     }
     throw new UniRuntimeError(`variable ${key} is not defined.`);
   }
-  public malloc(byteSize:number):number {
-    const addr = this.address.heapAddress;
-    for (let i = 0;i < byteSize;++i) {
-      this.objectOnMemory.set(this.address.heapAddress++, Math.round(Math.random() * 255));
-    }
-    this.mallocData.set(addr, byteSize);
-    return addr;
-  }
+
   public setMallocSize(address:number, size:number):void {
 	  this.mallocData.set(address, size);
   }
@@ -233,24 +226,6 @@ export default class Scope {
     this.objectOnMemory.set(this.address.codeAddress, value);
     this.typeOnMemory.set(this.address.codeAddress, type);
     return this.address.codeAddress++;
-  }
-
-  // 関数を登録
-  public setFunc(key:string, value:any, type:string):void {
-    const addr = this.address.stackAddress;
-    this.setTop(key,value,type);
-    this.functionAddress.set(key,addr);
-  }
-  
-  public isFunc(name:string):boolean;
-  public isFunc(addr:number):boolean;
-  public isFunc(nameOrAddr:string|number):boolean {
-    if (typeof nameOrAddr === 'string') {
-      return this.functionAddress.containsKey(nameOrAddr);
-    } else if (typeof nameOrAddr === 'number') {
-      return this.functionAddress.containsValue(nameOrAddr);
-    }
-    throw new Error('invalid arg type.');
   }
     
   /** 現在のスコープに新しい変数を定義し、代入します */
@@ -391,10 +366,7 @@ export default class Scope {
   }
 
   public removeChild(scope:Scope):boolean {
-    /* remove */
-    const length = this.children.length;
-    this.children.splice(this.children.indexOf(scope), 1);
-	  return this.children.length !== length;
+    return this.children.remove(scope);
   }
 
   private hasName(funcName:string):boolean {

@@ -2,6 +2,7 @@
 declare interface Array<T> {
   equals(array:T[]): boolean;
   isEmpty():boolean;
+  remove(obj:T):boolean;
 }
 
 // Warn if overriding existing method
@@ -43,6 +44,18 @@ Array.prototype.isEmpty = function () {
 };
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, 'isEmpty', { enumerable: false });
+
+if (Array.prototype.remove)
+  console.warn('Overriding existing Array.prototype.remove. Possible causes: New API defines the method, there\'s a framework conflict or you\'ve got double inclusions in your code.');
+
+Array.prototype.remove = function (obj) {
+  const length = this.length;
+  this.splice(this.indexOf(obj), 1);
+  return this.length !== length;
+};
+// Hide method from for-in loops
+Object.defineProperty(Array.prototype, 'remove', { enumerable: false });
+
 
 
 interface Map<K, V> {
