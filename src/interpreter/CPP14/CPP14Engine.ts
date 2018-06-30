@@ -9,6 +9,7 @@ import UniIdent from '../../node/UniIdent';
 import UniStringLiteral from '../../node/UniStringLiteral';
 import UniMethodCall from '../../node/UniMethodCall';
 import UniCast from '../../node/UniCast';
+import UniCharacterLiteral from '../../node/UniCharacterLiteral';
 const sscanf = require('./scanf/scanf').sscanf;
 
 export default class CPP14Engine extends Engine {
@@ -288,8 +289,10 @@ export default class CPP14Engine extends Engine {
 
   protected execCast(expr:UniCast, scope:Scope):any {
     const value = this.execExpr(expr.value, scope);
-    const type:string = expr.type;
-
+    return this._execCast(expr.type, value);
+  }
+  // tslint:disable-next-line:function-name
+  protected _execCast(type:string, value:any):any {
     // protected Object _execCast(String type, Object value){
     if (value == null || Array.isArray(value)) {
       return value;
@@ -319,6 +322,13 @@ export default class CPP14Engine extends Engine {
     return value;
   }
 
+  protected execCharLiteral(expr:UniCharacterLiteral, scope:Scope):any {
+    const value:string = expr.value;
+    const code = value.charCodeAt(0);
+	  return code;
+  }
+
+
   protected execStringLiteral(expr:UniStringLiteral, scope:Scope):any {
     const value:string = (<UniStringLiteral>expr).value;
     try {
@@ -336,7 +346,7 @@ export default class CPP14Engine extends Engine {
   }
 
 
-  public static sizeof(type:string):number {
+  public sizeof(type:string):number {
     return 1;
 /*		if(type.contains("char")){
 			return 1;

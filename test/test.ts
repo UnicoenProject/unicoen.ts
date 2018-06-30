@@ -207,10 +207,10 @@ const testData = [
     ret: 1.4142135623746899,
   },
   {
-    input: `int main()
+    input: String.raw`int main()
     {
       int x = fmin(2,3);
-      int y = printf("%u\\n",-12345);
+      int y = printf("%u\n",-12345);
       return x+y;
     }`,
     node: null,
@@ -227,6 +227,15 @@ const testData = [
     node: null,
     stdin: '10-2.3',
     ret: 12.3,
+  },
+  {
+    input: `int main(){
+      char moji[] = "123456789";
+      moji[3]='0';
+      return moji[3] + moji[4];
+    }`,
+    node: null,
+    ret: 101,// ASCII Code 0:48, 5:53
   },
 ];
 

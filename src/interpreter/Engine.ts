@@ -37,6 +37,8 @@ import UniNumberLiteral from '../node/UniNumberLiteral';
 import RuntimeException from './RuntimeException';
 import { clone }from '../node_helper/clone';
 import math = require('mathjs');
+import { isArray } from 'util';
+import UniCharacterLiteral from '../node/UniCharacterLiteral';
 
 export class ControlException extends RuntimeException {
 }
@@ -438,14 +440,21 @@ export default class Engine {
       yield ret;
       return ret;
     } else if (expr instanceof UniBoolLiteral) {
-      return (<UniBoolLiteral>expr).value;
+      const ret = (<UniBoolLiteral>expr).value;
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniCharacterLiteral) {
+      const ret = this.execCharLiteral(expr,scope);
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniStringLiteral) {
+      const ret = this.execStringLiteral(expr,scope);
+      yield ret;
+      return ret;
     } else if (expr instanceof UniNumberLiteral) {
       const ret = (<UniNumberLiteral>expr).value;
       yield ret;
       return ret;
-    } else if (expr instanceof UniStringLiteral) {
-      yield;
-      return this.execStringLiteral(<UniStringLiteral>expr,scope);
     } else if (expr instanceof UniUnaryOp) {
       return yield* this.execUnaryOp(<UniUnaryOp>expr, scope);
     } else if (expr instanceof UniBinOp) {
@@ -484,6 +493,14 @@ export default class Engine {
  
   protected execCast(expr:UniCast, scope:Scope):any {
     return this.execExpr(expr.value, scope);
+  }
+  // tslint:disable-next-line:function-name
+  protected _execCast(type:string, value:any):any {
+    return value;
+  }
+
+  protected execCharLiteral(expr:UniCharacterLiteral, scope:Scope):any {
+	  return expr.value;
   }
 
   protected execStringLiteral(expr:UniStringLiteral, scope:Scope):any {
@@ -619,6 +636,15 @@ export default class Engine {
     const type:string = scope.getType(address);
     // value = this._execCast(type,value);
     scope.set(address, value);
+    if (type.endsWith('*')) {
+      const taddress = <number>value;
+      if (scope.isMallocArea(taddress)) {
+        const size = scope.getMallocSize(taddress);
+        for (let i = 0;i < size;++i) {
+          scope.typeOnMemory.set(taddress + i, type.substring(0, type.length - 1));
+        }
+      }
+    }    
     return value;
   }
 
@@ -665,8 +691,29 @@ export default class Engine {
     throw new RuntimeException('Unkown binary operator: ' + uniOp.operator);
   }
 
-  getType(arg0: any, arg1: any): any {
-    throw new Error('Method not implemented.');
+  protected getType(expr:UniExpr, scope:Scope):string {
+    if (expr instanceof UniIdent) {
+      const ui:UniIdent = expr;
+      return scope.getType(ui.name);
+    } else if (expr instanceof UniUnaryOp) {
+      const uuo:UniUnaryOp = expr;
+      if (uuo.operator === '*') {
+        return this.getType(uuo.expr,scope);
+      }
+    } else if (expr instanceof UniBinOp) {
+      const ubo:UniBinOp = expr;
+      if (ubo.operator === '[]') {
+        const left:string = this.getType(ubo.left,scope);
+        if (left != null) {
+          return left;
+        }
+        const right:string =  this.getType(ubo.right,scope);
+        if (right != null) {
+          return right;
+        }
+      }
+    }
+    return null;
   }
 
   getAddress(expr: UniExpr, scope: Scope): number {
@@ -710,11 +757,9 @@ export default class Engine {
     }
     return array;
   }
-  execImple(arg0: any, arg1: any): any {
-    throw new Error('execImple not implemented.');
-  }
+
   *execVariableDec(decVar:UniVariableDec, scope:Scope) {
-    let value;
+    let value = null;
     for (const def of decVar.variables) {
       while (def.name.startsWith('*')) {
         def.name = def.name.substring(1);
@@ -724,9 +769,26 @@ export default class Engine {
         def.name = def.name.substring(1);
         decVar.type += '&';
       }
-      // なぜかこのconstがundefinedになってしまう。
+
+      // 初期化されている場合
       if (def.value != null) {
         value = yield* this.execExpr(def.value, scope);
+        value = this._execCast(decVar.type,value);
+        if (decVar.type.endsWith('*') && !Array.isArray(value)) {
+          if (value instanceof String) {
+            value = scope.setStatic(value, 'char[]');
+          } else {
+            const address = <number>value;
+            if (scope.isMallocArea(address)) {
+              const size:number = scope.getMallocSize(address);
+              const type = decVar.type.substring(0,decVar.type.length - 1);
+              const typeSize = this.sizeof(type);
+              for (let i = 0;i < size;i += typeSize) {
+                scope.typeOnMemory.set(address + i, type);
+              }
+            }
+          }
+        }
       }
 
       // 配列の場合
@@ -749,23 +811,12 @@ export default class Engine {
         }
       }
 
-      // 未初期化の配列でない変数の場合、乱数で初期化する。
-      if (value == null) {
-        value = this.randInt32();
-        yield value;
-      }
+      // // 未初期化の配列でない変数の場合、乱数で初期化する。
+      // if (value == null) {
+      //   value = this.randInt32();
+      //   yield value;
+      // }
 
-      if (decVar.type.endsWith('*') && !(Array.isArray(value))) {
-        const address:number = value;// int
-        if (scope.isMallocArea(address)) {
-          const size:number = scope.getMallocSize(address);
-          const type = decVar.type.substring(0,decVar.type.length - 1);
-          const typeSize = this.sizeof(type);
-          for (let i = 0;i < size;i += typeSize) {
-            scope.typeOnMemory.set(address + i, type);
-          }
-        }
-      }
       const type:string = decVar.type;
       scope.setTop(def.name,value,type);
     }
