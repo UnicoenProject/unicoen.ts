@@ -130,7 +130,7 @@ export default class CPP14Engine extends Engine {
             // テキスト
           case 'r': {
             const buf = this.getFileFromFileList(filename);
-            const file = new File(buf);
+            const file = new File(buf,mode);
             ret = global.setCode(file, 'FILE');
             break;
           }
@@ -463,6 +463,9 @@ export default class CPP14Engine extends Engine {
       const o = objectOnMemory.get(begin);
       if (typeof obj === 'number') {
         v = <number>o;
+        if(v == 0) {
+          break;
+        }
         bytes.push(v);
       } else {
         break;

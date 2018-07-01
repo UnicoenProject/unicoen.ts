@@ -807,10 +807,10 @@ export default class Engine {
       if (def.typeSuffix != null && def.typeSuffix !== '') {
         const sizes:number[] = [];
         const typeSuffix:string = def.typeSuffix;
-        for (let k = 0; k<typeSuffix.length; ++k) {
+        for (let k = 0; k < typeSuffix.length; ++k) {
           const left = typeSuffix.indexOf('[', k);
           const right = typeSuffix.indexOf(']', k);
-          const size = typeSuffix.slice(left+1,right);
+          const size = typeSuffix.slice(left + 1,right);
           sizes.push(Number.parseInt(size));
           k = right;
         }
