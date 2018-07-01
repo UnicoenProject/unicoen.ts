@@ -39,6 +39,7 @@ import { clone }from '../node_helper/clone';
 import math = require('mathjs');
 import { isArray } from 'util';
 import UniCharacterLiteral from '../node/UniCharacterLiteral';
+import File from './File';
 
 export class ControlException extends RuntimeException {
 }
@@ -67,7 +68,6 @@ export default class Engine {
   protected currentScope:Scope = null;
   protected execStepItr:IterableIterator<any> = null;
   private isWaitingForStdin:boolean = false;
-  private filelist:Map<string,ArrayBuffer> = new Map<string,ArrayBuffer>();
 
   public setDebugMode(enable:boolean) {
     this.isDebugMode = enable;
@@ -112,15 +112,7 @@ export default class Engine {
   }
 
   public setFileList(filelist:Map<string,ArrayBuffer>) {
-    this.filelist = filelist;
-  }
-
-  public getFileList() {
-    return this.filelist;
-  }
-
-  public getFileFromFileList(filename:string):ArrayBuffer {
-    return this.filelist.get(filename);
+    File.setFilelist(filelist);
   }
 
   protected loadLibarary(global:Scope) {
@@ -168,6 +160,7 @@ export default class Engine {
       
       const value = yield* this.execFunc(main, global, null);
       // firePostExecAll(global, value);
+      global.closeAllFiles();
       return value;
     } else {
       throw new RuntimeException('No entry point in ' + dec);

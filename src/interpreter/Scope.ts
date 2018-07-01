@@ -2,6 +2,7 @@ import UniExpr from '../node/UniExpr';
 import { assert } from 'chai';
 import RuntimeException, { UniRuntimeError } from './RuntimeException';
 import UniFunctionDec from '../node/UniFunctionDec';
+import File from './File';
 
 
 enum Type {  GLOBAL,  OBJECT,  LOCAL }
@@ -385,6 +386,14 @@ export default class Scope {
       const indexName:string = funcName + '.' + i;
       if (!this.hasName(indexName)) {
         return indexName;
+      }
+    }
+  }
+
+  public closeAllFiles() {
+    for (const value of this.objectOnMemory.values()) {
+      if (value instanceof File) {
+        value.fclose();
       }
     }
   }

@@ -129,14 +129,18 @@ export default class CPP14Engine extends Engine {
         switch (mode){
             // テキスト
           case 'r': {
-            const buf = this.getFileFromFileList(filename);
-            const file = new File(buf,mode);
+            const buf = File.getFileFromFileList(filename);
+            const file = new File(filename,buf,mode);
             ret = global.setCode(file, 'FILE');
             break;
           }
-          case 'w':
-            // ret = global.setCode(bw, "FILE");
+          case 'w': {
+            const buf = new ArrayBuffer(1024);
+            File.addFileToFileList(filename, buf);
+            const file = new File(filename,buf, 'w');
+            ret = global.setCode(file, 'FILE');
             break;
+          }
           case 'a':
             break;
           case 'rb':
@@ -190,6 +194,40 @@ export default class CPP14Engine extends Engine {
         if (buf[i] === 0)break;
       }
       return s;
+    },            'FUNCTION');
+    global.setTop('fputc', (c:number, stream:number) => {
+      let ch = -1;
+      const addr = <number>stream;
+      const fp:File = global.getValue(addr);
+      ch = fp.fputc(c);
+      return ch;
+    },            'FUNCTION');
+    global.setTop('fputs', (s:number|number[], stream:number) => {
+      const addr = <number>stream;
+      let bytes = null;
+      if (typeof s === 'number') {
+        bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s);
+      } else if (typeof s === 'string') {
+        bytes = CPP14Engine.strToBytes(s);
+      }
+      const fp:File = global.getValue(addr);
+      let ret = -1;
+      for (const byte of bytes) {
+        ret = fp.fputc(byte);
+      }
+      return 1;
+    },            'FUNCTION');
+    global.setTop('fflush', (stream:number) => {
+      const addr = <number>stream;
+      const fp:File = global.getValue(addr);
+      fp.flush();
+      return 0;
+    },            'FUNCTION');
+    global.setTop('fclose', (stream:number) => {
+      const addr = <number>stream;
+      const fp:File = global.getValue(addr);
+      fp.fclose();
+      return 0;
     },            'FUNCTION');
   }
 
@@ -327,13 +365,15 @@ export default class CPP14Engine extends Engine {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
       const binOp = <UniBinOp>arg;
       return yield* this.execBinOp(binOp.operator, scope, binOp.left, binOp.right);
-    } else if (typeof arg === 'string' && left instanceof UniExpr && right instanceof UniExpr) {
+    } else if (typeof arg === 'string' && left instanceof UniExpr) {
       let op = <string>arg;
       if (op === '++' || op === '--') {
         op = '_' + op;
         return yield* this.execUnaryOp(new UniUnaryOp(op,left),scope);
       }
-		  return yield* super.execBinOp(op, scope, left, right);
+      if (right instanceof UniExpr) {
+        return yield* super.execBinOp(op, scope, left, right);
+      }
     }
   }
 
@@ -409,18 +449,13 @@ export default class CPP14Engine extends Engine {
 
   protected execStringLiteral(expr:UniStringLiteral, scope:Scope):any {
     const value:string = (<UniStringLiteral>expr).value;
-    try {
-      const list:number[] = [];
-      for (let i = 0; i < value.length; ++i) {
-        const byte = value.charCodeAt(i);
-        list.push(byte);
-      }
-      list.push(0);
-      return list;
-    } catch (e) {
-      console.error(e);
+    const list:number[] = [];
+    for (let i = 0; i < value.length; ++i) {
+      const byte = value.charCodeAt(i);
+      list.push(byte);
     }
-    return value;
+    list.push(0);
+    return list;
   }
 
 
@@ -451,19 +486,18 @@ export default class CPP14Engine extends Engine {
     }
     return str;
   }
-
-  public static charArrToStr(objectOnMemory:Map<number, any> , _begin:number):String {
+  public static getCharArrAsByte(objectOnMemory:Map<number, any> , _begin:number):number[] {
     let begin = _begin;
     const bytes:number[] = [];
     const obj:string|number = objectOnMemory.get(begin);
     if (typeof obj === 'string') {
-      return obj;
+      return CPP14Engine.strToBytes(obj);
     }
     for (let v = obj; objectOnMemory.containsKey(begin); ++begin) {
       const o = objectOnMemory.get(begin);
       if (typeof obj === 'number') {
         v = <number>o;
-        if(v == 0) {
+        if (v === 0) {
           break;
         }
         bytes.push(v);
@@ -472,6 +506,10 @@ export default class CPP14Engine extends Engine {
       }
     }
     bytes.push(0);
+    return bytes;
+  }
+  public static charArrToStr(objectOnMemory:Map<number, any> , _begin:number):String {
+    const bytes = this.getCharArrAsByte(objectOnMemory, _begin);
     return this.bytesToStr(bytes);
   }
 }
