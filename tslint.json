@@ -16,7 +16,10 @@
       "exclude": [
         "node_modules",
         "src/**/*.d.ts",
-        "src/node/Uni*.ts"
+        "src/node/Uni*.ts",
+        "src/**/*Parser.ts",
+        "src/**/*Lexer.ts",
+        "src/**/*Visitor.ts"
       ]
   }
 }

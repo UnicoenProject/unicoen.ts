@@ -36,20 +36,95 @@ import UniSwitch from '../../node/UniSwitch';
 import UniMethodCall from '../../node/UniMethodCall';
 import UniProgram from '../../node/UniProgram';
 
-import { InputStream, CommonTokenStream, ParserRuleContext } from 'antlr4';
-import { Token }from 'antlr4/Token';
-import { RuleContext }from 'antlr4/RuleContext';
-import { TerminalNode, TerminalNodeImpl, RuleNode, ParseTree }from 'antlr4/tree/Tree';
-import { CPP14Lexer } from './CPP14Lexer';
-import { CPP14Parser } from './CPP14Parser';
+import { ANTLRInputStream, 
+	CommonTokenStream, 
+	ParserRuleContext, 
+	RuleContext, 
+	Token } from 'antlr4ts';
+import { ParseTree } from 'antlr4ts/tree/ParseTree';
 import { CPP14Visitor } from './CPP14Visitor';
+import { CPP14Parser, 
+	TranslationunitContext,
+PrimaryexpressionContext,
+IdentexpressionContext,
+IdexpressionlapperContext,
+FunctioncallexpressionContext,
+PostfixexpressionContext,
+ExpressionlistContext,
+BinaryexpressionContext,
+UnaryexpressionContext,
+TypeidlapperContext,
+CastexpressionContext,
+PmexpressionContext,
+MultiplicativeexpressionContext,
+AdditiveexpressionContext,
+ShiftexpressionContext,
+RelationalexpressionContext,
+EqualityexpressionContext,
+AndexpressionContext,
+ExclusiveorexpressionContext,
+InclusiveorexpressionContext,
+LogicalandexpressionContext,
+LogicalorexpressionContext,
+ConditionalexpressionContext,
+AssignmentexpressionContext,
+ExpressionstatementContext,
+CompoundstatementContext,
+StatementseqContext,
+SelectionstatementContext,
+WhilestatementContext,
+DowhilestatementContext,
+IterationstatementContext,
+EnhancedForStatementContext,
+BreakStatementContext,
+ContinueStatementContext,
+ReturnStatementContext,
+DeclarationseqContext,
+MyclassbodyContext,
+MyclassspecifierContext,
+MyclassheadContext,
+VariabledeclarationstatementContext,
+VariabledeclarationContext,
+VariableDeclaratorListContext,
+VariableDeclaratorContext,
+DimsContext,
+TrailingtypespecifierContext,
+InitdeclaratorlistContext,
+DeclaratoridContext,
+ParameterdeclarationclauseContext,
+ParameterdeclarationlistContext,
+ParameterdeclarationContext,
+FunctiondefinitionContext,
+FunctionheaderContext,
+FunctiondeclaratorContext,
+FunctionbodyContext,
+InitializerlistContext,
+BracedinitlistContext,
+MyclassnameContext,
+ClassspecifierContext,
+ClassbodyContext,
+ClassheadContext,
+MemberspecificationContext,
+MembervariabledeclarationstatementContext,
+MembervariabledeclarationContext,
+MemberdeclaratorlistContext,
+MemberdeclaratorContext,
+IntegerliteralContext,
+CharacterliteralContext,
+FloatingliteralContext,
+StringliteralContext,
+BooleanliteralContext} from './CPP14Parser';
+import { CPP14Lexer } from './CPP14Lexer';
+import { RuleNode } from 'antlr4ts/tree/RuleNode';
+import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
+import { TerminalNode } from 'antlr4ts/tree/TerminalNode';
 
 class Comment {
 	constructor(readonly contents:string[], public parent:ParseTree){
 	}
 }
 
-export default class CPP14Mapper extends CPP14Visitor {
+export default class CPP14Mapper implements CPP14Visitor<any> {
 
 	private isDebugMode:boolean = false;
 	private parser:CPP14Parser;
@@ -63,26 +138,25 @@ export default class CPP14Mapper extends CPP14Visitor {
 	}
 	
 	getRawTree(code) {
-		const chars = new InputStream(code);
+		const chars = new ANTLRInputStream(code);
 		const lexer = new CPP14Lexer(chars);
 		const tokens = new CommonTokenStream(lexer);
 		this.parser = new CPP14Parser(tokens);
-		this.parser.buildParseTrees = true;
 		const tree = this.parser.translationunit();
 		return [tree, this.parser];
 	}
 
-	parse(code) {
-		return this.parseCore(new InputStream(code));
+	parse(code:string) {
+		return this.parseCore(code);
 	}
 
 	
-	parseCore(chars) {
-		const lexer = new CPP14Lexer(chars);
-		const tokens = new CommonTokenStream(lexer);
+	parseCore(code:string) {
+		let chars = new ANTLRInputStream(code);
+		let lexer = new CPP14Lexer(chars);
+		let tokens = new CommonTokenStream(lexer);
 		this.parser = new CPP14Parser(tokens);
-		this.parser.buildParseTrees = true;
-		const tree = this.parser.translationunit();
+		let tree = this.parser.translationunit();
 
 		this._comments = [];
 		this._stream = tokens;
@@ -92,13 +166,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		ret.codeRange = ret.block.codeRange;
 		
 		if (this._lastNode !== null) {
-			const count = this._stream.tokens.length - 1
+			const count = this._stream.getTokens().length - 1
 			for (var i = this._nextTokenIndex; i < count; i++) {
-				const hiddenToken = this._stream.tokens[i]; // Includes skipped tokens (maybe)
+				const hiddenToken = this._stream.getTokens()[i]; // Includes skipped tokens (maybe)
 				if (this._lastNode.comments === null) {
 					this._lastNode.comments = [];
 				}
-				this._lastNode.comments += hiddenToken.text
+				this._lastNode.comments.push(hiddenToken.text);
 			}
 		}
 		return ret;
@@ -123,7 +197,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 	}*/
 
 	public visitChildren(node:RuleNode) {
-		const n = node.getChildCount();
+		const n = node.childCount;
 		const list:any[] = [];
 		for (let i = 0; i < n;++i) {
 			const c = node.getChild(i);
@@ -152,11 +226,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		const node = (Array.isArray(result) && result.length == 1) ? result[0] : result;
 		if (node instanceof UniNode) {
 			if(tree instanceof RuleContext) {
-				const start = tree.start;
-				const begin = new CodeLocation(start.column,start.line);
-				const stop = tree.stop;
-				const endPos = stop.column;
-				const length = 1 + stop.stop - stop.start;
+				const start = (tree as ParserRuleContext).start;
+				const begin = new CodeLocation(start.charPositionInLine,start.line);
+				const stop = (tree as ParserRuleContext).stop;
+				const endPos = stop.charPositionInLine;
+				const length = 1 + stop.stopIndex - stop.startIndex;
 				const end = new CodeLocation(endPos + length, stop.line);
 				node.codeRange = new CodeRange(begin,end);
 			}
@@ -187,7 +261,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 
 	isNonEmptyNode(node:ParseTree):boolean {
 		if (node instanceof ParserRuleContext) {
-			const n = node.getChildCount();
+			const n = node.childCount;
 			if (n > 1) {
 			return true;
 			}
@@ -213,20 +287,20 @@ export default class CPP14Mapper extends CPP14Visitor {
 			const contents:string[] = [];
 			let i = this._nextTokenIndex;
 			for (; i < count; i++) {
-				const hiddenToken = this._stream.tokens[i]; // Includes skipped tokens (maybe)
-				if (this._lastNode !== null && this._stream.tokens[this._nextTokenIndex - 1].line == hiddenToken.line) {
+				const hiddenToken = this._stream.getTokens()[i]; // Includes skipped getTokens() (maybe)
+				if (this._lastNode !== null && this._stream.getTokens()[this._nextTokenIndex - 1].line == hiddenToken.line) {
 					if (this._lastNode.comments === null) {
 						this._lastNode.comments = [];
 					}
-					this._lastNode.comments += hiddenToken.text;
+					this._lastNode.comments.push(hiddenToken.text);
 				} else {
 					contents.push(hiddenToken.text);
 				}
 			}
-			const count2 = this._stream.tokens.length - 1;
-			for (i = count + 1; i < count2 && this._stream.tokens[i].channel == Token.HIDDEN_CHANNEL &&
-				this._stream.tokens[count].line == this._stream.tokens[i].line; i++) {
-				contents.push(this._stream.tokens[i].text);
+			const count2 = this._stream.getTokens().length - 1;
+			for (i = count + 1; i < count2 && this._stream.getTokens()[i].channel == Token.HIDDEN_CHANNEL &&
+				this._stream.getTokens()[count].line == this._stream.getTokens()[i].line; i++) {
+				contents.push(this._stream.getTokens()[i].text);
 			}
 			if (contents.length > 0) {
 				this._comments.push(new Comment(contents, node.parent));
@@ -377,13 +451,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return instance;
 	}
 
-	public visitTranslationunit(ctx:CPP14Parser.TranslationunitContext) {
+	public visitTranslationunit(ctx:TranslationunitContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const body = [];
 		map.set("body", body);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -410,12 +484,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitPrimaryexpression(ctx:CPP14Parser.PrimaryexpressionContext) {
+	public visitPrimaryexpression(ctx:PrimaryexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const ret = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -453,13 +527,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitIdentexpression(ctx:CPP14Parser.IdentexpressionContext) {
+	public visitIdentexpression(ctx:IdentexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const name = [];
 		map.set("name", name);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -486,13 +560,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitIdexpressionlapper(ctx:CPP14Parser.IdexpressionlapperContext) {
+	public visitIdexpressionlapper(ctx:IdexpressionlapperContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const name = [];
 		map.set("name", name);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -519,7 +593,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitFunctioncallexpression(ctx:CPP14Parser.FunctioncallexpressionContext) {
+	public visitFunctioncallexpression(ctx:FunctioncallexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -527,7 +601,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("args", args);
 		const methodName = [];
 		map.set("methodName", methodName);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -558,7 +632,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitPostfixexpression(ctx:CPP14Parser.PostfixexpressionContext) {
+	public visitPostfixexpression(ctx:PostfixexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -569,7 +643,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -651,13 +725,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitExpressionlist(ctx:CPP14Parser.ExpressionlistContext) {
+	public visitExpressionlist(ctx:ExpressionlistContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const items = [];
 		map.set("items", items);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -684,12 +758,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitBinaryexpression(ctx:CPP14Parser.BinaryexpressionContext) {
+	public visitBinaryexpression(ctx:BinaryexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const ret = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -731,7 +805,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitUnaryexpression(ctx:CPP14Parser.UnaryexpressionContext) {
+	public visitUnaryexpression(ctx:UnaryexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -740,7 +814,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("expr", expr);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -822,13 +896,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitTypeidlapper(ctx:CPP14Parser.TypeidlapperContext) {
+	public visitTypeidlapper(ctx:TypeidlapperContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const name = [];
 		map.set("name", name);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -855,7 +929,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitCastexpression(ctx:CPP14Parser.CastexpressionContext) {
+	public visitCastexpression(ctx:CastexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -866,7 +940,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("value", value);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -908,7 +982,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitPmexpression(ctx:CPP14Parser.PmexpressionContext) {
+	public visitPmexpression(ctx:PmexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -919,7 +993,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -969,7 +1043,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMultiplicativeexpression(ctx:CPP14Parser.MultiplicativeexpressionContext) {
+	public visitMultiplicativeexpression(ctx:MultiplicativeexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -980,7 +1054,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1038,7 +1112,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitAdditiveexpression(ctx:CPP14Parser.AdditiveexpressionContext) {
+	public visitAdditiveexpression(ctx:AdditiveexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1049,7 +1123,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1099,7 +1173,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitShiftexpression(ctx:CPP14Parser.ShiftexpressionContext) {
+	public visitShiftexpression(ctx:ShiftexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1110,7 +1184,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1160,7 +1234,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitRelationalexpression(ctx:CPP14Parser.RelationalexpressionContext) {
+	public visitRelationalexpression(ctx:RelationalexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1171,7 +1245,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1237,7 +1311,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitEqualityexpression(ctx:CPP14Parser.EqualityexpressionContext) {
+	public visitEqualityexpression(ctx:EqualityexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1248,7 +1322,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1298,7 +1372,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitAndexpression(ctx:CPP14Parser.AndexpressionContext) {
+	public visitAndexpression(ctx:AndexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1309,7 +1383,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1351,7 +1425,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitExclusiveorexpression(ctx:CPP14Parser.ExclusiveorexpressionContext) {
+	public visitExclusiveorexpression(ctx:ExclusiveorexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1362,7 +1436,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1404,7 +1478,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitInclusiveorexpression(ctx:CPP14Parser.InclusiveorexpressionContext) {
+	public visitInclusiveorexpression(ctx:InclusiveorexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1415,7 +1489,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1457,7 +1531,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitLogicalandexpression(ctx:CPP14Parser.LogicalandexpressionContext) {
+	public visitLogicalandexpression(ctx:LogicalandexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1468,7 +1542,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1510,7 +1584,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitLogicalorexpression(ctx:CPP14Parser.LogicalorexpressionContext) {
+	public visitLogicalorexpression(ctx:LogicalorexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1521,7 +1595,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1563,7 +1637,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitConditionalexpression(ctx:CPP14Parser.ConditionalexpressionContext) {
+	public visitConditionalexpression(ctx:ConditionalexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1574,7 +1648,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("cond", cond);
 		const falseExpr = [];
 		map.set("falseExpr", falseExpr);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1612,7 +1686,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitAssignmentexpression(ctx:CPP14Parser.AssignmentexpressionContext) {
+	public visitAssignmentexpression(ctx:AssignmentexpressionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1623,7 +1697,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("right", right);
 		const operator = [];
 		map.set("operator", operator);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1665,12 +1739,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitExpressionstatement(ctx:CPP14Parser.ExpressionstatementContext) {
+	public visitExpressionstatement(ctx:ExpressionstatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const ret = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1699,13 +1773,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return map;
 	}
 
-	public visitCompoundstatement(ctx:CPP14Parser.CompoundstatementContext) {
+	public visitCompoundstatement(ctx:CompoundstatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const body = [];
 		map.set("body", body);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1732,13 +1806,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitStatementseq(ctx:CPP14Parser.StatementseqContext) {
+	public visitStatementseq(ctx:StatementseqContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -1783,7 +1857,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitSelectionstatement(ctx:CPP14Parser.SelectionstatementContext) {
+	public visitSelectionstatement(ctx:SelectionstatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1793,7 +1867,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("falseStatement", falseStatement);
 		const cond = [];
 		map.set("cond", cond);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1836,7 +1910,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitWhilestatement(ctx:CPP14Parser.WhilestatementContext) {
+	public visitWhilestatement(ctx:WhilestatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1844,7 +1918,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("statement", statement);
 		const cond = [];
 		map.set("cond", cond);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1875,7 +1949,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitDowhilestatement(ctx:CPP14Parser.DowhilestatementContext) {
+	public visitDowhilestatement(ctx:DowhilestatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1883,7 +1957,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("statement", statement);
 		const cond = [];
 		map.set("cond", cond);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1914,7 +1988,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitIterationstatement(ctx:CPP14Parser.IterationstatementContext) {
+	public visitIterationstatement(ctx:IterationstatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1926,7 +2000,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("step", step);
 		const cond = [];
 		map.set("cond", cond);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -1965,7 +2039,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitEnhancedForStatement(ctx:CPP14Parser.EnhancedForStatementContext) {
+	public visitEnhancedForStatement(ctx:EnhancedForStatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -1974,7 +2048,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		const statement = [];
 		map.set("statement", statement);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2010,11 +2084,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitBreakStatement(ctx:CPP14Parser.BreakStatementContext) {
+	public visitBreakStatement(ctx:BreakStatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2037,11 +2111,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitContinueStatement(ctx:CPP14Parser.ContinueStatementContext) {
+	public visitContinueStatement(ctx:ContinueStatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2064,13 +2138,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitReturnStatement(ctx:CPP14Parser.ReturnStatementContext) {
+	public visitReturnStatement(ctx:ReturnStatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const value = [];
 		map.set("value", value);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2101,13 +2175,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitDeclarationseq(ctx:CPP14Parser.DeclarationseqContext) {
+	public visitDeclarationseq(ctx:DeclarationseqContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2162,13 +2236,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMyclassbody(ctx:CPP14Parser.MyclassbodyContext) {
+	public visitMyclassbody(ctx:MyclassbodyContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2203,14 +2277,14 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMyclassspecifier(ctx:CPP14Parser.MyclassspecifierContext) {
+	public visitMyclassspecifier(ctx:MyclassspecifierContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const members = [];
 		map.set("members", members);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2242,13 +2316,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMyclasshead(ctx:CPP14Parser.MyclassheadContext) {
+	public visitMyclasshead(ctx:MyclassheadContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const className = [];
 		map.set("className", className);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2275,12 +2349,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitVariabledeclarationstatement(ctx:CPP14Parser.VariabledeclarationstatementContext) {
+	public visitVariabledeclarationstatement(ctx:VariabledeclarationstatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const ret = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2312,7 +2386,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitVariabledeclaration(ctx:CPP14Parser.VariabledeclarationContext) {
+	public visitVariabledeclaration(ctx:VariabledeclarationContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -2322,7 +2396,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("modifiers", modifiers);
 		const type = [];
 		map.set("type", type);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2357,13 +2431,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitVariableDeclaratorList(ctx:CPP14Parser.VariableDeclaratorListContext) {
+	public visitVariableDeclaratorList(ctx:VariableDeclaratorListContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2408,7 +2482,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitVariableDeclarator(ctx:CPP14Parser.VariableDeclaratorContext) {
+	public visitVariableDeclarator(ctx:VariableDeclaratorContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -2418,7 +2492,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("name", name);
 		const value = [];
 		map.set("value", value);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2465,11 +2539,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitDims(ctx:CPP14Parser.DimsContext) {
+	public visitDims(ctx:DimsContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2492,11 +2566,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitTrailingtypespecifier(ctx:CPP14Parser.TrailingtypespecifierContext) {
+	public visitTrailingtypespecifier(ctx:TrailingtypespecifierContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2519,13 +2593,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitInitdeclaratorlist(ctx:CPP14Parser.InitdeclaratorlistContext) {
+	public visitInitdeclaratorlist(ctx:InitdeclaratorlistContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2555,11 +2629,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return map;
 	}
 
-	public visitDeclaratorid(ctx:CPP14Parser.DeclaratoridContext) {
+	public visitDeclaratorid(ctx:DeclaratoridContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2582,13 +2656,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitParameterdeclarationclause(ctx:CPP14Parser.ParameterdeclarationclauseContext) {
+	public visitParameterdeclarationclause(ctx:ParameterdeclarationclauseContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2633,13 +2707,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitParameterdeclarationlist(ctx:CPP14Parser.ParameterdeclarationlistContext) {
+	public visitParameterdeclarationlist(ctx:ParameterdeclarationlistContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2694,7 +2768,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitParameterdeclaration(ctx:CPP14Parser.ParameterdeclarationContext) {
+	public visitParameterdeclaration(ctx:ParameterdeclarationContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -2704,7 +2778,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("modifiers", modifiers);
 		const type = [];
 		map.set("type", type);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2739,7 +2813,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitFunctiondefinition(ctx:CPP14Parser.FunctiondefinitionContext) {
+	public visitFunctiondefinition(ctx:FunctiondefinitionContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -2748,7 +2822,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		const modifiers = [];
 		map.set("modifiers", modifiers);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2784,14 +2858,14 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitFunctionheader(ctx:CPP14Parser.FunctionheaderContext) {
+	public visitFunctionheader(ctx:FunctionheaderContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const returnType = [];
 		map.set("returnType", returnType);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2823,7 +2897,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitFunctiondeclarator(ctx:CPP14Parser.FunctiondeclaratorContext) {
+	public visitFunctiondeclarator(ctx:FunctiondeclaratorContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -2831,7 +2905,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("name", name);
 		const params = [];
 		map.set("params", params);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2862,12 +2936,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitFunctionbody(ctx:CPP14Parser.FunctionbodyContext) {
+	public visitFunctionbody(ctx:FunctionbodyContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2895,13 +2969,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitInitializerlist(ctx:CPP14Parser.InitializerlistContext) {
+	public visitInitializerlist(ctx:InitializerlistContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -2946,13 +3020,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitBracedinitlist(ctx:CPP14Parser.BracedinitlistContext) {
+	public visitBracedinitlist(ctx:BracedinitlistContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const items = [];
 		map.set("items", items);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -2979,11 +3053,11 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMyclassname(ctx:CPP14Parser.MyclassnameContext) {
+	public visitMyclassname(ctx:MyclassnameContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -3006,14 +3080,14 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitClassspecifier(ctx:CPP14Parser.ClassspecifierContext) {
+	public visitClassspecifier(ctx:ClassspecifierContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const members = [];
 		map.set("members", members);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -3045,13 +3119,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitClassbody(ctx:CPP14Parser.ClassbodyContext) {
+	public visitClassbody(ctx:ClassbodyContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -3086,13 +3160,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitClasshead(ctx:CPP14Parser.ClassheadContext) {
+	public visitClasshead(ctx:ClassheadContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const className = [];
 		map.set("className", className);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -3119,13 +3193,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMemberspecification(ctx:CPP14Parser.MemberspecificationContext) {
+	public visitMemberspecification(ctx:MemberspecificationContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -3190,12 +3264,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMembervariabledeclarationstatement(ctx:CPP14Parser.MembervariabledeclarationstatementContext) {
+	public visitMembervariabledeclarationstatement(ctx:MembervariabledeclarationstatementContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const ret = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -3227,7 +3301,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return node;
 	}
 
-	public visitMembervariabledeclaration(ctx:CPP14Parser.MembervariabledeclarationContext) {
+	public visitMembervariabledeclaration(ctx:MembervariabledeclarationContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -3236,7 +3310,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		const type = [];
 		map.set("type", type);
 		const merge = [];
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		if (0<n) {
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);
@@ -3282,13 +3356,13 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return ret;
 	}
 
-	public visitMemberdeclaratorlist(ctx:CPP14Parser.MemberdeclaratorlistContext) {
+	public visitMemberdeclaratorlist(ctx:MemberdeclaratorlistContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
 		const add = [];
 		map.set("add", add);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -3322,7 +3396,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return map;
 	}
 
-	public visitMemberdeclarator(ctx:CPP14Parser.MemberdeclaratorContext) {
+	public visitMemberdeclarator(ctx:MemberdeclaratorContext) {
 		const map = new Map<string,any>();
 		const none = [];
 		map.set("none", none);
@@ -3332,7 +3406,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		map.set("modifiers", modifiers);
 		const value = [];
 		map.set("value", value);
-		const n = ctx.getChildCount();
+		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
@@ -3386,12 +3460,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return map;
 	}
 
-	public visitIntegerliteral(ctx:CPP14Parser.IntegerliteralContext) {
+	public visitIntegerliteral(ctx:IntegerliteralContext) {
 		const findFirst = (ctx) => {
-			const n = ctx.getChildCount();
+			const n = ctx.childCount;
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);	
-				if (it instanceof TerminalNodeImpl) {
+				if (it instanceof TerminalNode) {
 					if (it.symbol.type == CPP14Parser.Integerliteral) {
 						return it;
 					}
@@ -3403,12 +3477,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return new UniIntLiteral(Number(text));
 	}
 
-	public visitCharacterliteral(ctx:CPP14Parser.CharacterliteralContext) {
+	public visitCharacterliteral(ctx:CharacterliteralContext) {
 		const findFirst = (ctx) => {
-			const n = ctx.getChildCount();
+			const n = ctx.childCount;
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);	
-				if (it instanceof TerminalNodeImpl) {
+				if (it instanceof TerminalNode) {
 					if (it.symbol.type == CPP14Parser.Characterliteral) {
 						return it;
 					}
@@ -3420,12 +3494,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return new UniCharacterLiteral(text.substring(1, text.length - 1).charAt(0));
 	}
 
-	public visitFloatingliteral(ctx:CPP14Parser.FloatingliteralContext) {
+	public visitFloatingliteral(ctx:FloatingliteralContext) {
 		const findFirst = (ctx) => {
-			const n = ctx.getChildCount();
+			const n = ctx.childCount;
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);	
-				if (it instanceof TerminalNodeImpl) {
+				if (it instanceof TerminalNode) {
 					if (it.symbol.type == CPP14Parser.Floatingliteral) {
 						return it;
 					}
@@ -3437,12 +3511,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return new UniDoubleLiteral(Number(text));
 	}
 
-	public visitStringliteral(ctx:CPP14Parser.StringliteralContext) {
+	public visitStringliteral(ctx:StringliteralContext) {
 		const findFirst = (ctx) => {
-			const n = ctx.getChildCount();
+			const n = ctx.childCount;
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);	
-				if (it instanceof TerminalNodeImpl) {
+				if (it instanceof TerminalNode) {
 					if (it.symbol.type == CPP14Parser.Stringliteral) {
 						return it;
 					}
@@ -3454,12 +3528,12 @@ export default class CPP14Mapper extends CPP14Visitor {
 		return new UniStringLiteral(text.substring(1, text.length - 1));
 	}
 
-	public visitBooleanliteral(ctx:CPP14Parser.BooleanliteralContext) {
+	public visitBooleanliteral(ctx:BooleanliteralContext) {
 		const findFirst = (ctx) => {
-			const n = ctx.getChildCount();
+			const n = ctx.childCount;
 			for (let i = 0; i < n;++i) {
 				const it = ctx.getChild(i);	
-				if (it instanceof TerminalNodeImpl) {
+				if (it instanceof TerminalNode) {
 					if (it.symbol.type == CPP14Parser.Booleanliteral) {
 						return it;
 					}
@@ -3470,5 +3544,7 @@ export default class CPP14Mapper extends CPP14Visitor {
 		const text = this.visit(findFirst(ctx)) as String;
 		return new UniBoolLiteral(Boolean(text));
 	}
-
+	visitErrorNode(node: ErrorNode): UniNode{
+		return null;
+	}
 }

@@ -1,12 +1,11 @@
 {
     "compilerOptions": {
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "lib": [ "es5", "es6", "esnext", "dom" ],
         "module": "commonjs",
-        "target": "es5",
         "noImplicitAny": false,
         "sourceMap": true,
-        "downlevelIteration": true,
-        "lib": [
-            "esnext"
-        ]
+        "target": "es6"
     }
 }

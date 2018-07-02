@@ -19,8 +19,6 @@ import UniUnaryOp from '../src/node/UniUnaryOp';
 import UniIntLiteral from '../src/node/UniIntLiteral';
 import UniMethodCall from '../src/node/UniMethodCall';
 import UniIf from '../src/node/UniIf';
-import CMapper from '../src/mapper/C/CMapper';
-import Engine from '../src/interpreter/Engine';
 import CPP14Mapper from '../src/mapper/CPP14/CPP14Mapper';
 import CPP14Engine from '../src/interpreter/CPP14/CPP14Engine';
 
