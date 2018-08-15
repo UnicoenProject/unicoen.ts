@@ -27,6 +27,8 @@ import UniCharacterLiteral from '../../node/UniCharacterLiteral';
 import UniWhile from '../../node/UniWhile';
 import UniUnaryOp from '../../node/UniUnaryOp';
 import UniTernaryOp from '../../node/UniTernaryOp';
+import UniNewArray from '../../node/UniNewArray';
+import UniNew from '../../node/UniNew';
 import UniStatement from '../../node/UniStatement';
 import UniStringLiteral from '../../node/UniStringLiteral';
 import UniReturn from '../../node/UniReturn';
@@ -3113,7 +3115,7 @@ export default class Java8Mapper extends Java8Visitor {
 				}
 			}
 		}
-		//const node = this.castTo(map, UniNew);
+		const node = this.castTo(map, UniNew);
 		return node;
 	}
 
@@ -3229,7 +3231,7 @@ export default class Java8Mapper extends Java8Visitor {
 				}
 			}
 		}
-		//const node = this.castTo(map, UniNewArray);
+		const node = this.castTo(map, UniNewArray);
 		return node;
 	}
 
