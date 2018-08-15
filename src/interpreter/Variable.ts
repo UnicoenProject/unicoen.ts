@@ -1,17 +1,17 @@
 export default class Variable{
 
-  public constructor(public readonly type:string,public readonly name:string,
-                     private value:any, public readonly address:number, 
+  public constructor(public readonly type:string, public readonly name:string,
+                     private value:any, public readonly address:number,
                      public readonly depth:number) {
     this.setValue(value);
   }
 
 	// 構造体や配列の場合はvalueそのままでなくArrayList<Variable> valuesなど
-  
+
   public getValue():any {
 	  return this.value;
   }
-  
+
   public hasValue(name:string):boolean {
     if (this.name === name) {
       return true;
@@ -35,7 +35,7 @@ export default class Variable{
       } else {
         if (this.value instanceof Array) {
           const varArray:Variable[] = this.value;
-          for (let i = 0;i < varArray.length;++i) {
+          for (let i = 0; i < varArray.length; ++i) {
             if (varArray[i].name === name) {
               varArray[i].setValue(this.value, name);
               break;
@@ -47,7 +47,7 @@ export default class Variable{
     if (value instanceof Array) {
       const varArray:any[] = value;
       const vars:Variable[] = [];
-      for (let i = 0;i < varArray.length;++i) {
+      for (let i = 0; i < varArray.length; ++i) {
         let lastAddress = this.address;
         if (vars.length !== 0)				{
           const lastVar:Variable = vars[vars.length - 1];
@@ -57,11 +57,11 @@ export default class Variable{
         const element:any = varArray[i];
         if (element instanceof Variable) { // 構造体の場合
           const tempvar = <Variable>element;
-          const _var = new Variable(tempvar.type, this.name + '.' + tempvar.name, tempvar.value,lastAddress,this.depth);
+          const _var = new Variable(tempvar.type, this.name + '.' + tempvar.name, tempvar.value, lastAddress, this.depth);
           vars.push(_var);
         } else {// 配列の場合
-          const baseType:string = this.type.substring(0,this.type.lastIndexOf('['));
-          const _var = new Variable(baseType,this.name + '[' + i + ']',element,lastAddress,this.depth);
+          const baseType:string = this.type.substring(0, this.type.lastIndexOf('['));
+          const _var = new Variable(baseType, this.name + '[' + i + ']', element, lastAddress, this.depth);
           vars.push(_var);
         }
       }
@@ -78,7 +78,7 @@ export default class Variable{
       return vars[size - 1].getByteSize() * size;
     }
 		// 処理系依存かもしれないが、リテラルのサイズ、構造体はメンバ変数のsize合計、配列の場合は型*size()などを考慮する必要がある。
-    return 1;// CppEngine.sizeof(this.type);
+    return 1; // CppEngine.sizeof(this.type);
   }
 
   public toString():string {

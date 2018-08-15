@@ -3,14 +3,14 @@ class Field {
   public constructor(public name:string, public type:string) {}
 }
 
-class Node { 
+class Node {
   public className:string = '';
   public isAbstract:boolean = false;
   public superClassName:string = null;
   public members:Field[] = [];
   public children:Node[] = [];
 
-  public constructor ({ className, members = null, isAbstract = false, superClassName = null, children = null } 
+  public constructor ({ className, members = null, isAbstract = false, superClassName = null, children = null }
     : {className: string, members?: [string, string][], isAbstract?: boolean, superClassName?:string, children?: Node[]}) {
     this.className += `Uni${className}`;
     this.isAbstract = isAbstract;
@@ -18,16 +18,16 @@ class Node {
       this.superClassName = `${superClassName}`;
     }
     if (members) {
-      for (let [name,type] of members) {
+      for (let [name, type] of members) {
         if (this.isStartUpper(type) && !this.isNodeHepler(type)) {
           type = `Uni${type}`;
         }
-        this.members.push(new Field(name,type));
+        this.members.push(new Field(name, type));
       }
     }
     if (children) {
-      children.forEach((element, index, array) => { 
-        element.superClassName = this.className; 
+      children.forEach((element, index, array) => {
+        element.superClassName = this.className;
       });
       this.children = children;
     }
@@ -186,7 +186,7 @@ class Node {
         } else if (field.type.includes(`any`)) {
           ret += `Object`;
         } else if (field.type.includes('[]')) {
-          ret += field.type.substr(0,field.type.length - 2);
+          ret += field.type.substr(0, field.type.length - 2);
         } else {
           ret += field.type;
         }
@@ -235,9 +235,9 @@ class Node {
     }
     if (this.className !== 'UniNode') {
       for (const field of this.members) {
-        if (field.type === 'string' 
-        || field.type === 'number' 
-        || field.type === 'boolean' 
+        if (field.type === 'string'
+        || field.type === 'number'
+        || field.type === 'boolean'
         || field.type === 'any') {
           ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : this.${field.name} === that.${field.name})`;
         } else {
@@ -290,7 +290,7 @@ class Node {
       ret += `${this.makeMergeText()}`;
     } else if (!this.isAbstract) {
       ret += `${this.makeToStringText()}\n`;
-      ret += `${this.makeToEqualsText()}\n`;      
+      ret += `${this.makeToEqualsText()}\n`;
     }
     ret += `}\n`;
     return ret;
@@ -307,14 +307,14 @@ class Node {
   }
 }
 
-export default class Generator {  
+export default class Generator {
   public static generate() {
-    const node = 
+    const node =
       new Node({ className :`Node`, isAbstract: true,
         members:[
         [`comments`, `string[]`],
         [`codeRange`, `CodeRange`],
-        ],children: [
+        ], children: [
           new Node({ className :`Program`,
             members:[
             [`block`, `Block`],
@@ -399,6 +399,17 @@ export default class Generator {
                   [`trueExpr`, `Expr`],
                   [`falseExpr`, `Expr`],
                 ]}),
+              new Node({ className :`New`,
+                members:[
+                  [`type`, `string`],
+                  [`args`, `Expr[]`],
+                ]}),
+              new Node({ className :`NewArray`,
+                  members:[
+                    [`type`, `string`],
+                    [`elementsNum`, `Expr[]`],
+                    [`value`, `Array`],
+                  ]}),
               new Node({ className :`Statement`, isAbstract: true,
                 children: [
                   new Node({ className :`Break` }),
@@ -433,7 +444,7 @@ export default class Generator {
                       [`cond`, `Expr`],
                       [`step`, `Expr`],
                       [`statement`, `Statement`],
-                    ]}),     
+                    ]}),
                   new Node({ className :`EnhancedFor`,
                     members:[
                       [`modifiers`, `string[]`],
@@ -441,7 +452,7 @@ export default class Generator {
                       [`name`, `string`],
                       [`container`, `Expr`],
                       [`statement`, `Statement`],
-                    ]}),     
+                    ]}),
                   new Node({ className :`While`,
                     members:[
                       [`cond`, `Expr`],
@@ -450,7 +461,7 @@ export default class Generator {
                     children:[
                       new Node({ className :`DoWhile` }),
                     ],
-                  }),      
+                  }),
                   new Node({ className :`Switch`,
                     members:[
                       [`cond`, `Expr`],
@@ -463,7 +474,7 @@ export default class Generator {
                     [`cond`, `Expr`],
                     [`statement`, `Statement[]`],
                     ],
-                  }), 
+                  }),
                 ],
               }),
               new Node({ className :`Decralation`, isAbstract: true,
@@ -483,13 +494,13 @@ export default class Generator {
                       [`returnType`, `string`],
                       [`params`, `Param[]`],
                       [`block`, `Block`],
-                    ]}),                       
+                    ]}),
                   new Node({ className :`VariableDef`,
                     members:[
                       [`name`, `string`],
                       [`value`, `Expr`],
                       [`typeSuffix`, `string`],
-                    ]}),     
+                    ]}),
                   new Node({ className :`VariableDec`,
                     members:[
                       [`modifiers`, `string[]`],
@@ -500,7 +511,7 @@ export default class Generator {
                       new Node({ className :`Param` }),
                     ]}),
                 ],
-              }),             
+              }),
             ],
           }),
         ]});

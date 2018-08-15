@@ -59,7 +59,7 @@ export class Return extends ControlException {
 export default class Engine {
 
   public constructor() { }
-  
+
   private isDebugMode:boolean = false;
   private isCurrentExprSet:boolean = false;
   protected currentState:ExecState = null;
@@ -111,7 +111,7 @@ export default class Engine {
     return this.execStepItr != null;
   }
 
-  public setFileList(filelist:Map<string,ArrayBuffer>) {
+  public setFileList(filelist:Map<string, ArrayBuffer>) {
     File.setFilelist(filelist);
   }
 
@@ -157,7 +157,7 @@ export default class Engine {
       // 初期化が完了して1行目に入る前の状態で最初は返す。
       this.currentState.setCurrentExpr(dec);
       yield true;
-      
+
       const value = yield* this.execFunc(main, global, null);
       // firePostExecAll(global, value);
       global.closeAllFiles();
@@ -256,7 +256,7 @@ export default class Engine {
   protected* execDecralation(dec:UniDecralation, scope:Scope) {
     if (dec instanceof UniVariableDec) {
       const uvd = <UniVariableDec>dec;
-      return yield* this.execVariableDec(uvd,scope);
+      return yield* this.execVariableDec(uvd, scope);
     }
     if (dec instanceof UniFunctionDec) {
     }
@@ -265,13 +265,13 @@ export default class Engine {
   }
   protected* execStatement(state:UniStatement, scope:Scope):any {
     if (state instanceof UniIf) {
-      return yield* this.execIf(state,scope);
+      return yield* this.execIf(state, scope);
     } else if (state instanceof UniFor) {
-      return yield* this.execFor(state,scope);
+      return yield* this.execFor(state, scope);
     } else if (state instanceof UniWhile) {
-      return yield* this.execWhile(state,scope);
+      return yield* this.execWhile(state, scope);
     } else if (state instanceof UniDoWhile) {
-      return yield* this.execDoWhile(state,scope);
+      return yield* this.execDoWhile(state, scope);
     } else if (state instanceof UniBreak) {
       throw new Break();
     } else if (state instanceof UniContinue) {
@@ -287,7 +287,7 @@ export default class Engine {
     } else if (state instanceof UniLabel) {
     } else if (state instanceof UniJump) {
     } else if (state instanceof UniExpr) {
-      return yield* this.execExpr(state,scope);
+      return yield* this.execExpr(state, scope);
     }
     throw new RuntimeException('Not support expr type: ' + state);
   }
@@ -316,11 +316,11 @@ export default class Engine {
     const forScope:Scope = Scope.createLocal(scope);
     forScope.name = scope.name;
     let ret;
-    for (yield* this.execExpr(uf.init, forScope); 
-         this.toBool(yield* this.execExpr(uf.cond, forScope)); 
+    for (yield* this.execExpr(uf.init, forScope);
+         this.toBool(yield* this.execExpr(uf.cond, forScope));
          yield* this.execExpr(uf.step, forScope)) {
       try {
-        ret = yield* this.execExpr(uf.statement, forScope);// blockなのでgeneratorが返される。
+        ret = yield* this.execExpr(uf.statement, forScope); // blockなのでgeneratorが返される。
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -380,7 +380,7 @@ export default class Engine {
     let ret;
     const cond = yield* this.execExpr(us.cond, scope);
     for (const unit of us.cases) {
-      const condOfCase = yield* this.execExpr(unit.cond,switchScope);
+      const condOfCase = yield* this.execExpr(unit.cond, switchScope);
       if (cond === condOfCase) {
         try {
           for (const statement of unit.statement) {
@@ -395,7 +395,7 @@ export default class Engine {
             throw e;
           }
         }
-      } 
+      }
     }
     return ret;
   }
@@ -415,9 +415,9 @@ export default class Engine {
   private* _execExpr(expr:UniExpr, scope:Scope):any {
     assert.ok(expr != null);
     if (expr instanceof UniStatement) {
-      return yield* this.execStatement(expr,scope);
+      return yield* this.execStatement(expr, scope);
     } else if (expr instanceof UniDecralation) {
-      return yield* this.execDecralation(expr,scope);
+      return yield* this.execDecralation(expr, scope);
     } else if (expr instanceof UniMethodCall) {
       const mc = <UniMethodCall> expr;
       const args:any[] = [];
@@ -432,7 +432,7 @@ export default class Engine {
       } else {
         const func:any = scope.get(mc.methodName.name);
         if (func instanceof UniFunctionDec) {
-          ret = yield* this.execFunc(func,scope,mc.args);
+          ret = yield* this.execFunc(func, scope, mc.args);
         } else {
           ret = yield* this.execFuncCall(func, args);
         }
@@ -448,11 +448,11 @@ export default class Engine {
       yield ret;
       return ret;
     } else if (expr instanceof UniCharacterLiteral) {
-      const ret = this.execCharLiteral(expr,scope);
+      const ret = this.execCharLiteral(expr, scope);
       yield ret;
       return ret;
     } else if (expr instanceof UniStringLiteral) {
-      const ret = this.execStringLiteral(expr,scope);
+      const ret = this.execStringLiteral(expr, scope);
       yield ret;
       return ret;
     } else if (expr instanceof UniNumberLiteral) {
@@ -494,7 +494,7 @@ export default class Engine {
     // }
     throw new RuntimeException('Not support expr type: ' + expr);
   }
- 
+
   protected execCast(expr:UniCast, scope:Scope):any {
     return this.execExpr(expr.value, scope);
   }
@@ -510,7 +510,7 @@ export default class Engine {
   protected execStringLiteral(expr:UniStringLiteral, scope:Scope):any {
 	  return expr.value;
   }
-  
+
   private* execFunc(fdec:UniFunctionDec, scope:Scope, args:UniExpr[]):any {
     const funcScope:Scope = Scope.createLocal(scope);
     funcScope.name = funcScope.getNextName(fdec.name);
@@ -525,7 +525,7 @@ export default class Engine {
         const name = param.variables[0].name;
         const type = param.type;
         const value = yield* this.execExpr(arg, scope);
-        funcScope.setTop(name,value,type);
+        funcScope.setTop(name, value, type);
       }
     }
     // ToDo再起の場合のチェック(連番など?
@@ -556,14 +556,14 @@ export default class Engine {
       switch (op) {
         case '=': {
           const r = yield* this.execExpr(right, scope);
-          const l = this.getAddress(left,scope);
-          ret = this.execAssign(l,r,scope);
+          const l = this.getAddress(left, scope);
+          ret = this.execAssign(l, r, scope);
           yield ret;
           return ret;
         }
         case '[]':
         case '.': {
-          ret = scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
+          ret = scope.getValue((this.getAddress(new UniBinOp(op, left, right), scope)));
           yield ret;
           return ret;
         }
@@ -597,7 +597,7 @@ export default class Engine {
           break;
         case '<=':
           ret = l <= r;
-          break; 
+          break;
         case '+':
           ret = l + r;
           break;
@@ -629,7 +629,7 @@ export default class Engine {
         if (left instanceof UniIdent) {
           const nextOp:string = op.substring(0, op.length - 1);
           const value = yield* this.execBinOp(nextOp, scope, left, right);
-          return this.execAssign(this.getAddress(<UniIdent>left,scope), value, scope);
+          return this.execAssign(this.getAddress(<UniIdent>left, scope), value, scope);
         }
       }
       throw new RuntimeException('Unkown binary operator: ' + op);
@@ -644,11 +644,11 @@ export default class Engine {
       const taddress = <number>value;
       if (scope.isMallocArea(taddress)) {
         const size = scope.getMallocSize(taddress);
-        for (let i = 0;i < size;++i) {
+        for (let i = 0; i < size; ++i) {
           scope.typeOnMemory.set(taddress + i, type.substring(0, type.length - 1));
         }
       }
-    }    
+    }
     return value;
   }
 
@@ -669,7 +669,7 @@ export default class Engine {
         if (uniOp.expr instanceof UniIdent) {
           const ident = <UniIdent> uniOp.expr;
           const num = <number>(yield* this.execExpr(uniOp.expr, scope));
-          const address = this.getAddress(ident,scope);
+          const address = this.getAddress(ident, scope);
           switch (uniOp.operator) {
             case '_++':
               this.execAssign(address, num + 1, scope);
@@ -688,7 +688,7 @@ export default class Engine {
           }
         }
       case '()': {
-        const v = yield* this.execExpr(uniOp.expr,scope);
+        const v = yield* this.execExpr(uniOp.expr, scope);
         return v;
       }
     }
@@ -702,16 +702,16 @@ export default class Engine {
     } else if (expr instanceof UniUnaryOp) {
       const uuo:UniUnaryOp = expr;
       if (uuo.operator === '*') {
-        return this.getType(uuo.expr,scope);
+        return this.getType(uuo.expr, scope);
       }
     } else if (expr instanceof UniBinOp) {
       const ubo:UniBinOp = expr;
       if (ubo.operator === '[]') {
-        const left:string = this.getType(ubo.left,scope);
+        const left:string = this.getType(ubo.left, scope);
         if (left != null) {
           return left;
         }
-        const right:string =  this.getType(ubo.right,scope);
+        const right:string =  this.getType(ubo.right, scope);
         if (right != null) {
           return right;
         }
@@ -728,7 +728,7 @@ export default class Engine {
       const uuo = <UniUnaryOp>expr;
       if (uuo.operator === '*') {
         let refAddress = null;
-        for (const execExpr of this.execExpr(uuo.expr,scope)) {
+        for (const execExpr of this.execExpr(uuo.expr, scope)) {
           refAddress = execExpr;
         }
         return refAddress;
@@ -739,7 +739,7 @@ export default class Engine {
         return this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
       } else if (ubo.operator === '.') {
         const startAddress:number = this.execExpr(ubo.left, scope);
-        const type:string = this.getType(ubo.left,scope);
+        const type:string = this.getType(ubo.left, scope);
         const offsets:Map<string, number> = scope.get(type);
         const offset:number = offsets.get((<UniIdent>ubo.right).name);
         return startAddress + offset;
@@ -777,7 +777,7 @@ export default class Engine {
       // 初期化されている場合
       if (def.value != null) {
         value = yield* this.execExpr(def.value, scope);
-        value = this._execCast(decVar.type,value);
+        value = this._execCast(decVar.type, value);
         if (decVar.type.endsWith('*') && !Array.isArray(value)) {
           if (value instanceof String) {
             value = scope.setStatic(value, 'char[]');
@@ -785,9 +785,9 @@ export default class Engine {
             const address = <number>value;
             if (scope.isMallocArea(address)) {
               const size:number = scope.getMallocSize(address);
-              const type = decVar.type.substring(0,decVar.type.length - 1);
+              const type = decVar.type.substring(0, decVar.type.length - 1);
               const typeSize = this.sizeof(type);
-              for (let i = 0;i < size;i += typeSize) {
+              for (let i = 0; i < size; i += typeSize) {
                 scope.typeOnMemory.set(address + i, type);
               }
             }
@@ -803,7 +803,7 @@ export default class Engine {
         for (let k = 0; k < typeSuffix.length; ++k) {
           const left = typeSuffix.indexOf('[', k);
           const right = typeSuffix.indexOf(']', k);
-          const size = typeSuffix.slice(left + 1,right);
+          const size = typeSuffix.slice(left + 1, right);
           sizes.push(Number.parseInt(size));
           k = right;
         }
@@ -829,7 +829,7 @@ export default class Engine {
       // }
 
       const type:string = decVar.type;
-      scope.setTop(def.name,value,type);
+      scope.setTop(def.name, value, type);
     }
     return value;
   }
@@ -858,7 +858,7 @@ export default class Engine {
     }
     throw new Error('Cannot covert to boolean: ' + obj);
   }
-  
+
   private *execFuncCall(func: any, arg: any[]): any {
     if (func == null) {
       throw new RuntimeException('func is null');
@@ -876,14 +876,14 @@ export default class Engine {
       return ret;
     }
     throw new Error('Not support function type: ' + func);
-  }  
+  }
 
   execMethodCall(arg0: any, arg1: any, arg2: any): any {
     throw new Error('execMethodCall not implemented.');
   }
-  
+
   protected randInt32():number {
-    const a = math.pow(2,32);
+    const a = math.pow(2, 32);
     const v = math.randomInt(0, <number>a);
     return v;
   }

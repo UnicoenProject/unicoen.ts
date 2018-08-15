@@ -29,7 +29,7 @@ const cmapper = new unicoen.CPP14Mapper();
 const tree = cmapper.parse(text);
 const engine = new unicoen.CPP14Engine();
 engine.stdin('10-2.3');
-const map = new Map<string,ArrayBuffer>();
+const map = new Map<string, ArrayBuffer>();
 map.set('code.txt', buf);
 engine.setFileList(map);
 const r = engine.execute(tree);

@@ -4,11 +4,10 @@ import RuntimeException, { UniRuntimeError } from './RuntimeException';
 import UniFunctionDec from '../node/UniFunctionDec';
 import File from './File';
 
-
 enum Type {  GLOBAL,  OBJECT,  LOCAL }
 
 class Address {
-  constructor(public codeAddress: number, public staticAddress: number, 
+  constructor(public codeAddress: number, public staticAddress: number,
               public heapAddress: number, public stackAddress: number) {
   }
 }
@@ -101,11 +100,11 @@ export default class Scope {
   public get(key:string):any {
     return this.getValue(this.getAddress(key));
   }
-  
+
   public getValue(key:number):any {
     return this.getValueImple(key, this.name);
   }
-  
+
   public getStr(name : string) : string {
     const addr : number = this.getAddress(name);
     const buf : number[] = [];
@@ -130,8 +129,9 @@ export default class Scope {
     if (this.objectOnMemory.has(key)) {
       const _var = this.objectOnMemory.get(key);
       if (stackName === this.name || this.type === Type.GLOBAL) {
-        if (key === this.tempAddressForListener)
+        if (key === this.tempAddressForListener) {
           this.objectOnMemory.delete(this.tempAddressForListener);
+        }
         return _var;
       }
     }
@@ -206,18 +206,17 @@ export default class Scope {
     this.typeOnMemory.set(addr[member], type);
     return addr[member]++;
   }
-  
-  
+
   public setHeap(value:any, type:string):number {
     return this.setAreaImple(value, type, this.address, 'heapAddress');
   }
 
   public setStatic(value:any, type:string):number {
-    return this.setAreaImple(value, type, this.address,'staticAddress');
+    return this.setAreaImple(value, type, this.address, 'staticAddress');
   }
 
   public setCode(value:any, type:string):number {
-    return this.setAreaImple(value, type, this.address,'codeAddress');
+    return this.setAreaImple(value, type, this.address, 'codeAddress');
   }
 
   public setSystemVariable(type:string, name:string, value:any):number {
@@ -228,7 +227,7 @@ export default class Scope {
     this.typeOnMemory.set(this.address.codeAddress, type);
     return this.address.codeAddress++;
   }
-    
+
   /** 現在のスコープに新しい変数を定義し、代入します */
   public setTop(key:string, value:any, type:string):void {
     Scope.assertNotUnicoen(value);
@@ -272,7 +271,7 @@ export default class Scope {
       this.setPrimitive(key, value, type);
     }
   }
-  
+
   private setArray(value:any[], type:string):void {
     Scope.assertNotUnicoen(value);
     for (const _var of value) {
@@ -380,8 +379,9 @@ export default class Scope {
   }
 
   public getNextName(funcName:string):string {
-    if (!this.hasName(funcName))
+    if (!this.hasName(funcName)) {
       return funcName;
+    }
     for (let i = 2; ; ++i) {
       const indexName:string = funcName + '.' + i;
       if (!this.hasName(indexName)) {
