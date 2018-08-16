@@ -20,6 +20,8 @@ import UniIf from './node/UniIf';
 import UniWhile from './node/UniWhile';
 import UniUnaryOp from './node/UniUnaryOp';
 import UniTernaryOp from './node/UniTernaryOp';
+import UniNewArray from './node/UniNewArray';
+import UniNew from './node/UniNew';
 import UniStatement from './node/UniStatement';
 import UniStringLiteral from './node/UniStringLiteral';
 import UniReturn from './node/UniReturn';
@@ -34,6 +36,8 @@ import Engine from './interpreter/Engine';
 import CMapper from './mapper/C/CMapper';
 import CPP14Engine from './interpreter/CPP14/CPP14Engine';
 import CPP14Mapper from './mapper/CPP14/CPP14Mapper';
+import Java8Engine from './interpreter/Java8/Java8Engine';
+import Java8Mapper from './mapper/Java8/Java8Mapper';
 
 export default {
   CodeLocation,
@@ -57,6 +61,8 @@ export default {
   UniIf,
   UniIntLiteral,
   UniMethodCall,
+  UniNew,
+  UniNewArray,
   UniProgram,
   UniReturn,
   UniStatement,
@@ -72,4 +78,6 @@ export default {
   CMapper,
   CPP14Engine,
   CPP14Mapper,
+  Java8Engine,
+  Java8Mapper,
 };

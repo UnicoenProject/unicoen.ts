@@ -405,11 +405,11 @@ export default class Generator {
                   [`args`, `Expr[]`],
                 ]}),
               new Node({ className :`NewArray`,
-                  members:[
+                members:[
                     [`type`, `string`],
                     [`elementsNum`, `Expr[]`],
                     [`value`, `Array`],
-                  ]}),
+                ]}),
               new Node({ className :`Statement`, isAbstract: true,
                 children: [
                   new Node({ className :`Break` }),

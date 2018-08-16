@@ -12,6 +12,12 @@ function Java8Visitor() {
 Java8Visitor.prototype = Object.create(antlr4.tree.ParseTreeVisitor.prototype);
 Java8Visitor.prototype.constructor = Java8Visitor;
 
+// Visit a parse tree produced by Java8Parser#translationunit.
+Java8Visitor.prototype.visitTranslationunit = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by Java8Parser#literal.
 Java8Visitor.prototype.visitLiteral = function(ctx) {
   return this.visitChildren(ctx);
