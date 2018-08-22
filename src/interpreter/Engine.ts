@@ -427,8 +427,21 @@ export default class Engine {
       this.currentScope = scope;
       let ret:any = null;
       if (mc.receiver != null) {
-        const receiver:any = yield* this.execExpr(mc.receiver, scope);
-        ret = yield* this.execMethodCall(receiver, mc.methodName.name, args);
+        if (mc.receiver instanceof UniArray) {
+          const item = mc.receiver.items;
+          let rec = yield* this.execExpr(item[0],scope);
+          for (let i = 1; i < item.length; ++i) {
+            if (item[i] instanceof UniIdent) {
+              rec = rec[(<UniIdent>item[i]).name];
+            } else {
+              rec = rec[yield* this.execExpr(item[i],scope)];
+            }          
+          }
+          ret = yield* this.execMethodCall(rec, mc.methodName.name, args);
+        } else {
+          const receiver:any = yield* this.execExpr(mc.receiver, scope);
+          ret = yield* this.execMethodCall(receiver, mc.methodName.name, args);
+        }
       } else {
         const func:any = scope.get(mc.methodName.name);
         if (func instanceof UniFunctionDec) {
@@ -878,8 +891,8 @@ export default class Engine {
     throw new Error('Not support function type: ' + func);
   }
 
-  execMethodCall(arg0: any, arg1: any, arg2: any): any {
-    throw new Error('execMethodCall not implemented.');
+  private *execMethodCall(receiver: any, name: string, args: any[]): any {
+    return yield* this.execFuncCall(receiver[name], args);
   }
 
   protected randInt32():number {

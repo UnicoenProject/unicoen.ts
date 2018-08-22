@@ -540,6 +540,12 @@ Java8Visitor.prototype.visitFormalParameter = function(ctx) {
 };
 
 
+// Visit a parse tree produced by Java8Parser#parameterDeclaratorIds.
+Java8Visitor.prototype.visitParameterDeclaratorIds = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by Java8Parser#parameterDeclaratorId.
 Java8Visitor.prototype.visitParameterDeclaratorId = function(ctx) {
   return this.visitChildren(ctx);
@@ -1286,6 +1292,24 @@ Java8Visitor.prototype.visitArrayAccess_lfno_primary = function(ctx) {
 
 // Visit a parse tree produced by Java8Parser#methodInvocation.
 Java8Visitor.prototype.visitMethodInvocation = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by Java8Parser#receivers.
+Java8Visitor.prototype.visitReceivers = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by Java8Parser#receiver.
+Java8Visitor.prototype.visitReceiver = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by Java8Parser#ident.
+Java8Visitor.prototype.visitIdent = function(ctx) {
   return this.visitChildren(ctx);
 };
 

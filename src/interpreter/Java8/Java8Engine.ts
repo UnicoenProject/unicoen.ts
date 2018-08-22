@@ -25,7 +25,8 @@ export default class Java8Engine extends Engine {
   }
 
   protected includeStdio(global:Scope) {
-    global.setTop('printf', function () {
+
+    const printf = function () {
       if (arguments.length < 1) {
         return 0;
       }
@@ -49,7 +50,19 @@ export default class Java8Engine extends Engine {
       const byteCount = (str:string) => encodeURIComponent(str).replace(/%../g, 'x').length;
       const count = byteCount(output);
       return count;
-    },            'FUNCTION');
+    };
+
+    const println = (arg:any) => {
+      const output = agh.sprintf(String(arg)).replace('\\n', '\n');
+      this.stdout(output);
+    };
+
+    const out = {
+      printf,
+      println,
+    };
+    const system = { out };
+    global.setTop('System', system, 'class');
 
     global.setTop('scanf', function* () {
       // this.setIsWaitingForStdin(true); // yield and set stdin
