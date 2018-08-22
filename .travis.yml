@@ -4,6 +4,7 @@ node_js:
   - 'stable'
   - '8'
 
+dist: trusty
 sudo: false  
 
 matrix:
@@ -15,8 +16,9 @@ branches:
     - develop
 
 cache:
+  yarn: true
   directories:
-    - "node_modules"
+    - node_modules
 
 git:
   depth: 1
