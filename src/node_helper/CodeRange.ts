@@ -1,6 +1,6 @@
-import CodeLocation from './CodeLocation';
+import { CodeLocation } from './CodeLocation';
 
-export default class CodeRange {
+export class CodeRange {
   public begin: CodeLocation;
   public end: CodeLocation;
   public constructor(begin: CodeLocation, end: CodeLocation) {

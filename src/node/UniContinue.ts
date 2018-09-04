@@ -1,6 +1,6 @@
-import UniStatement from './UniStatement';
+import { UniStatement } from './UniStatement';
 
-export default class UniContinue extends UniStatement {
+export class UniContinue extends UniStatement {
   public toString(): string {
     return 'Continue(' + ')';
   }

@@ -1,4 +1,4 @@
-export default class RuntimeException implements Error {
+export class RuntimeException implements Error {
   public name = 'RuntimeException';
   public message = '';
   

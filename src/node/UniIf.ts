@@ -1,7 +1,7 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
-export default class UniIf extends UniStatement {
+export class UniIf extends UniStatement {
   public cond: UniExpr;
   public trueStatement: UniStatement;
   public falseStatement: UniStatement;

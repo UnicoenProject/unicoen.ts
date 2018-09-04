@@ -1,45 +1,45 @@
 import { assert } from 'chai';
-import Scope from './Scope';
-import UniExpr from '../node/UniExpr';
-import UniMethodCall from '../node/UniMethodCall';
-import UniIdent from '../node/UniIdent';
-import UniBoolLiteral from '../node/UniBoolLiteral';
-import UniStringLiteral from '../node/UniStringLiteral';
-import UniUnaryOp from '../node/UniUnaryOp';
-import UniBinOp from '../node/UniBinOp';
-import UniTernaryOp from '../node/UniTernaryOp';
-import UniBreak from '../node/UniBreak';
-import UniContinue from '../node/UniContinue';
-import UniReturn from '../node/UniReturn';
-import UniVariableDec from '../node/UniVariableDec';
-import UniBlock from '../node/UniBlock';
-import UniIf from '../node/UniIf';
-import UniFor from '../node/UniFor';
-import UniWhile from '../node/UniWhile';
-import UniDoWhile from '../node/UniDoWhile';
-import UniArray from '../node/UniArray';
-import UniCast from '../node/UniCast';
-import UniStatement from '../node/UniStatement';
-import UniEmptyStatement from '../node/UniEmptyStatement';
-import UniJump from '../node/UniJump';
-import UniLabel from '../node/UniLabel';
-import UniSwitchUnit from '../node/UniSwitchUnit';
-import UniDecralation from '../node/UniDecralation';
-import UniProgram from '../node/UniProgram';
-import UniFunctionDec from '../node/UniFunctionDec';
-import UniClassDec from '../node/UniClassDec';
-import UniParam from '../node/UniParam';
-import UniVariableDef from '../node/UniVariableDef';
-import UniNode from '../node/UniNode';
-import UniSwitch from '../node/UniSwitch';
-import ExecState from './ExecState';
-import UniNumberLiteral from '../node/UniNumberLiteral';
-import RuntimeException from './RuntimeException';
-import { clone }from '../node_helper/clone';
+import { Scope } from './Scope';
+import { UniExpr } from '../node/UniExpr';
+import { UniMethodCall } from '../node/UniMethodCall';
+import { UniIdent } from '../node/UniIdent';
+import { UniBoolLiteral } from '../node/UniBoolLiteral';
+import { UniStringLiteral } from '../node/UniStringLiteral';
+import { UniUnaryOp } from '../node/UniUnaryOp';
+import { UniBinOp } from '../node/UniBinOp';
+import { UniTernaryOp } from '../node/UniTernaryOp';
+import { UniBreak } from '../node/UniBreak';
+import { UniContinue } from '../node/UniContinue';
+import { UniReturn } from '../node/UniReturn';
+import { UniVariableDec } from '../node/UniVariableDec';
+import { UniBlock } from '../node/UniBlock';
+import { UniIf } from '../node/UniIf';
+import { UniFor } from '../node/UniFor';
+import { UniWhile } from '../node/UniWhile';
+import { UniDoWhile } from '../node/UniDoWhile';
+import { UniArray } from '../node/UniArray';
+import { UniCast } from '../node/UniCast';
+import { UniStatement } from '../node/UniStatement';
+import { UniEmptyStatement } from '../node/UniEmptyStatement';
+import { UniJump } from '../node/UniJump';
+import { UniLabel } from '../node/UniLabel';
+import { UniSwitchUnit } from '../node/UniSwitchUnit';
+import { UniDecralation } from '../node/UniDecralation';
+import { UniProgram } from '../node/UniProgram';
+import { UniFunctionDec } from '../node/UniFunctionDec';
+import { UniClassDec } from '../node/UniClassDec';
+import { UniParam } from '../node/UniParam';
+import { UniVariableDef } from '../node/UniVariableDef';
+import { UniNode } from '../node/UniNode';
+import { UniSwitch } from '../node/UniSwitch';
+import { ExecState } from './ExecState';
+import { UniNumberLiteral } from '../node/UniNumberLiteral';
+import { RuntimeException } from './RuntimeException';
 import math = require('mathjs');
 import { isArray } from 'util';
-import UniCharacterLiteral from '../node/UniCharacterLiteral';
-import File from './File';
+import { UniCharacterLiteral } from '../node/UniCharacterLiteral';
+import { File } from './File';
+import { clone } from '../node_helper/clone';
 
 export class ControlException extends RuntimeException {
 }
@@ -56,7 +56,7 @@ export class Return extends ControlException {
   }
 }
 
-export default class Engine {
+export class Engine {
 
   public constructor() { }
   

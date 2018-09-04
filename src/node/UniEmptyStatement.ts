@@ -1,6 +1,6 @@
-import UniStatement from './UniStatement';
+import { UniStatement } from './UniStatement';
 
-export default class UniEmptyStatement extends UniStatement {
+export class UniEmptyStatement extends UniStatement {
   public toString(): string {
     return 'EmptyStatement(' + ')';
   }

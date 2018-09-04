@@ -1,7 +1,7 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
-export default class UniReturn extends UniStatement {
+export class UniReturn extends UniStatement {
   public value: UniExpr;
 
   public constructor();

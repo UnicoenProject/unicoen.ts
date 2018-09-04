@@ -1,7 +1,7 @@
-import Variable from './Variable';
-import RuntimeException from './RuntimeException';
+import { Variable } from './Variable';
+import { RuntimeException } from './RuntimeException';
 
-export default class Stack {
+export class Stack {
   private variables:Variable[] = [];
 	// 引数(variables)あり版も必要
   public constructor(public readonly name:string,

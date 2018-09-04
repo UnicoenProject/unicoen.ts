@@ -1,6 +1,6 @@
-import UniWhile from './UniWhile';
+import { UniWhile } from './UniWhile';
 
-export default class UniDoWhile extends UniWhile {
+export class UniDoWhile extends UniWhile {
   public toString(): string {
     return 'DoWhile(' + ')';
   }

@@ -1,13 +1,14 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
-export default class UniEnhancedFor extends UniStatement {
+export class UniEnhancedFor extends UniStatement {
   public modifiers: string[];
   public type: string;
   public name: string;
   public container: UniExpr;
   public statement: UniStatement;
 
+  
   public constructor();
   public constructor(modifiers: string[], type: string, name: string, container: UniExpr, statement: UniStatement);
   public constructor(modifiers?: string[], type?: string, name?: string, container?: UniExpr, statement?: UniStatement) {

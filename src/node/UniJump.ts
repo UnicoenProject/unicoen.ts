@@ -1,6 +1,6 @@
-import UniStatement from './UniStatement';
+import { UniStatement } from './UniStatement';
 
-export default class UniJump extends UniStatement {
+export class UniJump extends UniStatement {
   public dest: string;
 
   public constructor();

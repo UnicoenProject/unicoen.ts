@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniIdent extends UniExpr {
+export class UniIdent extends UniExpr {
   public name: string;
 
   public constructor();

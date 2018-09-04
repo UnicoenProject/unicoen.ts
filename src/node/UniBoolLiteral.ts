@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniBoolLiteral extends UniExpr {
+export class UniBoolLiteral extends UniExpr {
   public value: boolean;
 
   public constructor();

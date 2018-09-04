@@ -1,10 +1,10 @@
-import UniNode from '../node/UniNode';
-import Stack from './Stack';
-import Scope from './Scope';
-import Variable from './Variable';
-import UniVariableDec from '../node/UniVariableDec';
+import { UniNode } from '../node/UniNode';
+import { Stack } from './Stack';
+import { Scope } from './Scope';
+import { Variable } from './Variable';
+import { UniVariableDec } from '../node/UniVariableDec';
 
-export default class ExecState {
+export class ExecState {
   private currentValue:any;
   private currentExpr:UniNode;
   private stacks:Stack[] = [];

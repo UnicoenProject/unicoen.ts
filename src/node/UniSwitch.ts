@@ -1,8 +1,8 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
-import UniSwitchUnit from './UniSwitchUnit';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
+import { UniSwitchUnit } from './UniSwitchUnit';
 
-export default class UniSwitch extends UniStatement {
+export class UniSwitch extends UniStatement {
   public cond: UniExpr;
   public cases: UniSwitchUnit[];
 

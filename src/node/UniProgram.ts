@@ -1,7 +1,7 @@
-import UniNode from './UniNode';
-import UniBlock from './UniBlock';
+import { UniNode } from './UniNode';
+import { UniBlock } from './UniBlock';
 
-export default class UniProgram extends UniNode {
+export class UniProgram extends UniNode {
   public block: UniBlock;
 
   public constructor();

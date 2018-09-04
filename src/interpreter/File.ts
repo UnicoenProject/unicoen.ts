@@ -1,4 +1,4 @@
-export default class File
+export class File
 {
   private static filelist:Map<string,ArrayBuffer>;
   private pos:number = 0;

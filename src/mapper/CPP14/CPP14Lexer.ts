@@ -1,6 +1,5 @@
 // Generated from src/mapper/CPP14/CPP14.g4 by ANTLR 4.6-SNAPSHOT
 
-
 import { ATN } from 'antlr4ts/atn/ATN';
 import { ATNDeserializer } from 'antlr4ts/atn/ATNDeserializer';
 import { CharStream } from 'antlr4ts/CharStream';

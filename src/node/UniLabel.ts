@@ -1,6 +1,6 @@
-import UniStatement from './UniStatement';
+import { UniStatement } from './UniStatement';
 
-export default class UniLabel extends UniStatement {
+export class UniLabel extends UniStatement {
   public name: string;
 
   public constructor();

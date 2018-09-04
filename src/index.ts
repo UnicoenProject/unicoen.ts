@@ -1,28 +1,35 @@
-import unicoen from './unicoen';
-
-try {
-  const text = String.raw`int main(void){
-	FILE *fp ;
-	int text[] = {'S', 'n', 'o', 'o', 'p', 'y', '\0'};
-	int i;
-	if((fp=fopen("out.txt","w")) != 0){
-			for ( i = 0; i < 6; i++ ) {
-        fputc(text[i], fp);
-			}
-	}
-	return 0;
-}`;
-
-  const cmapper = new unicoen.CPP14Mapper();
-  const tree = cmapper.parse(text);
-  const engine = new unicoen.CPP14Engine();
-  engine.stdin('10-2.3');
-  const map = new Map<string,ArrayBuffer>();
-  engine.setFileList(map);
-  const r = engine.execute(tree);
-  const out = engine.getStdout();
-  console.log(r);
-  console.log(out);
-} catch (e) {
-  console.error(e);
-}
+export * from './node_helper/CodeLocation';
+export * from './node_helper/CodeRange';
+export * from './node/UniNode';
+export * from './node/UniParam';
+export * from './node/UniExpr';
+export * from './node/UniArray';
+export * from './node/UniNumberLiteral';
+export * from './node/UniBinOp';
+export * from './node/UniBlock';
+export * from './node/UniBoolLiteral';
+export * from './node/UniBreak';
+export * from './node/UniCast';
+export * from './node/UniContinue';
+export * from './node/UniDoWhile';
+export * from './node/UniEmptyStatement';
+export * from './node/UniFunctionDec';
+export * from './node/UniFor';
+export * from './node/UniIdent';
+export * from './node/UniIf';
+export * from './node/UniWhile';
+export * from './node/UniUnaryOp';
+export * from './node/UniTernaryOp';
+export * from './node/UniStatement';
+export * from './node/UniStringLiteral';
+export * from './node/UniReturn';
+export * from './node/UniVariableDec';
+export * from './node/UniSwitchUnit';
+export * from './node/UniSwitch';
+export * from './node/UniMethodCall';
+export * from './node/UniProgram';
+export * from './node/UniVariableDef';
+export * from './node/UniIntLiteral';
+export * from './interpreter/Engine';
+export * from './interpreter/CPP14/CPP14Engine';
+export * from './mapper/CPP14/CPP14Mapper';

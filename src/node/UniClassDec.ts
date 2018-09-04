@@ -1,6 +1,6 @@
-import UniDecralation from './UniDecralation';
+import { UniDecralation } from './UniDecralation';
 
-export default class UniClassDec extends UniDecralation {
+export class UniClassDec extends UniDecralation {
   public className: string;
   public modifiers: string[];
   public members: UniDecralation[];

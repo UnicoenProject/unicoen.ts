@@ -1,6 +1,6 @@
-import UniStatement from './UniStatement';
+import { UniStatement } from './UniStatement';
 
-export default class UniBreak extends UniStatement {
+export class UniBreak extends UniStatement {
   public toString(): string {
     return 'Break(' + ')';
   }

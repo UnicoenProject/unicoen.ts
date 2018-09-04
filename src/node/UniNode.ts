@@ -1,5 +1,5 @@
-import CodeRange from '../node_helper/CodeRange';require('../node_helper/Extension');
-export default abstract class UniNode {
+import { CodeRange } from '../node_helper/CodeRange';require('../node_helper/Extension');
+export abstract class UniNode {
   public comments: string[];
   public codeRange: CodeRange;
   public fields: Map<string,Function>;

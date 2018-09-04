@@ -1,7 +1,7 @@
-import UniDecralation from './UniDecralation';
-import UniExpr from './UniExpr';
+import { UniDecralation } from './UniDecralation';
+import { UniExpr } from './UniExpr';
 
-export default class UniVariableDef extends UniDecralation {
+export class UniVariableDef extends UniDecralation {
   public name: string;
   public value: UniExpr;
   public typeSuffix: string;

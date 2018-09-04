@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniUnaryOp extends UniExpr {
+export class UniUnaryOp extends UniExpr {
   public operator: string;
   public expr: UniExpr;
 

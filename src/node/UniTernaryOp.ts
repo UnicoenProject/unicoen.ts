@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniTernaryOp extends UniExpr {
+export class UniTernaryOp extends UniExpr {
   public cond: UniExpr;
   public trueExpr: UniExpr;
   public falseExpr: UniExpr;

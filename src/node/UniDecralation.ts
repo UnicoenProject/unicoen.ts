@@ -1,4 +1,4 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default abstract class UniDecralation extends UniExpr {
+export abstract class UniDecralation extends UniExpr {
 }

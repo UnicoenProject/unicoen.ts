@@ -1,19 +1,19 @@
 import * as math from 'mathjs';
 import * as agh from 'agh.sprintf';
-import Engine from '../Engine';
-import UniBinOp from '../../node/UniBinOp';
-import Scope from '../Scope';
-import UniExpr from '../../node/UniExpr';
-import UniUnaryOp from '../../node/UniUnaryOp';
-import UniIdent from '../../node/UniIdent';
-import UniStringLiteral from '../../node/UniStringLiteral';
-import UniMethodCall from '../../node/UniMethodCall';
-import UniCast from '../../node/UniCast';
-import UniCharacterLiteral from '../../node/UniCharacterLiteral';
-import File from '../File';
-const sscanf = require('./scanf/scanf').sscanf;
+import {Engine} from '../Engine';
+import {UniBinOp} from '../../node/UniBinOp';
+import {Scope} from '../Scope';
+import {UniExpr} from '../../node/UniExpr';
+import {UniUnaryOp} from '../../node/UniUnaryOp';
+import {UniIdent} from '../../node/UniIdent';
+import {UniStringLiteral} from '../../node/UniStringLiteral';
+import {UniMethodCall} from '../../node/UniMethodCall';
+import {UniCast} from '../../node/UniCast';
+import {UniCharacterLiteral} from '../../node/UniCharacterLiteral';
+import {File} from '../File';
+import {sscanf} from 'scanf';
 
-export default class CPP14Engine extends Engine {
+export class CPP14Engine extends Engine {
 
   public constructor() {
     super();

@@ -54,7 +54,7 @@ class Node {
     const imports:string[] = [];
     if (this.superClassName) {
       imports.push(this.superClassName);
-      ret += `import ${this.superClassName} from './${this.superClassName}';\n`;
+      ret += `import { ${this.superClassName} } from './${this.superClassName}';\n`;
     }
     for (const field of this.members) {
       const type = field.type;
@@ -63,16 +63,16 @@ class Node {
           const t = type.slice(0, -2);
           if (!imports.includes(t)) {
             imports.push(t);
-            ret += `import ${t} from './${t}';\n`;
+            ret += `import { ${t} } from './${t}';\n`;
           }
         } else {
           if (!imports.includes(type)) {
             imports.push(type);
-            ret += `import ${type} from './${type}';\n`;
+            ret += `import { ${type} } from './${type}';\n`;
           }
         }
       } else if (this.isNodeHepler(type)) {
-        ret += `import ${type} from '../node_helper/${type}';`;
+        ret += `import { ${type} } from '../node_helper/${type}';`;
       }
     }
     if (this.className === 'UniNode') {
@@ -83,7 +83,7 @@ class Node {
 
   private makeClassDecText():string {
     let ret:string = '';
-    ret += `export default `;
+    ret += `export `;
     if (this.isAbstract) {
       ret += `abstract `;
     }
@@ -307,7 +307,7 @@ class Node {
   }
 }
 
-export default class Generator {  
+export class Generator {  
   public static generate() {
     const node = 
       new Node({ className :`Node`, isAbstract: true,

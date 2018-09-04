@@ -1,6 +1,6 @@
-import UniVariableDec from './UniVariableDec';
+import { UniVariableDec } from './UniVariableDec';
 
-export default class UniParam extends UniVariableDec {
+export class UniParam extends UniVariableDec {
   public toString(): string {
     return 'Param(' + ')';
   }

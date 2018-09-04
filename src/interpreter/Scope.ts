@@ -1,8 +1,8 @@
-import UniExpr from '../node/UniExpr';
+import { UniExpr } from '../node/UniExpr';
 import { assert } from 'chai';
-import RuntimeException, { UniRuntimeError } from './RuntimeException';
-import UniFunctionDec from '../node/UniFunctionDec';
-import File from './File';
+import { RuntimeException , UniRuntimeError } from './RuntimeException';
+import { UniFunctionDec } from '../node/UniFunctionDec';
+import { File } from './File';
 
 
 enum Type {  GLOBAL,  OBJECT,  LOCAL }
@@ -30,7 +30,7 @@ class ValueSetter implements Consumer<any> {
   }
 }
 
-export default class Scope {
+export class Scope {
   public name: string;
   public depth: number;
   public address: Address;

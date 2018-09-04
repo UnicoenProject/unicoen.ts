@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniNumberLiteral extends UniExpr {
+export class UniNumberLiteral extends UniExpr {
   public value: any;
   public signed: boolean;
   public bytes: number;

@@ -1,6 +1,6 @@
-import UniNumberLiteral from './UniNumberLiteral';
+import { UniNumberLiteral } from './UniNumberLiteral';
 
-export default class UniIntLiteral extends UniNumberLiteral {
+export class UniIntLiteral extends UniNumberLiteral {
   public value: number;
 
   public constructor();

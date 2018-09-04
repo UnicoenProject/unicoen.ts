@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniArray extends UniExpr {
+export class UniArray extends UniExpr {
   public items: UniExpr[];
 
   public constructor();

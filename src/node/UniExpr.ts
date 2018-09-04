@@ -1,4 +1,4 @@
-import UniNode from './UniNode';
+import { UniNode } from './UniNode';
 
-export default abstract class UniExpr extends UniNode {
+export abstract class UniExpr extends UniNode {
 }

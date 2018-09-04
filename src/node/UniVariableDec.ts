@@ -1,7 +1,7 @@
-import UniDecralation from './UniDecralation';
-import UniVariableDef from './UniVariableDef';
+import { UniDecralation } from './UniDecralation';
+import { UniVariableDef } from './UniVariableDef';
 
-export default class UniVariableDec extends UniDecralation {
+export class UniVariableDec extends UniDecralation {
   public modifiers: string[];
   public type: string;
   public variables: UniVariableDef[];

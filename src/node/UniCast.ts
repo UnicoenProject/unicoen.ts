@@ -1,6 +1,6 @@
-import UniExpr from './UniExpr';
+import { UniExpr } from './UniExpr';
 
-export default class UniCast extends UniExpr {
+export class UniCast extends UniExpr {
   public type: string;
   public value: UniExpr;
 

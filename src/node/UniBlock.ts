@@ -1,6 +1,6 @@
-import UniStatement from './UniStatement';
+import { UniStatement } from './UniStatement';
 
-export default class UniBlock extends UniStatement {
+export class UniBlock extends UniStatement {
   public blockLabel: string;
   public body: UniStatement[];
 

@@ -1,130 +1,135 @@
-// tslint:disable
-import CodeLocation from '../../node_helper/CodeLocation';
-import CodeRange from '../../node_helper/CodeRange';
-import UniNode from '../../node/UniNode';
-import UniParam from '../../node/UniParam';
-import UniEnhancedFor from '../../node/UniEnhancedFor';
-import UniExpr from '../../node/UniExpr';
-import UniArray from '../../node/UniArray';
-import UniNumberLiteral from '../../node/UniNumberLiteral';
-import UniBinOp from '../../node/UniBinOp';
-import UniBlock from '../../node/UniBlock';
-import UniBoolLiteral from '../../node/UniBoolLiteral';
-import UniBreak from '../../node/UniBreak';
-import UniCast from '../../node/UniCast';
-import UniContinue from '../../node/UniContinue';
-import UniClassDec from '../../node/UniClassDec';
-import UniDoWhile from '../../node/UniDoWhile';
-import UniEmptyStatement from '../../node/UniEmptyStatement';
-import UniFunctionDec from '../../node/UniFunctionDec';
-import UniFor from '../../node/UniFor';
-import UniIdent from '../../node/UniIdent';
-import UniIf from '../../node/UniIf';
-import UniIntLiteral from '../../node/UniIntLiteral';		
-import UniDoubleLiteral from '../../node/UniDoubleLiteral';
-import UniCharacterLiteral from '../../node/UniCharacterLiteral';
-import UniWhile from '../../node/UniWhile';
-import UniUnaryOp from '../../node/UniUnaryOp';
-import UniTernaryOp from '../../node/UniTernaryOp';
-import UniStatement from '../../node/UniStatement';
-import UniStringLiteral from '../../node/UniStringLiteral';
-import UniReturn from '../../node/UniReturn';
-import UniVariableDec from '../../node/UniVariableDec';
-import UniVariableDef from '../../node/UniVariableDef';
-import UniSwitchUnit from '../../node/UniSwitchUnit';
-import UniSwitch from '../../node/UniSwitch';
-import UniMethodCall from '../../node/UniMethodCall';
-import UniProgram from '../../node/UniProgram';
-
-import { ANTLRInputStream, 
+import { 
+	ANTLRInputStream, 
 	CommonTokenStream, 
 	ParserRuleContext, 
 	RuleContext, 
-	Token } from 'antlr4ts';
-import { ParseTree } from 'antlr4ts/tree/ParseTree';
-import { CPP14Visitor } from './CPP14Visitor';
-import { CPP14Parser, 
-	TranslationunitContext,
-PrimaryexpressionContext,
-IdentexpressionContext,
-IdexpressionlapperContext,
-FunctioncallexpressionContext,
-PostfixexpressionContext,
-ExpressionlistContext,
-BinaryexpressionContext,
-UnaryexpressionContext,
-TypeidlapperContext,
-CastexpressionContext,
-PmexpressionContext,
-MultiplicativeexpressionContext,
-AdditiveexpressionContext,
-ShiftexpressionContext,
-RelationalexpressionContext,
-EqualityexpressionContext,
-AndexpressionContext,
-ExclusiveorexpressionContext,
-InclusiveorexpressionContext,
-LogicalandexpressionContext,
-LogicalorexpressionContext,
-ConditionalexpressionContext,
-AssignmentexpressionContext,
-ExpressionstatementContext,
-CompoundstatementContext,
-StatementseqContext,
-SelectionstatementContext,
-WhilestatementContext,
-DowhilestatementContext,
-IterationstatementContext,
-EnhancedForStatementContext,
-BreakStatementContext,
-ContinueStatementContext,
-ReturnStatementContext,
-DeclarationseqContext,
-MyclassbodyContext,
-MyclassspecifierContext,
-MyclassheadContext,
-VariabledeclarationstatementContext,
-VariabledeclarationContext,
-VariableDeclaratorListContext,
-VariableDeclaratorContext,
-DimsContext,
-TrailingtypespecifierContext,
-InitdeclaratorlistContext,
-DeclaratoridContext,
-ParameterdeclarationclauseContext,
-ParameterdeclarationlistContext,
-ParameterdeclarationContext,
-FunctiondefinitionContext,
-FunctionheaderContext,
-FunctiondeclaratorContext,
-FunctionbodyContext,
-InitializerlistContext,
-BracedinitlistContext,
-MyclassnameContext,
-ClassspecifierContext,
-ClassbodyContext,
-ClassheadContext,
-MemberspecificationContext,
-MembervariabledeclarationstatementContext,
-MembervariabledeclarationContext,
-MemberdeclaratorlistContext,
-MemberdeclaratorContext,
-IntegerliteralContext,
-CharacterliteralContext,
-FloatingliteralContext,
-StringliteralContext,
-BooleanliteralContext} from './CPP14Parser';
-import { CPP14Lexer } from './CPP14Lexer';
-import { RuleNode } from 'antlr4ts/tree/RuleNode';
-import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
-import { TerminalNode } from 'antlr4ts/tree/TerminalNode';
+	Token 
+} from 'antlr4ts';
+
+import { ParseTree } from "antlr4ts/tree/ParseTree";
+import { RuleNode } from "antlr4ts/tree/RuleNode";
+import { ErrorNode } from "antlr4ts/tree/ErrorNode";
+import { TerminalNode } from "antlr4ts/tree/TerminalNode";
+
+import { CPP14Visitor } from "./CPP14Visitor";
+import { CPP14Lexer } from "./CPP14Lexer";
+import { CPP14Parser,
+	 TranslationunitContext,
+	 PrimaryexpressionContext,
+	 IdentexpressionContext,
+	 IdexpressionlapperContext,
+	 FunctioncallexpressionContext,
+	 PostfixexpressionContext,
+	 ExpressionlistContext,
+	 BinaryexpressionContext,
+	 UnaryexpressionContext,
+	 TypeidlapperContext,
+	 CastexpressionContext,
+	 PmexpressionContext,
+	 MultiplicativeexpressionContext,
+	 AdditiveexpressionContext,
+	 ShiftexpressionContext,
+	 RelationalexpressionContext,
+	 EqualityexpressionContext,
+	 AndexpressionContext,
+	 ExclusiveorexpressionContext,
+	 InclusiveorexpressionContext,
+	 LogicalandexpressionContext,
+	 LogicalorexpressionContext,
+	 ConditionalexpressionContext,
+	 AssignmentexpressionContext,
+	 ExpressionstatementContext,
+	 CompoundstatementContext,
+	 StatementseqContext,
+	 SelectionstatementContext,
+	 WhilestatementContext,
+	 DowhilestatementContext,
+	 IterationstatementContext,
+	 EnhancedForStatementContext,
+	 BreakStatementContext,
+	 ContinueStatementContext,
+	 ReturnStatementContext,
+	 DeclarationseqContext,
+	 MyclassbodyContext,
+	 MyclassspecifierContext,
+	 MyclassheadContext,
+	 VariabledeclarationstatementContext,
+	 VariabledeclarationContext,
+	 VariableDeclaratorListContext,
+	 VariableDeclaratorContext,
+	 DimsContext,
+	 TrailingtypespecifierContext,
+	 InitdeclaratorlistContext,
+	 DeclaratoridContext,
+	 ParameterdeclarationclauseContext,
+	 ParameterdeclarationlistContext,
+	 ParameterdeclarationContext,
+	 FunctiondefinitionContext,
+	 FunctionheaderContext,
+	 FunctiondeclaratorContext,
+	 FunctionbodyContext,
+	 InitializerlistContext,
+	 BracedinitlistContext,
+	 MyclassnameContext,
+	 ClassspecifierContext,
+	 ClassbodyContext,
+	 ClassheadContext,
+	 MemberspecificationContext,
+	 MembervariabledeclarationstatementContext,
+	 MembervariabledeclarationContext,
+	 MemberdeclaratorlistContext,
+	 MemberdeclaratorContext,
+	 IntegerliteralContext,
+	 CharacterliteralContext,
+	 FloatingliteralContext,
+	 StringliteralContext,
+	 BooleanliteralContext 
+	} from "./CPP14Parser";
+
+import { CodeLocation } from '../../node_helper/CodeLocation';
+import { CodeRange } from '../../node_helper/CodeRange';
+import { UniNode } from '../../node/UniNode';
+import { UniParam } from '../../node/UniParam';
+import { UniEnhancedFor } from '../../node/UniEnhancedFor';
+import { UniExpr } from '../../node/UniExpr';
+import { UniArray } from '../../node/UniArray';
+import { UniNumberLiteral } from '../../node/UniNumberLiteral';
+import { UniBinOp } from '../../node/UniBinOp';
+import { UniBlock } from '../../node/UniBlock';
+import { UniBoolLiteral } from '../../node/UniBoolLiteral';
+import { UniBreak } from '../../node/UniBreak';
+import { UniCast } from '../../node/UniCast';
+import { UniContinue } from '../../node/UniContinue';
+import { UniClassDec } from '../../node/UniClassDec';
+import { UniDoWhile } from '../../node/UniDoWhile';
+import { UniEmptyStatement } from '../../node/UniEmptyStatement';
+import { UniFunctionDec } from '../../node/UniFunctionDec';
+import { UniFor } from '../../node/UniFor';
+import { UniIdent } from '../../node/UniIdent';
+import { UniIf } from '../../node/UniIf';
+import { UniIntLiteral } from '../../node/UniIntLiteral';		
+import { UniDoubleLiteral } from '../../node/UniDoubleLiteral';
+import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
+import { UniWhile } from '../../node/UniWhile';
+import { UniUnaryOp } from '../../node/UniUnaryOp';
+import { UniTernaryOp } from '../../node/UniTernaryOp';
+import { UniStatement } from '../../node/UniStatement';
+import { UniStringLiteral } from '../../node/UniStringLiteral';
+import { UniReturn } from '../../node/UniReturn';
+import { UniVariableDec } from '../../node/UniVariableDec';
+import { UniVariableDef } from '../../node/UniVariableDef';
+import { UniSwitchUnit } from '../../node/UniSwitchUnit';
+import { UniSwitch } from '../../node/UniSwitch';
+import { UniMethodCall } from '../../node/UniMethodCall';
+import { UniProgram } from '../../node/UniProgram';
 
 class Comment {
-	constructor(readonly contents:string[], public parent:ParseTree){
+	constructor(readonly contents:string[],
+		 public parent:ParseTree){
 	}
 }
 
-export default class CPP14Mapper implements CPP14Visitor<any> {
+export class CPP14Mapper implements CPP14Visitor<any> {
 
 	private isDebugMode:boolean = false;
 	private parser:CPP14Parser;

@@ -1,5 +1,5 @@
 /* Generated from Java with JSweet 2.0.0 - http://www.jsweet.org */
-export default class CodeLocation {
+export class CodeLocation {
   public x: number;
   public y: number;
   public constructor(x: number, y: number) {

@@ -1,8 +1,8 @@
-import UniDecralation from './UniDecralation';
-import UniParam from './UniParam';
-import UniBlock from './UniBlock';
+import { UniDecralation } from './UniDecralation';
+import { UniParam } from './UniParam';
+import { UniBlock } from './UniBlock';
 
-export default class UniFunctionDec extends UniDecralation {
+export class UniFunctionDec extends UniDecralation {
   public name: string;
   public modifiers: string[];
   public returnType: string;

@@ -2,66 +2,56 @@
   "name": "unicoen.ts",
   "version": "1.0.0",
   "description": "unicoen.ts",
-  "main": "index.js",
-  "scripts": {
-    "lint": "tslint --fix 'src/**/*.ts' 'test/**/*.ts'",
-    "dev": "npm run lint && webpack --mode development --watch",
-    "lbuild": "npm run lint && webpack --mode production",
-    "build": "webpack --mode production",
-    "node": "npm run build && node ./dst/generator.js && npm run build",
-    "antlr": "antlr4ts -visitor -no-listener src/mapper/CPP14/CPP14.g4",
-    "test": "npm run build && mocha dst/test.js",
-    "server": "npm run build && webpack-dev-server"
-  },
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UnicoenProject/unicoen.ts.git"
   },
-  "author": "Ryosuke Ishizue",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/UnicoenProject/unicoen.ts/issues"
   },
   "homepage": "https://github.com/UnicoenProject/unicoen.ts#readme",
+  "author": "Ryosuke Ishizue",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "format": "prettier --write src/**.ts **/*.json",
+    "prepublish": "yarn build",
+    "generate:parser": "antlr4ts -visitor -no-listener src/mapper/CPP14/CPP14.g4 -o src/mapper/CPP14/",
+    "precommit": "lint-staged",
+    "postcommit": "git update-index --again",
+    "test": "yarn run build && mocha dist/index.spec.js"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.2",
     "@types/mocha": "^2.2.48",
-    "antlr4": "^4.7.1",
-    "antlr4ts": "^0.4.1-alpha.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.4",
-    "babel-preset-es2015": "^6.24.1",
-    "cache-loader": "^1.2.2",
+    "antlr4ts-cli": "^0.4.0-alpha.4",
     "chai": "^4.1.2",
-    "fs": "0.0.1-security",
-    "happypack": "^4.0.1",
-    "istanbul": "^0.4.5",
+    "lint-staged": "^7.2.2",
     "mocha": "^4.1.0",
-    "os": "^0.1.1",
-    "path": "^0.12.7",
-    "postinstall-build": "^5.0.1",
-    "remap-istanbul": "^0.10.1",
-    "source-map-loader": "^0.2.3",
-    "thread-loader": "^1.1.5",
-    "ts-loader": "^3.4.0",
+    "prettier": "^1.14.2",
+    "rimraf": "^2.6.2",
     "tslint": "^5.9.1",
-    "tslint-config-airbnb": "^5.5.0",
-    "tsutils": "^2.21.0",
-    "typemoq": "^2.1.0",
-    "typescript": "^2.7.1",
-    "uglifyjs-webpack-plugin": "^1.2.5",
-    "webpack": "^4.12.0",
-    "webpack-cli": "^3.0.8",
-    "webpack-dev-server": "^3.1.4",
-    "webpack-stream": "^4.0.3"
+    "typescript": "^3.0.3"
   },
   "dependencies": {
     "@types/mathjs": "^4.4.0",
     "@types/node": "^9.4.0",
     "agh.sprintf": "0.0.11",
-    "antlr4ts-cli": "^0.4.0-alpha.4",
+    "antlr4ts": "^0.4.1-alpha.0",
     "mathjs": "^5.0.0",
-    "ts-data.stack": "^1.0.6",
-    "typescript-dotnet-es6": "^4.9.11"
+    "scanf": "^1.0.2"
+  },
+  "lint-staged": {
+    "*.{js,json}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "tslint --fix",
+      "git add"
+    ]
   }
 }

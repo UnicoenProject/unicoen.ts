@@ -1,7 +1,7 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
-export default class UniWhile extends UniStatement {
+export class UniWhile extends UniStatement {
   public cond: UniExpr;
   public statement: UniStatement;
 

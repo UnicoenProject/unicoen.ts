@@ -1,4 +1,4 @@
-export default class Variable{
+export class Variable{
 
   public constructor(public readonly type:string,public readonly name:string,
                      private value:any, public readonly address:number, 

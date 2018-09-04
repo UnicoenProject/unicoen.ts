@@ -1,7 +1,7 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
-export default class UniFor extends UniStatement {
+export class UniFor extends UniStatement {
   public init: UniExpr;
   public cond: UniExpr;
   public step: UniExpr;

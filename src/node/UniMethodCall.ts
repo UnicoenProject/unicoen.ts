@@ -1,7 +1,7 @@
-import UniExpr from './UniExpr';
-import UniIdent from './UniIdent';
+import { UniExpr } from './UniExpr';
+import { UniIdent } from './UniIdent';
 
-export default class UniMethodCall extends UniExpr {
+export class UniMethodCall extends UniExpr {
   public receiver: UniExpr;
   public methodName: UniIdent;
   public args: UniExpr[];

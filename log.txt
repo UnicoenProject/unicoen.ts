@@ -1,0 +1,144 @@
+yarn run v1.9.4
+$ rimraf dist && tsc
+src/mapper/CPP14/CPP14Mapper.ts(196,28): error TS2304: Cannot find name 'RuleNode'.
+src/mapper/CPP14/CPP14Mapper.ts(196,28): error TS4073: Parameter 'node' of public method from exported class has or is using private name 'RuleNode'.
+src/mapper/CPP14/CPP14Mapper.ts(276,28): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(276,28): error TS4073: Parameter 'node' of public method from exported class has or is using private name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(471,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(472,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(511,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(512,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(547,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(548,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(580,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(581,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(619,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(620,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(685,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(686,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(745,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(746,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(789,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(790,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(860,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(861,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(916,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(917,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(962,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(963,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1019,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1020,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1084,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1085,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1149,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1150,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1214,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1215,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1279,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1280,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1348,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1349,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1405,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1406,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1458,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1459,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1511,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1512,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1564,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1565,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1617,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1618,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1670,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1671,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1723,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1724,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1758,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1759,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1793,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1794,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1843,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1844,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1897,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1898,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1936,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1937,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(1975,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(1976,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2026,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2027,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2070,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2071,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2098,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2099,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2125,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2126,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2162,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2163,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2222,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2223,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2263,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2264,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2302,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2303,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2336,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2337,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2369,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2370,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2418,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2419,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2468,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2469,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2514,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2515,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2553,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2554,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2580,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2581,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2617,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2618,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2643,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2644,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2693,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2694,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2754,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2755,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2800,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2801,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2844,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2845,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2883,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2884,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2923,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2924,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(2955,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(2956,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3006,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3007,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3040,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3041,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3067,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3068,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3105,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3106,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3146,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3147,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3180,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3181,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3250,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3251,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3284,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3285,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3337,30): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3338,17): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3384,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3385,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3444,29): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3445,16): error TS2339: Property 'symbol' does not exist on type 'ParseTree'.
+src/mapper/CPP14/CPP14Mapper.ts(3465,23): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3482,23): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3499,23): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3516,23): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3533,23): error TS2304: Cannot find name 'TerminalNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3544,23): error TS2304: Cannot find name 'ErrorNode'.
+src/mapper/CPP14/CPP14Mapper.ts(3544,23): error TS4073: Parameter 'node' of public method from exported class has or is using private name 'ErrorNode'.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

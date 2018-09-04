@@ -1,7 +1,7 @@
-import UniStatement from './UniStatement';
-import UniExpr from './UniExpr';
+import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
-export default class UniSwitchUnit extends UniStatement {
+export class UniSwitchUnit extends UniStatement {
   public label: string;
   public cond: UniExpr;
   public statement: UniStatement[];
