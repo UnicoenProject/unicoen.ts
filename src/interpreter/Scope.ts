@@ -1,5 +1,4 @@
 import { UniExpr } from '../node/UniExpr';
-import { assert } from 'chai';
 import { RuntimeException , UniRuntimeError } from './RuntimeException';
 import { UniFunctionDec } from '../node/UniFunctionDec';
 import { File } from './File';
@@ -356,13 +355,13 @@ export class Scope {
   }
 
   public static createObject(global:Scope):Scope {
-    assert.ok(global != null);
-    assert.ok(global.type === Type.GLOBAL); // 匿名クラスは未対応
+    console.assert(global != null);
+    console.assert(global.type === Type.GLOBAL); // 匿名クラスは未対応
     return new Scope(Type.OBJECT, global);
   }
 
   public static createLocal(parent:Scope):Scope {
-    assert.ok(parent != null);
+    console.assert(parent != null);
     return new Scope(Type.LOCAL, parent);
   }
 
