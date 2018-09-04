@@ -4,7 +4,7 @@
   "description": "unicoen.ts",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UnicoenProject/unicoen.ts.git"
