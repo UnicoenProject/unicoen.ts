@@ -19,6 +19,7 @@
     "format": "prettier --write src/**.ts **/*.json",
     "prepublish": "yarn build",
     "generate:parser": "antlr4ts -visitor -no-listener src/mapper/CPP14/CPP14.g4 -o src/mapper/CPP14/",
+    "generate:node": "ts-node src/node/Generator.ts",
     "precommit": "lint-staged",
     "postcommit": "git update-index --again",
     "test": "yarn run build && mocha dist/index.spec.js"

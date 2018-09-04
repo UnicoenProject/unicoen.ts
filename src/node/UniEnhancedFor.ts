@@ -8,7 +8,6 @@ export class UniEnhancedFor extends UniStatement {
   public container: UniExpr;
   public statement: UniStatement;
 
-  
   public constructor();
   public constructor(modifiers: string[], type: string, name: string, container: UniExpr, statement: UniStatement);
   public constructor(modifiers?: string[], type?: string, name?: string, container?: UniExpr, statement?: UniStatement) {
