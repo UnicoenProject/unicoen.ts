@@ -1,7 +1,7 @@
 export class RuntimeException implements Error {
   public name = 'RuntimeException';
   public message = '';
-  
+
   constructor(message?: string) {
     if (message !== undefined) {
       this.message = message;

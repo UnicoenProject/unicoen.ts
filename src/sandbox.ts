@@ -1,4 +1,4 @@
-import { CPP14Mapper, CPP14Engine } from ".";
+import { CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`int main(void){
@@ -17,7 +17,7 @@ try {
   const tree = cmapper.parse(text);
   const engine = new CPP14Engine();
   engine.stdin('10-2.3');
-  const map = new Map<string,ArrayBuffer>();
+  const map = new Map<string, ArrayBuffer>();
   engine.setFileList(map);
   const r = engine.execute(tree);
   const out = engine.getStdout();
