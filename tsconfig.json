@@ -2,10 +2,10 @@
     "compilerOptions": {
         "downlevelIteration": true,
         "experimentalDecorators": true,
-        "lib": [ "es5", "es6", "esnext", "dom" ],
+        "lib": [ "es2015", "es2016","es2017","es2018", "esnext", "dom" ],
         "module": "commonjs",
         "sourceMap": true,
-        "target": "es2015",
+        "target": "ES6",
         "outDir": "dist",
         "declaration": true,
     },
