@@ -28,10 +28,7 @@ export const clone = (function() {
                   }
               }
           }
-          //Nodeオブジェクトは自作関数cloneNodeに処理を任せる;
-  //         if(object instanceof Node){
-  //             return cloneNode(object);
-  //         }
+
           //objectの型とcloneObjの型を同一にする;
           let cloneObj;
           let type = typeOf(object);
@@ -88,33 +85,7 @@ export const clone = (function() {
       function typeOf(operand) {
           return Object.prototype.toString.call(operand).slice(8, -1);
       }
-      function cloneNode(node) {
-          //script要素は再評価するためにcloneScriptでcloneする;
-          if(node.tagName === 'SCRIPT') {
-              return cloneScript(node);
-          }
-          //cloneNodeで要素をcloneする;
-          let clone = node.cloneNode();
-          //子要素があれば再帰的に追加;
-          if(node.firstChild) {
-              let childNodes = node.childNodes;
-              for(let i = 0, len = childNodes.length; i < len; i++) {
-                  clone.appendChild(cloneNode(childNodes[i]));
-              }
-          }
-          return clone;
-      }
-      function cloneScript(element) {
-          let script = document.createElement('script');
-          let attrs = element.attributes;
-          for(let i = 0, len = attrs.length; i < len; i++) {
-              let attr = attrs[i];
-              script.setAttribute(attr.name, attr.value);
-          }
-          script.innerHTML = element.innerHTML;
-          return script;
-      }
-   
+         
       return function(object:any, prototypes?:any) {
           memo = createMemo();
           return clone(object, prototypes);
