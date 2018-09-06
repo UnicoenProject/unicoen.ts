@@ -8,13 +8,13 @@
     "interface-name": [true, "never-prefix"]
   },
   "linterOptions": {
-      "exclude": [
-        "node_modules",
-        "src/**/*.d.ts",
-        "src/node/Uni*.ts",
-        "src/**/*Parser.ts",
-        "src/**/*Lexer.ts",
-        "src/**/*Visitor.ts"
-      ]
+    "exclude": [
+      "node_modules",
+      "src/**/*.d.ts",
+      "src/node/Uni*.ts",
+      "src/**/*Parser.ts",
+      "src/**/*Lexer.ts",
+      "src/**/*Visitor.ts"
+    ]
   }
 }

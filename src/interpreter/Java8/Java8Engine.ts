@@ -11,9 +11,8 @@ import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniCast } from '../../node/UniCast';
 import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
 import { File } from '../File';
-import { sscanf } from 'scanf';
 
-export class CPP14Engine extends Engine {
+export default class Java8Engine extends Engine {
   public constructor() {
     super();
   }
@@ -22,106 +21,101 @@ export class CPP14Engine extends Engine {
     this.includeStdio(global);
     this.includeStdlib(global);
     this.includeMath(global);
-    global.setTop(
-      'sizeof',
-      (arg: string | number[]) => {
-        if (typeof arg === 'string') {
-          return this.sizeof(<string>arg);
-        } else if (Array.isArray(arg)) {
-          return this.sizeof(CPP14Engine.bytesToStr(arg));
-        }
-        throw new Error('Unsupported type of argument.');
-      },
-      'FUNCTION',
-    );
   }
 
   protected includeStdio(global: Scope) {
-    global.setTop(
-      'printf',
-      function() {
-        if (arguments.length < 1) {
-          return 0;
-        }
-        const args = [];
-        for (let i = 0; i < arguments.length; ++i) {
-          args.push(arguments[i]);
-        }
-        let text = CPP14Engine.bytesToStr(args[0]);
-        text = text.replace('\\n', '\n');
-        for (let i = 1; i < args.length; ++i) {
-          if (global.typeOnMemory.containsKey(args[i])) {
-            const type: string = global.typeOnMemory.get(args[i]);
-            if (type.includes('char')) {
-              args[i] = CPP14Engine.charArrToStr(global.objectOnMemory, <number>args[i]);
-            }
+    const printf = function() {
+      if (arguments.length < 1) {
+        return 0;
+      }
+      const args = [];
+      for (let i = 0; i < arguments.length; ++i) {
+        args.push(arguments[i]);
+      }
+      let text = Java8Engine.bytesToStr(args[0]);
+      text = text.replace('\\n', '\n');
+      for (let i = 1; i < args.length; ++i) {
+        if (global.typeOnMemory.containsKey(args[i])) {
+          const type: string = global.typeOnMemory.get(args[i]);
+          if (type.includes('char')) {
+            args[i] = Java8Engine.charArrToStr(global.objectOnMemory, <number>args[i]);
           }
         }
-        args[0] = text;
-        const output = agh.sprintf(...args).replace('\\n', '\n');
-        this.stdout(output);
-        const byteCount = (str: string) => encodeURIComponent(str).replace(/%../g, 'x').length;
-        const count = byteCount(output);
-        return count;
-      },
-      'FUNCTION',
-    );
+      }
+      args[0] = text;
+      const output = agh.sprintf(...args).replace('\\n', '\n');
+      this.stdout(output);
+      const byteCount = (str: string) => encodeURIComponent(str).replace(/%../g, 'x').length;
+      const count = byteCount(output);
+      return count;
+    };
+
+    const println = (arg: any) => {
+      const output = agh.sprintf(String(arg)).replace('\\n', '\n');
+      this.stdout(output);
+    };
+
+    const out = {
+      printf,
+      println,
+    };
+    const system = { out };
+    global.setTop('System', system, 'class');
 
     global.setTop(
       'scanf',
       function*() {
-        this.setIsWaitingForStdin(true); // yield and set stdin
-        ////////////////////////////////////////////
-        const args = yield; // get args from next(args) from execUniMethodCall
-        ////////////////////////////////////////////
-        const input = this.getStdin();
-        this.clearStdin();
-        this.stdout(input + '\n');
-        this.setIsWaitingForStdin(false);
-        if (!Array.isArray(args) || args.length === 0) {
-          return 0;
-        }
-        const format = CPP14Engine.bytesToStr(args[0]);
-        args.shift();
-
-        const values = sscanf(input, format);
-        const setValue = (addr, valueStr) => {
-          const type: string = this.currentScope.getType(addr);
-          if (type === 'double' || type === 'float') {
-            const value = Number.parseFloat(valueStr);
-            this.currentScope.set(addr, value);
-          } else if (type === 'char') {
-            if (1 < valueStr.length) {
-              try {
-                const bytes: number[] = CPP14Engine.strToBytes(valueStr);
-                for (let k = 0; k < valueStr.length(); ++k) {
-                  this.currentScope.set(addr + k, bytes[k]);
-                }
-              } catch (e) {
-                // TODO 自動生成された catch ブロック
-                e.printStackTrace();
-              }
-            } else {
-              const value: number = CPP14Engine.strToBytes(valueStr)[0];
-              this.currentScope.set(addr, value);
-            }
-          } else {
-            const value = Number.parseInt(valueStr);
-            this.currentScope.set(addr, value);
-          }
-        };
-        if (Array.isArray(values)) {
-          const length = Math.min(args.length, values.length);
-          for (let i = 0; i < length; ++i) {
-            const addr: number = args[i];
-            setValue(addr, values[i]);
-          }
-          return length;
-        } else {
-          const addr = args[0];
-          setValue(addr, '' + values);
-          return 1;
-        }
+        // this.setIsWaitingForStdin(true); // yield and set stdin
+        // ////////////////////////////////////////////
+        // const args = yield; // get args from next(args) from execUniMethodCall
+        // ////////////////////////////////////////////
+        // const input = this.getStdin();
+        // this.clearStdin();
+        // this.stdout(input + '\n');
+        // this.setIsWaitingForStdin(false);
+        // if (!Array.isArray(args) || args.length === 0) {
+        //   return 0;
+        // }
+        // const format = Java8Engine.bytesToStr(args[0]);
+        // args.shift();
+        // const values = sscanf(input, format);
+        // const setValue = (addr, valueStr) => {
+        //   const type:string = this.currentScope.getType(addr);
+        //   if (type === 'double' || type === 'float') {
+        //     const value = Number.parseFloat(valueStr);
+        //     this.currentScope.set(addr, value);
+        //   } else if (type === 'char') {
+        //     if (1 < valueStr.length) {
+        //       try {
+        //         const bytes:number[] = Java8Engine.strToBytes(valueStr);
+        //         for (let k = 0; k < valueStr.length(); ++k) {
+        //           this.currentScope.set(addr + k, bytes[k]);
+        //         }
+        //       } catch (e) {
+        //         // TODO 自動生成された catch ブロック
+        //         e.printStackTrace();
+        //       }
+        //     } else {
+        //       const value:number = Java8Engine.strToBytes(valueStr)[0];
+        //       this.currentScope.set(addr, value);
+        //     }
+        //   } else {
+        //     const value = Number.parseInt(valueStr);
+        //     this.currentScope.set(addr, value);
+        //   }
+        // };
+        // if (Array.isArray(values)) {
+        //   const length = Math.min(args.length, values.length);
+        //   for (let i = 0; i < length; ++i) {
+        //     const addr:number = args[i];
+        //     setValue(addr, values[i]);
+        //   }
+        //   return length;
+        // } else {
+        //   const addr = args[0];
+        //   setValue(addr, '' + values);
+        //   return 1;
+        // }
       },
       'FUNCTION',
     );
@@ -136,8 +130,8 @@ export class CPP14Engine extends Engine {
         for (let i = 0; i < arguments.length; ++i) {
           args.push(arguments[i]);
         }
-        const filename = CPP14Engine.bytesToStr(args[0]);
-        const mode = CPP14Engine.bytesToStr(args[1]);
+        const filename = Java8Engine.bytesToStr(args[0]);
+        const mode = Java8Engine.bytesToStr(args[1]);
         let ret = 0;
         try {
           switch (mode) {
@@ -236,9 +230,9 @@ export class CPP14Engine extends Engine {
         const addr = <number>stream;
         let bytes = null;
         if (typeof s === 'number') {
-          bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s);
+          bytes = Java8Engine.getCharArrAsByte(global.objectOnMemory, s);
         } else if (typeof s === 'string') {
-          bytes = CPP14Engine.strToBytes(s);
+          bytes = Java8Engine.strToBytes(s);
         }
         const fp: File = global.getValue(addr);
         let ret = -1;
@@ -657,7 +651,7 @@ export class CPP14Engine extends Engine {
     const bytes: number[] = [];
     const obj: string | number = objectOnMemory.get(begin);
     if (typeof obj === 'string') {
-      return CPP14Engine.strToBytes(obj);
+      return Java8Engine.strToBytes(obj);
     }
     for (let v = obj; objectOnMemory.containsKey(begin); ++begin) {
       const o = objectOnMemory.get(begin);

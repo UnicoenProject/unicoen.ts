@@ -1,24 +1,25 @@
-export class File
-{
-  private static filelist:Map<string,ArrayBuffer>;
-  private pos:number = 0;
-  private buf:Uint8Array;
-  private toBeFlush:boolean = false;
-  constructor(private readonly name:string,
-              private readonly data:ArrayBuffer
-    ,         private readonly mode:string) {
+export class File {
+  private static filelist: Map<string, ArrayBuffer>;
+  private pos: number = 0;
+  private buf: Uint8Array;
+  private toBeFlush: boolean = false;
+  constructor(
+    private readonly name: string,
+    private readonly data: ArrayBuffer,
+    private readonly mode: string,
+  ) {
     this.buf = new Uint8Array(this.data);
   }
 
-  public static setFilelist(filelist:Map<string,ArrayBuffer>) {
+  public static setFilelist(filelist: Map<string, ArrayBuffer>) {
     File.filelist = filelist;
   }
 
-  public static getFileFromFileList(filename:string):ArrayBuffer {
+  public static getFileFromFileList(filename: string): ArrayBuffer {
     return File.filelist.get(filename);
   }
 
-  public static addFileToFileList(name:string, file:ArrayBuffer) {
+  public static addFileToFileList(name: string, file: ArrayBuffer) {
     return File.filelist.set(name, file);
   }
 
@@ -44,20 +45,19 @@ export class File
     }
   }
 
-  private isBinaryMode():boolean {
+  private isBinaryMode(): boolean {
     return this.mode.includes('b');
   }
 
-  
-  private isWriteMode():boolean {
+  private isWriteMode(): boolean {
     return this.mode.includes('w');
   }
 
-  private isEOF():boolean {
+  private isEOF(): boolean {
     return this.buf.length <= this.pos;
   }
 
-  public fputc(c:number):number {
+  public fputc(c: number): number {
     if (this.isEOF()) {
       this.resize();
     }
@@ -65,7 +65,7 @@ export class File
     return c;
   }
 
-  public fgetc():number {
+  public fgetc(): number {
     if (this.isEOF()) {
       return -1;
     }
@@ -78,11 +78,11 @@ export class File
     return ret;
   }
 
-  public fgets(n:number):number[] {
+  public fgets(n: number): number[] {
     if (this.isEOF()) {
       return null;
     }
-    const bytes:number[] = [];
+    const bytes: number[] = [];
     for (let i = 0; i < n - 1; ++i) {
       const c = this.fgetc();
       if (c === -1) {
@@ -91,9 +91,9 @@ export class File
       bytes.push(c);
       if (c === '\n'.charCodeAt(0)) {
         break;
-      } 
+      }
     }
-    bytes.push(0);// 終端文字
+    bytes.push(0); // 終端文字
     return bytes;
   }
 }

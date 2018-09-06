@@ -40,14 +40,11 @@ import { UniCharacterLiteral } from '../node/UniCharacterLiteral';
 import { File } from './File';
 import { clone } from '../node_helper/clone';
 
-export class ControlException extends RuntimeException {
-}
+export class ControlException extends RuntimeException {}
 
-export class Break extends ControlException {
-}
+export class Break extends ControlException {}
 
-export class Continue extends ControlException {
-}
+export class Continue extends ControlException {}
 
 export class Return extends ControlException {
   public constructor(public readonly value: any) {
@@ -56,33 +53,32 @@ export class Return extends ControlException {
 }
 
 export class Engine {
+  public constructor() {}
 
-  public constructor() { }
-  
-  private isDebugMode:boolean = false;
-  private isCurrentExprSet:boolean = false;
-  protected currentState:ExecState = null;
-  private _stdout:string = '';
-  private _stdin:string = '';
-  protected currentScope:Scope = null;
-  protected execStepItr:IterableIterator<any> = null;
-  private isWaitingForStdin:boolean = false;
+  private isDebugMode: boolean = false;
+  private isCurrentExprSet: boolean = false;
+  protected currentState: ExecState = null;
+  private _stdout: string = '';
+  private _stdin: string = '';
+  protected currentScope: Scope = null;
+  protected execStepItr: IterableIterator<any> = null;
+  private isWaitingForStdin: boolean = false;
 
-  public setDebugMode(enable:boolean) {
+  public setDebugMode(enable: boolean) {
     this.isDebugMode = enable;
   }
 
-  public getCurrentExpr():UniNode {
+  public getCurrentExpr(): UniNode {
     return this.currentState.getCurrentExpr();
   }
-  public getCurrentState():ExecState {
+  public getCurrentState(): ExecState {
     return this.currentState;
   }
 
   public getStdout(): string {
     return this._stdout;
   }
-  protected stdout(text:string):void {
+  protected stdout(text: string): void {
     this._stdout += text;
   }
   private clearStdout() {
@@ -92,38 +88,36 @@ export class Engine {
   protected getStdin(): string {
     return this._stdin;
   }
-  public stdin(text:string):void {
+  public stdin(text: string): void {
     this._stdin += text;
   }
   private clearStdin() {
     this._stdin = '';
   }
 
-  public getIsWaitingForStdin():boolean {
+  public getIsWaitingForStdin(): boolean {
     return this.isWaitingForStdin;
   }
-  public setIsWaitingForStdin(enable:boolean) {
-    return this.isWaitingForStdin = enable;
+  public setIsWaitingForStdin(enable: boolean) {
+    return (this.isWaitingForStdin = enable);
   }
 
-  public isStepExecutionRunning():boolean {
+  public isStepExecutionRunning(): boolean {
     return this.execStepItr != null;
   }
 
-  public setFileList(filelist:Map<string,ArrayBuffer>) {
+  public setFileList(filelist: Map<string, ArrayBuffer>) {
     File.setFilelist(filelist);
   }
 
-  protected loadLibarary(global:Scope) {
+  protected loadLibarary(global: Scope) {}
 
-  }
-
-  public startStepExecution(dec:UniProgram):ExecState {
+  public startStepExecution(dec: UniProgram): ExecState {
     this.execStepItr = this.executeStepByStep(dec);
     return this.stepExecute();
   }
 
-  public stepExecute():ExecState {
+  public stepExecute(): ExecState {
     if (this.execStepItr == null) {
       return this.getCurrentState();
     }
@@ -143,10 +137,10 @@ export class Engine {
     return clone(this.currentState);
   }
 
-  public* executeStepByStep(dec:UniProgram) {
-    const main:UniFunctionDec = this.getEntryPoint(dec);
+  public *executeStepByStep(dec: UniProgram) {
+    const main: UniFunctionDec = this.getEntryPoint(dec);
     if (main != null) {
-      const global:Scope = Scope.createGlobal();
+      const global: Scope = Scope.createGlobal();
       this.setGlobalObjects(dec, global);
       this.loadLibarary(global);
       this.currentState = new ExecState(global);
@@ -156,7 +150,7 @@ export class Engine {
       // 初期化が完了して1行目に入る前の状態で最初は返す。
       this.currentState.setCurrentExpr(dec);
       yield true;
-      
+
       const value = yield* this.execFunc(main, global, null);
       // firePostExecAll(global, value);
       global.closeAllFiles();
@@ -166,7 +160,7 @@ export class Engine {
     }
   }
 
-  public execute(dec:UniProgram) {
+  public execute(dec: UniProgram) {
     let ret = 0;
     let node;
     const gen = this.executeStepByStep(dec);
@@ -182,10 +176,10 @@ export class Engine {
     return ret;
   }
 
-  private getEntryPoint(node:UniNode):UniFunctionDec {
-    let entry:UniFunctionDec = null;
+  private getEntryPoint(node: UniNode): UniFunctionDec {
+    let entry: UniFunctionDec = null;
     if (node instanceof UniProgram) {
-      const block:UniBlock = node.block;
+      const block: UniBlock = node.block;
       entry = this.getEntryPoint(block);
     } else if (node instanceof UniBlock) {
       for (const stateOfBlock of node.body) {
@@ -210,9 +204,9 @@ export class Engine {
     return entry;
   }
 
-  private setGlobalObjects(node:UniNode, global:Scope) {
+  private setGlobalObjects(node: UniNode, global: Scope) {
     if (node instanceof UniProgram) {
-      const block:UniBlock = node.block;
+      const block: UniBlock = node.block;
       this.setGlobalObjects(block, global);
     } else if (node instanceof UniBlock) {
       for (const stateOfBlock of node.body) {
@@ -239,38 +233,38 @@ export class Engine {
     }
   }
 
-  public static executeSimpleExpr(expr:UniExpr) :any;
-  public static executeSimpleExpr(expr:UniExpr, scope:Scope):any;
-  public static executeSimpleExpr(expr:UniExpr, scope?:Scope):any {
+  public static executeSimpleExpr(expr: UniExpr): any;
+  public static executeSimpleExpr(expr: UniExpr, scope: Scope): any;
+  public static executeSimpleExpr(expr: UniExpr, scope?: Scope): any {
     if (scope === undefined) {
       return new Engine().execExpr(expr, scope);
     }
     return this.executeSimpleExpr(expr, Scope.createGlobal());
   }
 
-  public static executeSimpleProgram(program:UniProgram):any {
+  public static executeSimpleProgram(program: UniProgram): any {
     return this.executeSimpleExpr(program.block, Scope.createGlobal());
   }
 
-  protected* execDecralation(dec:UniDecralation, scope:Scope) {
+  protected *execDecralation(dec: UniDecralation, scope: Scope) {
     if (dec instanceof UniVariableDec) {
       const uvd = <UniVariableDec>dec;
-      return yield* this.execVariableDec(uvd,scope);
+      return yield* this.execVariableDec(uvd, scope);
     }
     if (dec instanceof UniFunctionDec) {
     }
     if (dec instanceof UniClassDec) {
     }
   }
-  protected* execStatement(state:UniStatement, scope:Scope):any {
+  protected *execStatement(state: UniStatement, scope: Scope): any {
     if (state instanceof UniIf) {
-      return yield* this.execIf(state,scope);
+      return yield* this.execIf(state, scope);
     } else if (state instanceof UniFor) {
-      return yield* this.execFor(state,scope);
+      return yield* this.execFor(state, scope);
     } else if (state instanceof UniWhile) {
-      return yield* this.execWhile(state,scope);
+      return yield* this.execWhile(state, scope);
     } else if (state instanceof UniDoWhile) {
-      return yield* this.execDoWhile(state,scope);
+      return yield* this.execDoWhile(state, scope);
     } else if (state instanceof UniBreak) {
       throw new Break();
     } else if (state instanceof UniContinue) {
@@ -286,23 +280,23 @@ export class Engine {
     } else if (state instanceof UniLabel) {
     } else if (state instanceof UniJump) {
     } else if (state instanceof UniExpr) {
-      return yield* this.execExpr(state,scope);
+      return yield* this.execExpr(state, scope);
     }
     throw new RuntimeException('Not support expr type: ' + state);
   }
 
-  protected* execBlock(block:UniBlock, scope:Scope) {
-    const blockScope:Scope = Scope.createLocal(scope);
+  protected *execBlock(block: UniBlock, scope: Scope) {
+    const blockScope: Scope = Scope.createLocal(scope);
     blockScope.name = scope.name;
     let ret;
     for (const stateOfBlock of block.body) {
       ret = yield* this.execExpr(stateOfBlock, blockScope);
-        // この中でさらにexecBlockが呼ばれた場合thisは？//Sumに代入されているかチェック
+      // この中でさらにexecBlockが呼ばれた場合thisは？//Sumに代入されているかチェック
     }
     return ret;
   }
 
-  protected* execIf(ui:UniIf, scope:Scope) {
+  protected *execIf(ui: UniIf, scope: Scope) {
     const cond = this.toBool(yield* this.execExpr(ui.cond, scope));
     if (cond) {
       return yield* this.execExpr(ui.trueStatement, scope);
@@ -311,15 +305,17 @@ export class Engine {
     }
   }
 
-  protected* execFor(uf:UniFor, scope:Scope) {
-    const forScope:Scope = Scope.createLocal(scope);
+  protected *execFor(uf: UniFor, scope: Scope) {
+    const forScope: Scope = Scope.createLocal(scope);
     forScope.name = scope.name;
     let ret;
-    for (yield* this.execExpr(uf.init, forScope); 
-         this.toBool(yield* this.execExpr(uf.cond, forScope)); 
-         yield* this.execExpr(uf.step, forScope)) {
+    for (
+      yield* this.execExpr(uf.init, forScope);
+      this.toBool(yield* this.execExpr(uf.cond, forScope));
+      yield* this.execExpr(uf.step, forScope)
+    ) {
       try {
-        ret = yield* this.execExpr(uf.statement, forScope);// blockなのでgeneratorが返される。
+        ret = yield* this.execExpr(uf.statement, forScope); // blockなのでgeneratorが返される。
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -333,8 +329,8 @@ export class Engine {
     return ret;
   }
 
-  protected* execWhile(uw:UniWhile, scope:Scope) {
-    const whileScope:Scope = Scope.createLocal(scope);
+  protected *execWhile(uw: UniWhile, scope: Scope) {
+    const whileScope: Scope = Scope.createLocal(scope);
     whileScope.name = scope.name;
     let ret;
     while (this.toBool(yield* this.execExpr(uw.cond, whileScope))) {
@@ -353,8 +349,8 @@ export class Engine {
     return ret;
   }
 
-  protected* execDoWhile(udw:UniDoWhile, scope:Scope) {
-    const doWhileScope:Scope = Scope.createLocal(scope);
+  protected *execDoWhile(udw: UniDoWhile, scope: Scope) {
+    const doWhileScope: Scope = Scope.createLocal(scope);
     doWhileScope.name = scope.name;
     let ret;
     do {
@@ -373,13 +369,13 @@ export class Engine {
     return ret;
   }
 
-  protected* execSwitch(us:UniSwitch, scope:Scope) {
-    const switchScope:Scope = Scope.createLocal(scope);
+  protected *execSwitch(us: UniSwitch, scope: Scope) {
+    const switchScope: Scope = Scope.createLocal(scope);
     switchScope.name = scope.name;
     let ret;
     const cond = yield* this.execExpr(us.cond, scope);
     for (const unit of us.cases) {
-      const condOfCase = yield* this.execExpr(unit.cond,switchScope);
+      const condOfCase = yield* this.execExpr(unit.cond, switchScope);
       if (cond === condOfCase) {
         try {
           for (const statement of unit.statement) {
@@ -394,12 +390,12 @@ export class Engine {
             throw e;
           }
         }
-      } 
+      }
     }
     return ret;
   }
 
-  protected* execExpr(expr:UniExpr, scope:Scope):any {
+  protected *execExpr(expr: UniExpr, scope: Scope): any {
     // firePreExec(expr, scope);
     if (!this.isCurrentExprSet) {
       this.currentState.setCurrentExpr(expr);
@@ -411,27 +407,40 @@ export class Engine {
   }
 
   // tslint:disable-next-line:function-name
-  private* _execExpr(expr:UniExpr, scope:Scope):any {
+  private *_execExpr(expr: UniExpr, scope: Scope): any {
     console.assert(expr != null);
     if (expr instanceof UniStatement) {
-      return yield* this.execStatement(expr,scope);
+      return yield* this.execStatement(expr, scope);
     } else if (expr instanceof UniDecralation) {
-      return yield* this.execDecralation(expr,scope);
+      return yield* this.execDecralation(expr, scope);
     } else if (expr instanceof UniMethodCall) {
-      const mc = <UniMethodCall> expr;
-      const args:any[] = [];
+      const mc = <UniMethodCall>expr;
+      const args: any[] = [];
       for (let i = 0; mc.args !== null && i < mc.args.length; i++) {
         args.push(yield* this.execExpr(mc.args[i], scope));
       }
       this.currentScope = scope;
-      let ret:any = null;
+      let ret: any = null;
       if (mc.receiver != null) {
-        const receiver:any = yield* this.execExpr(mc.receiver, scope);
-        ret = yield* this.execMethodCall(receiver, mc.methodName.name, args);
+        if (mc.receiver instanceof UniArray) {
+          const item = mc.receiver.items;
+          let rec = yield* this.execExpr(item[0], scope);
+          for (let i = 1; i < item.length; ++i) {
+            if (item[i] instanceof UniIdent) {
+              rec = rec[(<UniIdent>item[i]).name];
+            } else {
+              rec = rec[yield* this.execExpr(item[i], scope)];
+            }
+          }
+          ret = yield* this.execMethodCall(rec, mc.methodName.name, args);
+        } else {
+          const receiver: any = yield* this.execExpr(mc.receiver, scope);
+          ret = yield* this.execMethodCall(receiver, mc.methodName.name, args);
+        }
       } else {
-        const func:any = scope.get(mc.methodName.name);
+        const func: any = scope.get(mc.methodName.name);
         if (func instanceof UniFunctionDec) {
-          ret = yield* this.execFunc(func,scope,mc.args);
+          ret = yield* this.execFunc(func, scope, mc.args);
         } else {
           ret = yield* this.execFuncCall(func, args);
         }
@@ -439,7 +448,7 @@ export class Engine {
       this.currentScope = null;
       return ret;
     } else if (expr instanceof UniIdent) {
-      const ret = scope.get((<UniIdent> expr).name);
+      const ret = scope.get((<UniIdent>expr).name);
       yield ret;
       return ret;
     } else if (expr instanceof UniBoolLiteral) {
@@ -447,11 +456,11 @@ export class Engine {
       yield ret;
       return ret;
     } else if (expr instanceof UniCharacterLiteral) {
-      const ret = this.execCharLiteral(expr,scope);
+      const ret = this.execCharLiteral(expr, scope);
       yield ret;
       return ret;
     } else if (expr instanceof UniStringLiteral) {
-      const ret = this.execStringLiteral(expr,scope);
+      const ret = this.execStringLiteral(expr, scope);
       yield ret;
       return ret;
     } else if (expr instanceof UniNumberLiteral) {
@@ -463,12 +472,12 @@ export class Engine {
     } else if (expr instanceof UniBinOp) {
       return yield* this.execBinOp(<UniBinOp>expr, scope);
     } else if (expr instanceof UniTernaryOp) {
-      const condOp = <UniTernaryOp> expr;
+      const condOp = <UniTernaryOp>expr;
       return this.toBool(yield* this.execExpr(condOp.cond, scope))
-          ? yield* this.execExpr(condOp.trueExpr, scope)
-          : yield* this.execExpr(condOp.falseExpr, scope);
+        ? yield* this.execExpr(condOp.trueExpr, scope)
+        : yield* this.execExpr(condOp.falseExpr, scope);
     } else if (expr instanceof UniArray) {
-      return yield* this.execArray(<UniArray> expr, scope);
+      return yield* this.execArray(<UniArray>expr, scope);
     } else if (expr instanceof UniCast) {
       return this.execCast(<UniCast>expr, scope);
     }
@@ -493,38 +502,38 @@ export class Engine {
     // }
     throw new RuntimeException('Not support expr type: ' + expr);
   }
- 
-  protected execCast(expr:UniCast, scope:Scope):any {
+
+  protected execCast(expr: UniCast, scope: Scope): any {
     return this.execExpr(expr.value, scope);
   }
   // tslint:disable-next-line:function-name
-  protected _execCast(type:string, value:any):any {
+  protected _execCast(type: string, value: any): any {
     return value;
   }
 
-  protected execCharLiteral(expr:UniCharacterLiteral, scope:Scope):any {
-	  return expr.value;
+  protected execCharLiteral(expr: UniCharacterLiteral, scope: Scope): any {
+    return expr.value;
   }
 
-  protected execStringLiteral(expr:UniStringLiteral, scope:Scope):any {
-	  return expr.value;
+  protected execStringLiteral(expr: UniStringLiteral, scope: Scope): any {
+    return expr.value;
   }
-  
-  private* execFunc(fdec:UniFunctionDec, scope:Scope, args:UniExpr[]):any {
-    const funcScope:Scope = Scope.createLocal(scope);
+
+  private *execFunc(fdec: UniFunctionDec, scope: Scope, args: UniExpr[]): any {
+    const funcScope: Scope = Scope.createLocal(scope);
     funcScope.name = funcScope.getNextName(fdec.name);
 
     // 実引数を仮引数に代入
-    const params:UniParam[] = fdec.params;
+    const params: UniParam[] = fdec.params;
     if (params != null && args != null) {
       console.assert(params.length === args.length);
       for (let i = 0; i < args.length; ++i) {
-        const param:UniParam = params[i];
-        const arg:UniExpr = args[i];
+        const param: UniParam = params[i];
+        const arg: UniExpr = args[i];
         const name = param.variables[0].name;
         const type = param.type;
         const value = yield* this.execExpr(arg, scope);
-        funcScope.setTop(name,value,type);
+        funcScope.setTop(name, value, type);
       }
     }
     // ToDo再起の場合のチェック(連番など?
@@ -543,9 +552,9 @@ export class Engine {
     return ret;
   }
 
-  protected execBinOp(binOp:UniBinOp, scope:Scope):any;
-  protected execBinOp(op:string, scope:Scope, left:UniExpr, right:UniExpr):any;
-  protected* execBinOp(arg:string|UniBinOp, scope:Scope, left?:UniExpr, right?:UniExpr):any {
+  protected execBinOp(binOp: UniBinOp, scope: Scope): any;
+  protected execBinOp(op: string, scope: Scope, left: UniExpr, right: UniExpr): any;
+  protected *execBinOp(arg: string | UniBinOp, scope: Scope, left?: UniExpr, right?: UniExpr): any {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
       const binOp = <UniBinOp>arg;
       return yield* this.execBinOp(binOp.operator, scope, binOp.left, binOp.right);
@@ -555,14 +564,14 @@ export class Engine {
       switch (op) {
         case '=': {
           const r = yield* this.execExpr(right, scope);
-          const l = this.getAddress(left,scope);
-          ret = this.execAssign(l,r,scope);
+          const l = this.getAddress(left, scope);
+          ret = this.execAssign(l, r, scope);
           yield ret;
           return ret;
         }
         case '[]':
         case '.': {
-          ret = scope.getValue((this.getAddress(new UniBinOp(op,left,right),scope)));
+          ret = scope.getValue(this.getAddress(new UniBinOp(op, left, right), scope));
           yield ret;
           return ret;
         }
@@ -596,7 +605,7 @@ export class Engine {
           break;
         case '<=':
           ret = l <= r;
-          break; 
+          break;
         case '+':
           ret = l + r;
           break;
@@ -626,28 +635,28 @@ export class Engine {
       // 複合代入演算子
       if (op.length > 1 && op.charAt(op.length - 1) === '=') {
         if (left instanceof UniIdent) {
-          const nextOp:string = op.substring(0, op.length - 1);
+          const nextOp: string = op.substring(0, op.length - 1);
           const value = yield* this.execBinOp(nextOp, scope, left, right);
-          return this.execAssign(this.getAddress(<UniIdent>left,scope), value, scope);
+          return this.execAssign(this.getAddress(<UniIdent>left, scope), value, scope);
         }
       }
       throw new RuntimeException('Unkown binary operator: ' + op);
     }
   }
 
-  protected execAssign(address:number, value:any, scope:Scope):any {
-    const type:string = scope.getType(address);
+  protected execAssign(address: number, value: any, scope: Scope): any {
+    const type: string = scope.getType(address);
     // value = this._execCast(type,value);
     scope.set(address, value);
     if (type.endsWith('*')) {
       const taddress = <number>value;
       if (scope.isMallocArea(taddress)) {
         const size = scope.getMallocSize(taddress);
-        for (let i = 0;i < size;++i) {
+        for (let i = 0; i < size; ++i) {
           scope.typeOnMemory.set(taddress + i, type.substring(0, type.length - 1));
         }
       }
-    }    
+    }
     return value;
   }
 
@@ -666,9 +675,9 @@ export class Engine {
       case '_--':
       case '--_':
         if (uniOp.expr instanceof UniIdent) {
-          const ident = <UniIdent> uniOp.expr;
+          const ident = <UniIdent>uniOp.expr;
           const num = <number>(yield* this.execExpr(uniOp.expr, scope));
-          const address = this.getAddress(ident,scope);
+          const address = this.getAddress(ident, scope);
           switch (uniOp.operator) {
             case '_++':
               this.execAssign(address, num + 1, scope);
@@ -676,7 +685,7 @@ export class Engine {
               return num;
             case '++_':
               yield num + 1;
-              return this.execAssign(address,  num + 1, scope);
+              return this.execAssign(address, num + 1, scope);
             case '_--':
               this.execAssign(address, num - 1, scope);
               yield num;
@@ -687,30 +696,30 @@ export class Engine {
           }
         }
       case '()': {
-        const v = yield* this.execExpr(uniOp.expr,scope);
+        const v = yield* this.execExpr(uniOp.expr, scope);
         return v;
       }
     }
     throw new RuntimeException('Unkown binary operator: ' + uniOp.operator);
   }
 
-  protected getType(expr:UniExpr, scope:Scope):string {
+  protected getType(expr: UniExpr, scope: Scope): string {
     if (expr instanceof UniIdent) {
-      const ui:UniIdent = expr;
+      const ui: UniIdent = expr;
       return scope.getType(ui.name);
     } else if (expr instanceof UniUnaryOp) {
-      const uuo:UniUnaryOp = expr;
+      const uuo: UniUnaryOp = expr;
       if (uuo.operator === '*') {
-        return this.getType(uuo.expr,scope);
+        return this.getType(uuo.expr, scope);
       }
     } else if (expr instanceof UniBinOp) {
-      const ubo:UniBinOp = expr;
+      const ubo: UniBinOp = expr;
       if (ubo.operator === '[]') {
-        const left:string = this.getType(ubo.left,scope);
+        const left: string = this.getType(ubo.left, scope);
         if (left != null) {
           return left;
         }
-        const right:string =  this.getType(ubo.right,scope);
+        const right: string = this.getType(ubo.right, scope);
         if (right != null) {
           return right;
         }
@@ -727,7 +736,7 @@ export class Engine {
       const uuo = <UniUnaryOp>expr;
       if (uuo.operator === '*') {
         let refAddress = null;
-        for (const execExpr of this.execExpr(uuo.expr,scope)) {
+        for (const execExpr of this.execExpr(uuo.expr, scope)) {
           refAddress = execExpr;
         }
         return refAddress;
@@ -737,10 +746,10 @@ export class Engine {
       if (ubo.operator === '[]') {
         return this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
       } else if (ubo.operator === '.') {
-        const startAddress:number = this.execExpr(ubo.left, scope);
-        const type:string = this.getType(ubo.left,scope);
-        const offsets:Map<string, number> = scope.get(type);
-        const offset:number = offsets.get((<UniIdent>ubo.right).name);
+        const startAddress: number = this.execExpr(ubo.left, scope);
+        const type: string = this.getType(ubo.left, scope);
+        const offsets: Map<string, number> = scope.get(type);
+        const offset: number = offsets.get((<UniIdent>ubo.right).name);
         return startAddress + offset;
       }
     }
@@ -751,9 +760,9 @@ export class Engine {
     throw new Error('execMethod not implemented.');
   }
 
-  *execArray(uniArray:UniArray, scope:Scope) {
+  *execArray(uniArray: UniArray, scope: Scope) {
     const elements = uniArray.items;
-    const array:any[] = [];
+    const array: any[] = [];
     for (const element of elements) {
       const e = yield* this.execExpr(element, scope);
       array.push(e);
@@ -761,7 +770,7 @@ export class Engine {
     return array;
   }
 
-  *execVariableDec(decVar:UniVariableDec, scope:Scope) {
+  *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
     for (const def of decVar.variables) {
       while (def.name.startsWith('*')) {
@@ -776,17 +785,17 @@ export class Engine {
       // 初期化されている場合
       if (def.value != null) {
         value = yield* this.execExpr(def.value, scope);
-        value = this._execCast(decVar.type,value);
+        value = this._execCast(decVar.type, value);
         if (decVar.type.endsWith('*') && !Array.isArray(value)) {
           if (value instanceof String) {
             value = scope.setStatic(value, 'char[]');
           } else {
             const address = <number>value;
             if (scope.isMallocArea(address)) {
-              const size:number = scope.getMallocSize(address);
-              const type = decVar.type.substring(0,decVar.type.length - 1);
+              const size: number = scope.getMallocSize(address);
+              const type = decVar.type.substring(0, decVar.type.length - 1);
               const typeSize = this.sizeof(type);
-              for (let i = 0;i < size;i += typeSize) {
+              for (let i = 0; i < size; i += typeSize) {
                 scope.typeOnMemory.set(address + i, type);
               }
             }
@@ -797,18 +806,19 @@ export class Engine {
       // 配列の場合
       let length = 0;
       if (def.typeSuffix != null && def.typeSuffix !== '') {
-        const sizes:number[] = [];
-        const typeSuffix:string = def.typeSuffix;
+        const sizes: number[] = [];
+        const typeSuffix: string = def.typeSuffix;
         for (let k = 0; k < typeSuffix.length; ++k) {
           const left = typeSuffix.indexOf('[', k);
           const right = typeSuffix.indexOf(']', k);
-          const size = typeSuffix.slice(left + 1,right);
+          const size = typeSuffix.slice(left + 1, right);
           sizes.push(Number.parseInt(size));
           k = right;
         }
         if (0 < sizes.length) {
           length = sizes[0];
-          if (value != null) { // 初期化している場合。
+          if (value != null) {
+            // 初期化している場合。
             for (let i = value.length; i < length; ++i) {
               value.push(0);
             }
@@ -827,13 +837,13 @@ export class Engine {
       //   yield value;
       // }
 
-      const type:string = decVar.type;
-      scope.setTop(def.name,value,type);
+      const type: string = decVar.type;
+      scope.setTop(def.name, value, type);
     }
     return value;
   }
 
-  public sizeof(type:string):number {
+  public sizeof(type: string): number {
     if (type.includes('char')) {
       return 1;
     } else if (type.includes('short')) {
@@ -857,14 +867,14 @@ export class Engine {
     }
     throw new Error('Cannot covert to boolean: ' + obj);
   }
-  
+
   private *execFuncCall(func: any, arg: any[]): any {
     if (func == null) {
       throw new RuntimeException('func is null');
     } else if (func instanceof Function) {
       const ret = (<Function>func).apply(this, arg);
-      if (ret && (typeof ret.next === 'function')) {
-        let yieldObj = { done:false, value:null };
+      if (ret && typeof ret.next === 'function') {
+        let yieldObj = { done: false, value: null };
         while (!yieldObj.done) {
           yieldObj = ret.next(arg);
           yield yieldObj.value;
@@ -875,14 +885,14 @@ export class Engine {
       return ret;
     }
     throw new Error('Not support function type: ' + func);
-  }  
-
-  execMethodCall(arg0: any, arg1: any, arg2: any): any {
-    throw new Error('execMethodCall not implemented.');
   }
-  
-  protected randInt32():number {
-    const a = math.pow(2,32);
+
+  private *execMethodCall(receiver: any, name: string, args: any[]): any {
+    return yield* this.execFuncCall(receiver[name], args);
+  }
+
+  protected randInt32(): number {
+    const a = math.pow(2, 32);
     const v = math.randomInt(0, <number>a);
     return v;
   }

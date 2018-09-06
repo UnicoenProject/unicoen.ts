@@ -1,14 +1,14 @@
 {
-    "editor.tabSize": 2,
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/node?modules": true,
-        "**/.DS_Store": true
-    },
-    "editor.formatOnType": false,
-    "editor.formatOnSave": false,
-    "editor.formatOnPaste": false,
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/node?modules": true,
+    "**/.DS_Store": true
+  },
+  "editor.formatOnType": false,
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false
 }

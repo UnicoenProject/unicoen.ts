@@ -19,8 +19,9 @@
     "build": "rimraf dist && tsc",
     "format": "prettier --write src/**.ts **/*.json",
     "prepublish": "yarn build",
-    "generate:parser": "antlr4ts -visitor -no-listener src/mapper/CPP14/CPP14.g4 -o src/mapper/CPP14/",
     "generate:node": "ts-node src/node/Generator.ts",
+    "generate:CPP14": "antlr4ts -visitor -no-listener src/mapper/CPP14/CPP14.g4 -o src/mapper/CPP14/",
+    "generate:Java8": "antlr4ts -visitor -no-listener src/mapper/Java8/Java8.g4 -o src/mapper/Java8/",
     "precommit": "lint-staged",
     "postcommit": "git update-index --again",
     "test": "yarn run build && mocha dist/index.spec.js"
@@ -35,6 +36,7 @@
     "pre-commit": "^1.2.2",
     "prettier": "^1.14.2",
     "rimraf": "^2.6.2",
+    "ts-node": "^7.0.1",
     "tslint": "^5.9.1",
     "typescript": "^3.0.3"
   },

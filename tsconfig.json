@@ -1,15 +1,13 @@
 {
-    "compilerOptions": {
-        "downlevelIteration": true,
-        "experimentalDecorators": true,
-        "lib": ["esnext"],
-        "module": "commonjs",
-        "sourceMap": true,
-        "target": "esnext",
-        "outDir": "dist",
-        "declaration": true,
-    },
-    "exclude": [
-        "src/node/Generator.ts"
-    ]
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "lib": ["esnext"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "target": "esnext",
+    "outDir": "dist",
+    "declaration": true
+  },
+  "exclude": ["src/node/Generator.ts"]
 }
