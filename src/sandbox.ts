@@ -1,4 +1,4 @@
-import { CPP14Mapper, CPP14Engine } from '.';
+import { CPP14Engine, CPP14Mapper } from '.';
 
 try {
   const text = String.raw`int main(void){

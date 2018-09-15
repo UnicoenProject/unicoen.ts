@@ -8,16 +8,40 @@ export class UniClassDec extends UniDecralation {
   public interfaces: string[];
 
   public constructor();
-  public constructor(className: string, modifiers: string[], members: UniDecralation[], superClass: string[], interfaces: string[]);
-  public constructor(className?: string, modifiers?: string[], members?: UniDecralation[], superClass?: string[], interfaces?: string[]) {
+  public constructor(
+    className: string,
+    modifiers: string[],
+    members: UniDecralation[],
+    superClass: string[],
+    interfaces: string[],
+  );
+  public constructor(
+    className?: string,
+    modifiers?: string[],
+    members?: UniDecralation[],
+    superClass?: string[],
+    interfaces?: string[],
+  ) {
     super();
-    if (className === undefined && modifiers === undefined && members === undefined && superClass === undefined && interfaces === undefined) {
+    if (
+      className === undefined &&
+      modifiers === undefined &&
+      members === undefined &&
+      superClass === undefined &&
+      interfaces === undefined
+    ) {
       this.className = null;
       this.modifiers = [];
       this.members = [];
       this.superClass = [];
       this.interfaces = [];
-    } else if (className === undefined || modifiers === undefined || members === undefined || superClass === undefined || interfaces === undefined) {
+    } else if (
+      className === undefined ||
+      modifiers === undefined ||
+      members === undefined ||
+      superClass === undefined ||
+      interfaces === undefined
+    ) {
       throw new Error('invalid arguments');
     } else {
       this.className = className;
@@ -40,12 +64,16 @@ export class UniClassDec extends UniDecralation {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniClassDec)) return false;
     const that: UniClassDec = <UniClassDec>obj;
-    return super.equals(that)
-        && (this.className == null ? that.className == null : this.className === that.className)
-        && (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers))
-        && (this.members == null ? that.members == null : this.members.equals(that.members))
-        && (this.superClass == null ? that.superClass == null : this.superClass.equals(that.superClass))
-        && (this.interfaces == null ? that.interfaces == null : this.interfaces.equals(that.interfaces));
+    return (
+      super.equals(that) &&
+      (this.className == null ? that.className == null : this.className === that.className) &&
+      (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers)) &&
+      (this.members == null ? that.members == null : this.members.equals(that.members)) &&
+      (this.superClass == null
+        ? that.superClass == null
+        : this.superClass.equals(that.superClass)) &&
+      (this.interfaces == null ? that.interfaces == null : this.interfaces.equals(that.interfaces))
+    );
   }
 
   public merge(that: UniClassDec) {

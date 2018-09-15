@@ -33,10 +33,12 @@ export class UniSwitchUnit extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniSwitchUnit)) return false;
     const that: UniSwitchUnit = <UniSwitchUnit>obj;
-    return super.equals(that)
-        && (this.label == null ? that.label == null : this.label === that.label)
-        && (this.cond == null ? that.cond == null : this.cond.equals(that.cond))
-        && (this.statement == null ? that.statement == null : this.statement.equals(that.statement));
+    return (
+      super.equals(that) &&
+      (this.label == null ? that.label == null : this.label === that.label) &&
+      (this.cond == null ? that.cond == null : this.cond.equals(that.cond)) &&
+      (this.statement == null ? that.statement == null : this.statement.equals(that.statement))
+    );
   }
 
   public merge(that: UniSwitchUnit) {

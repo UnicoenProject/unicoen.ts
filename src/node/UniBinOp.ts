@@ -32,10 +32,12 @@ export class UniBinOp extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniBinOp)) return false;
     const that: UniBinOp = <UniBinOp>obj;
-    return super.equals(that)
-        && (this.operator == null ? that.operator == null : this.operator === that.operator)
-        && (this.left == null ? that.left == null : this.left.equals(that.left))
-        && (this.right == null ? that.right == null : this.right.equals(that.right));
+    return (
+      super.equals(that) &&
+      (this.operator == null ? that.operator == null : this.operator === that.operator) &&
+      (this.left == null ? that.left == null : this.left.equals(that.left)) &&
+      (this.right == null ? that.right == null : this.right.equals(that.right))
+    );
   }
 
   public merge(that: UniBinOp) {

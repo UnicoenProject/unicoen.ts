@@ -28,9 +28,11 @@ export class UniUnaryOp extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniUnaryOp)) return false;
     const that: UniUnaryOp = <UniUnaryOp>obj;
-    return super.equals(that)
-        && (this.operator == null ? that.operator == null : this.operator === that.operator)
-        && (this.expr == null ? that.expr == null : this.expr.equals(that.expr));
+    return (
+      super.equals(that) &&
+      (this.operator == null ? that.operator == null : this.operator === that.operator) &&
+      (this.expr == null ? that.expr == null : this.expr.equals(that.expr))
+    );
   }
 
   public merge(that: UniUnaryOp) {

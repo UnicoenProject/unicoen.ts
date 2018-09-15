@@ -22,8 +22,7 @@ export class UniJump extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniJump)) return false;
     const that: UniJump = <UniJump>obj;
-    return super.equals(that)
-        && (this.dest == null ? that.dest == null : this.dest === that.dest);
+    return super.equals(that) && (this.dest == null ? that.dest == null : this.dest === that.dest);
   }
 
   public merge(that: UniJump) {

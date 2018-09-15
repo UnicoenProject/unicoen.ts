@@ -28,9 +28,11 @@ export class UniCast extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniCast)) return false;
     const that: UniCast = <UniCast>obj;
-    return super.equals(that)
-        && (this.type == null ? that.type == null : this.type === that.type)
-        && (this.value == null ? that.value == null : this.value.equals(that.value));
+    return (
+      super.equals(that) &&
+      (this.type == null ? that.type == null : this.type === that.type) &&
+      (this.value == null ? that.value == null : this.value.equals(that.value))
+    );
   }
 
   public merge(that: UniCast) {

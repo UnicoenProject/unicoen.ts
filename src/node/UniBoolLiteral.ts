@@ -22,8 +22,9 @@ export class UniBoolLiteral extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniBoolLiteral)) return false;
     const that: UniBoolLiteral = <UniBoolLiteral>obj;
-    return super.equals(that)
-        && (this.value == null ? that.value == null : this.value === that.value);
+    return (
+      super.equals(that) && (this.value == null ? that.value == null : this.value === that.value)
+    );
   }
 
   public merge(that: UniBoolLiteral) {

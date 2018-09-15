@@ -1,3 +1,4 @@
+// tslint:disable:max-line-length
 // インターフェイス統合によるコアクラスの拡張
 declare interface Array<T> {
   equals(array: T[]): boolean;

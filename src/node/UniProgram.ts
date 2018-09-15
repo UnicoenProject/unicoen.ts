@@ -23,8 +23,10 @@ export class UniProgram extends UniNode {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniProgram)) return false;
     const that: UniProgram = <UniProgram>obj;
-    return super.equals(that)
-        && (this.block == null ? that.block == null : this.block.equals(that.block));
+    return (
+      super.equals(that) &&
+      (this.block == null ? that.block == null : this.block.equals(that.block))
+    );
   }
 
   public merge(that: UniProgram) {

@@ -10,5 +10,4 @@ export class UniEmptyStatement extends UniStatement {
     const that: UniEmptyStatement = <UniEmptyStatement>obj;
     return super.equals(that);
   }
-
 }

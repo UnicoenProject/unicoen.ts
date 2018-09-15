@@ -1,29 +1,29 @@
 export class Variable {
-  public constructor(
-    public readonly type: string,
-    public readonly name: string,
+  constructor(
+    readonly type: string,
+    readonly name: string,
     private value: any,
-    public readonly address: number,
-    public readonly depth: number,
+    readonly address: number,
+    readonly depth: number,
   ) {
     this.setValue(value);
   }
 
   // 構造体や配列の場合はvalueそのままでなくArrayList<Variable> valuesなど
 
-  public getValue(): any {
+  getValue(): any {
     return this.value;
   }
 
-  public hasValue(name: string): boolean {
+  hasValue(name: string): boolean {
     if (this.name === name) {
       return true;
     }
 
     if (this.value instanceof Array) {
       const varArray: Variable[] = this.value;
-      for (const _var of varArray) {
-        if (_var.hasValue(this.name)) {
+      for (const varInArray of varArray) {
+        if (varInArray.hasValue(this.name)) {
           return true;
         }
       }
@@ -31,16 +31,16 @@ export class Variable {
     }
   }
 
-  public setValue(value: any, name?: string): void {
+  setValue(value: any, name?: string): void {
     if (name !== undefined) {
       if (this.name === name) {
         this.value = value;
       } else {
         if (this.value instanceof Array) {
           const varArray: Variable[] = this.value;
-          for (let i = 0; i < varArray.length; ++i) {
-            if (varArray[i].name === name) {
-              varArray[i].setValue(this.value, name);
+          for (const varInArray of varArray) {
+            if (varInArray.name === name) {
+              varInArray.setValue(this.value, name);
               break;
             }
           }
@@ -60,26 +60,26 @@ export class Variable {
         const element: any = varArray[i];
         if (element instanceof Variable) {
           // 構造体の場合
-          const tempvar = <Variable>element;
-          const _var = new Variable(
+          const tempvar = element as Variable;
+          const varInArray = new Variable(
             tempvar.type,
             this.name + '.' + tempvar.name,
             tempvar.value,
             lastAddress,
             this.depth,
           );
-          vars.push(_var);
+          vars.push(varInArray);
         } else {
           // 配列の場合
           const baseType: string = this.type.substring(0, this.type.lastIndexOf('['));
-          const _var = new Variable(
+          const varInArray = new Variable(
             baseType,
             this.name + '[' + i + ']',
             element,
             lastAddress,
             this.depth,
           );
-          vars.push(_var);
+          vars.push(varInArray);
         }
       }
       this.value = vars;
@@ -88,7 +88,7 @@ export class Variable {
     }
   }
 
-  public getByteSize(): number {
+  getByteSize(): number {
     if (this.value instanceof Array) {
       const vars: Variable[] = this.value;
       const size = vars.length;
@@ -98,7 +98,7 @@ export class Variable {
     return 1; // CppEngine.sizeof(this.type);
   }
 
-  public toString(): string {
+  toString(): string {
     return (
       'Variable [type=' +
       this.type +

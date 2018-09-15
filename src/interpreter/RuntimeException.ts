@@ -1,6 +1,6 @@
 export class RuntimeException implements Error {
-  public name = 'RuntimeException';
-  public message = '';
+  name = 'RuntimeException';
+  message = '';
 
   constructor(message?: string) {
     if (message !== undefined) {
@@ -13,6 +13,7 @@ export class RuntimeException implements Error {
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 export class UniRuntimeError extends RuntimeException {
-  public name = 'UniRuntimeError';
+  name = 'UniRuntimeError';
 }

@@ -10,5 +10,4 @@ export class UniBreak extends UniStatement {
     const that: UniBreak = <UniBreak>obj;
     return super.equals(that);
   }
-
 }

@@ -28,9 +28,11 @@ export class UniBlock extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniBlock)) return false;
     const that: UniBlock = <UniBlock>obj;
-    return super.equals(that)
-        && (this.blockLabel == null ? that.blockLabel == null : this.blockLabel === that.blockLabel)
-        && (this.body == null ? that.body == null : this.body.equals(that.body));
+    return (
+      super.equals(that) &&
+      (this.blockLabel == null ? that.blockLabel == null : this.blockLabel === that.blockLabel) &&
+      (this.body == null ? that.body == null : this.body.equals(that.body))
+    );
   }
 
   public merge(that: UniBlock) {

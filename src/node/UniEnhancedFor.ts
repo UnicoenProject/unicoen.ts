@@ -9,16 +9,40 @@ export class UniEnhancedFor extends UniStatement {
   public statement: UniStatement;
 
   public constructor();
-  public constructor(modifiers: string[], type: string, name: string, container: UniExpr, statement: UniStatement);
-  public constructor(modifiers?: string[], type?: string, name?: string, container?: UniExpr, statement?: UniStatement) {
+  public constructor(
+    modifiers: string[],
+    type: string,
+    name: string,
+    container: UniExpr,
+    statement: UniStatement,
+  );
+  public constructor(
+    modifiers?: string[],
+    type?: string,
+    name?: string,
+    container?: UniExpr,
+    statement?: UniStatement,
+  ) {
     super();
-    if (modifiers === undefined && type === undefined && name === undefined && container === undefined && statement === undefined) {
+    if (
+      modifiers === undefined &&
+      type === undefined &&
+      name === undefined &&
+      container === undefined &&
+      statement === undefined
+    ) {
       this.modifiers = [];
       this.type = null;
       this.name = null;
       this.container = null;
       this.statement = null;
-    } else if (modifiers === undefined || type === undefined || name === undefined || container === undefined || statement === undefined) {
+    } else if (
+      modifiers === undefined ||
+      type === undefined ||
+      name === undefined ||
+      container === undefined ||
+      statement === undefined
+    ) {
       throw new Error('invalid arguments');
     } else {
       this.modifiers = modifiers;
@@ -41,12 +65,14 @@ export class UniEnhancedFor extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniEnhancedFor)) return false;
     const that: UniEnhancedFor = <UniEnhancedFor>obj;
-    return super.equals(that)
-        && (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers))
-        && (this.type == null ? that.type == null : this.type === that.type)
-        && (this.name == null ? that.name == null : this.name === that.name)
-        && (this.container == null ? that.container == null : this.container.equals(that.container))
-        && (this.statement == null ? that.statement == null : this.statement.equals(that.statement));
+    return (
+      super.equals(that) &&
+      (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers)) &&
+      (this.type == null ? that.type == null : this.type === that.type) &&
+      (this.name == null ? that.name == null : this.name === that.name) &&
+      (this.container == null ? that.container == null : this.container.equals(that.container)) &&
+      (this.statement == null ? that.statement == null : this.statement.equals(that.statement))
+    );
   }
 
   public merge(that: UniEnhancedFor) {

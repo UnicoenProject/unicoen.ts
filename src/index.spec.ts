@@ -1,33 +1,33 @@
+import { assert } from 'chai';
 import {
   CodeLocation,
   CodeRange,
-  UniBlock,
-  UniFunctionDec,
-  UniProgram,
-  UniIntLiteral,
-  UniReturn,
-  UniVariableDef,
-  UniVariableDec,
-  UniIdent,
-  UniBinOp,
-  UniUnaryOp,
-  UniFor,
-  UniParam,
-  UniMethodCall,
-  UniIf,
-  UniArray,
   CPP14Engine,
   CPP14Mapper,
+  UniArray,
+  UniBinOp,
+  UniBlock,
+  UniFor,
+  UniFunctionDec,
+  UniIdent,
+  UniIf,
+  UniIntLiteral,
+  UniMethodCall,
+  UniParam,
+  UniProgram,
+  UniReturn,
+  UniUnaryOp,
+  UniVariableDec,
+  UniVariableDef,
 } from '.';
-import { assert } from 'chai';
 
 describe('node_helper', () => {
-  it(`CodeLocation`, () => {
+  it('CodeLocation', () => {
     const codeLocation = new CodeLocation(1, 2);
     assert.equal(codeLocation.x, 1);
     assert.equal(codeLocation.y, 2);
   });
-  it(`CodeRange`, () => {
+  it('CodeRange', () => {
     const start = new CodeLocation(1, 2);
     const end = new CodeLocation(5, 6);
     const codeRange = new CodeRange(start, end);
@@ -37,7 +37,7 @@ describe('node_helper', () => {
 });
 const testData = [
   {
-    input: `int main(){}`,
+    input: 'int main(){}',
     node: () => {
       const mainBlock = new UniBlock(null, []);
       const mainFunc = new UniFunctionDec('main', [], 'int', [], mainBlock);
@@ -48,7 +48,7 @@ const testData = [
     ret: null,
   },
   {
-    input: `int main(){return 0;}`,
+    input: 'int main(){return 0;}',
     node: () => {
       const returnValue = new UniIntLiteral(0);
       const returnStatement = new UniReturn(returnValue);
@@ -61,7 +61,7 @@ const testData = [
     ret: 0,
   },
   {
-    input: `int main(){int i=0; return i;}`,
+    input: 'int main(){int i=0; return i;}',
     node: () => {
       const iEq0 = new UniVariableDef('i', new UniIntLiteral(0), null);
       const iDec = new UniVariableDec([], 'int', [iEq0]);
@@ -76,7 +76,7 @@ const testData = [
     ret: 0,
   },
   {
-    input: `int main(){int sum=0;for(int i=1;i<=10;++i){sum += i;}return sum;}`,
+    input: 'int main(){int sum=0;for(int i=1;i<=10;++i){sum += i;}return sum;}',
     node: () => {
       const sumEq0 = new UniVariableDef('sum', new UniIntLiteral(0), null);
       const sumDec = new UniVariableDec([], 'int', [sumEq0]);
@@ -102,7 +102,8 @@ const testData = [
     ret: 55,
   },
   {
-    input: `int add(int x, int y){return x+y;} int main(){int a=2; int b=3; int c=add(a,b); return c;}`,
+    input:
+      'int add(int x, int y){return x+y;} int main(){int a=2; int b=3; int c=add(a,b); return c;}',
     node: () => {
       const addReturn = new UniReturn(new UniBinOp('+', new UniIdent('x'), new UniIdent('y')));
       const addBlock = new UniBlock(null, [addReturn]);
@@ -141,7 +142,7 @@ const testData = [
     ret: 5,
   },
   {
-    input: `int main(){int i=1; {int i=100; i+=20;} i+=50; return i;}`,
+    input: 'int main(){int i=1; {int i=100; i+=20;} i+=50; return i;}',
     node: () => {
       const iEq1 = new UniVariableDef('i', new UniIntLiteral(1), null);
       const iDec = new UniVariableDec([], 'int', [iEq1]);
@@ -163,7 +164,9 @@ const testData = [
     ret: 51,
   },
   {
-    input: `int fibo(int n){if(n<2) return n; else return fibo(n-1) + fibo(n-2);} int main(){int a = fibo(9);return a;}`,
+    // tslint:disable-next-line:max-line-length
+    input:
+      'int fibo(int n){if(n<2) return n; else return fibo(n-1) + fibo(n-2);} int main(){int a = fibo(9);return a;}',
     node: () => {
       const fiboReturn1 = new UniReturn(new UniIdent('n'));
       const fiboReturn2 = new UniReturn(
@@ -209,7 +212,7 @@ const testData = [
     ret: 34,
   },
   {
-    input: `int main(){int arr[5] = {1, 2, 3};return arr[1];}`,
+    input: 'int main(){int arr[5] = {1, 2, 3};return arr[1];}',
     node: () => {
       const arrDef = new UniVariableDef(
         'arr',
@@ -230,7 +233,7 @@ const testData = [
     ret: 2,
   },
   {
-    input: `int main(){int x = abs(-3);return x;}`,
+    input: 'int main(){int x = abs(-3);return x;}',
     node: null,
     ret: 3,
   },
@@ -269,8 +272,8 @@ const testData = [
       return x + y;
     }`,
     node: null,
-    stdin: '10-2.3',
     ret: 12.3,
+    stdin: '10-2.3',
   },
   {
     input: `int main(){

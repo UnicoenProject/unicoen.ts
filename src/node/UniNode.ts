@@ -1,8 +1,9 @@
-import { CodeRange } from '../node_helper/CodeRange';require('../node_helper/Extension');
+import { CodeRange } from '../node_helper/CodeRange';
+require('../node_helper/Extension');
 export abstract class UniNode {
   public comments: string[];
   public codeRange: CodeRange;
-  public fields: Map<string,Function>;
+  public fields: Map<string, Function>;
 
   public constructor();
   public constructor(comments: string[], codeRange: CodeRange);
@@ -16,7 +17,7 @@ export abstract class UniNode {
       this.comments = comments;
       this.codeRange = codeRange;
     }
-    this.fields = new Map<string,Function>();
+    this.fields = new Map<string, Function>();
     this.fields.set('comments', String);
     this.fields.set('codeRange', CodeRange);
   }

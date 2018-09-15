@@ -1,7 +1,8 @@
+// tslint:disable:max-classes-per-file
 import { UniExpr } from '../node/UniExpr';
-import { RuntimeException, UniRuntimeError } from './RuntimeException';
 import { UniFunctionDec } from '../node/UniFunctionDec';
 import { File } from './File';
+import { RuntimeException, UniRuntimeError } from './RuntimeException';
 
 enum Type {
   GLOBAL,
@@ -25,38 +26,53 @@ interface VariableNotFoundListener {
 interface Consumer<T> {
   accept(t: T): void;
 }
-class ValueSetter implements Consumer<any> {
-  public hasValue: boolean;
-  public value: any;
 
-  public accept(value: any): void {
+class ValueSetter implements Consumer<any> {
+  hasValue: boolean;
+  value: any;
+
+  accept(value: any): void {
     this.hasValue = true;
     this.value = value;
   }
 }
 
 export class Scope {
-  public name: string;
-  public depth: number;
-  public address: Address;
-  public type: Type;
-  public parent: Scope;
-  public global: Scope;
-  public children: Scope[] = [];
-  public readonly variableAddress: Map<string, number> = new Map();
-  public readonly variableTypes: Map<string, string> = new Map();
-  public readonly functionAddress: Map<string, number>;
-  public readonly mallocData: Map<number, number>;
-  public readonly objectOnMemory: Map<number, any>;
-  public readonly typeOnMemory: Map<number, string>;
-  private listeners: VariableNotFoundListener[] = null;
-  private tempAddressForListener: number = -1;
+  static createGlobal(): Scope {
+    return new Scope(Type.GLOBAL, null);
+  }
+
+  static createObject(global: Scope): Scope {
+    console.assert(global != null);
+    console.assert(global.type === Type.GLOBAL); // 匿名クラスは未対応
+    return new Scope(Type.OBJECT, global);
+  }
+
+  static createLocal(parent: Scope): Scope {
+    console.assert(parent != null);
+    return new Scope(Type.LOCAL, parent);
+  }
 
   private static assertNotUnicoen(value: any): void {
     if (value instanceof UniExpr && !(value instanceof UniFunctionDec)) {
       throw new RuntimeException('Maybe programming miss!');
     }
   }
+  name: string;
+  depth: number;
+  address: Address;
+  type: Type;
+  parent: Scope;
+  global: Scope;
+  children: Scope[] = [];
+  readonly variableAddress: Map<string, number> = new Map();
+  readonly variableTypes: Map<string, string> = new Map();
+  readonly functionAddress: Map<string, number>;
+  readonly mallocData: Map<number, number>;
+  readonly objectOnMemory: Map<number, any>;
+  readonly typeOnMemory: Map<number, string>;
+  private listeners: VariableNotFoundListener[] = null;
+  private tempAddressForListener: number = -1;
 
   private constructor(type: Type, parent: Scope) {
     this.parent = parent;
@@ -84,14 +100,14 @@ export class Scope {
     }
   }
 
-  public setListener(listener: VariableNotFoundListener): void {
+  setListener(listener: VariableNotFoundListener): void {
     if (this.listeners == null) {
       this.listeners = [];
     }
     this.listeners.push(listener);
   }
 
-  public hasValue(key: string): boolean {
+  hasValue(key: string): boolean {
     try {
       this.getValue(this.getAddress(key));
       return true;
@@ -103,15 +119,15 @@ export class Scope {
     }
   }
 
-  public get(key: string): any {
+  get(key: string): any {
     return this.getValue(this.getAddress(key));
   }
 
-  public getValue(key: number): any {
+  getValue(key: number): any {
     return this.getValueImple(key, this.name);
   }
 
-  public getStr(name: string): string {
+  getStr(name: string): string {
     const addr: number = this.getAddress(name);
     const buf: number[] = [];
     let i: number = 0;
@@ -131,24 +147,7 @@ export class Scope {
     return result;
   }
 
-  private getValueImple(key: number, stackName: string): any {
-    if (this.objectOnMemory.has(key)) {
-      const _var = this.objectOnMemory.get(key);
-      if (stackName === this.name || this.type === Type.GLOBAL) {
-        if (key === this.tempAddressForListener) {
-          this.objectOnMemory.delete(this.tempAddressForListener);
-        }
-        return _var;
-      }
-    }
-    if (this.parent != null) {
-      return this.parent.getValue(key);
-    } else {
-      throw new UniRuntimeError(`variable ${key} is not defined.`);
-    }
-  }
-
-  public getType(key: string | number): string {
+  getType(key: string | number): string {
     if (typeof key === 'string') {
       if (this.variableTypes.has(key)) {
         return this.variableTypes.get(key);
@@ -167,7 +166,7 @@ export class Scope {
     throw new UniRuntimeError(`variable ${key} is not defined.`);
   }
 
-  public getAddress(key: string): number {
+  getAddress(key: string): number {
     if (this.variableAddress.has(key)) {
       return this.variableAddress.get(key);
     } else if (this.parent != null) {
@@ -185,19 +184,19 @@ export class Scope {
     throw new UniRuntimeError(`variable ${key} is not defined.`);
   }
 
-  public setMallocSize(address: number, size: number): void {
+  setMallocSize(address: number, size: number): void {
     this.mallocData.set(address, size);
   }
 
-  public isMallocArea(address: number): boolean {
+  isMallocArea(address: number): boolean {
     return this.mallocData.has(address);
   }
 
-  public getMallocSize(address: number): number {
+  getMallocSize(address: number): number {
     return this.mallocData.get(address);
   }
 
-  public removeOnMemory(address: number, size: number): boolean {
+  removeOnMemory(address: number, size: number): boolean {
     let result = true;
     for (let i = 0; i < size; ++i) {
       result = this.objectOnMemory.delete(address + i) != null;
@@ -206,26 +205,19 @@ export class Scope {
     return result;
   }
 
-  private setAreaImple(value: any, type: string, addr: Address, member: string): number {
-    Scope.assertNotUnicoen(value);
-    this.objectOnMemory.set(addr[member], value);
-    this.typeOnMemory.set(addr[member], type);
-    return addr[member]++;
-  }
-
-  public setHeap(value: any, type: string): number {
+  setHeap(value: any, type: string): number {
     return this.setAreaImple(value, type, this.address, 'heapAddress');
   }
 
-  public setStatic(value: any, type: string): number {
+  setStatic(value: any, type: string): number {
     return this.setAreaImple(value, type, this.address, 'staticAddress');
   }
 
-  public setCode(value: any, type: string): number {
+  setCode(value: any, type: string): number {
     return this.setAreaImple(value, type, this.address, 'codeAddress');
   }
 
-  public setSystemVariable(type: string, name: string, value: any): number {
+  setSystemVariable(type: string, name: string, value: any): number {
     Scope.assertNotUnicoen(value);
     this.variableTypes.set(name, type);
     this.variableAddress.set(name, this.address.codeAddress);
@@ -235,7 +227,7 @@ export class Scope {
   }
 
   /** 現在のスコープに新しい変数を定義し、代入します */
-  public setTop(key: string, value: any, type: string): void {
+  setTop(key: string, value: any, type: string): void {
     Scope.assertNotUnicoen(value);
     if (this.hasValue(type)) {
       // 構造体
@@ -285,26 +277,103 @@ export class Scope {
     }
   }
 
+  /** 指定したメモリアドレスに値を書き込みます */
+  set(addr: number, value: any): void {
+    Scope.assertNotUnicoen(value);
+    if (this.objectOnMemory.has(addr)) {
+      try {
+        const type: string = this.getType(addr);
+        const offsets: Map<string, number> = this.get(type);
+        for (const valueOfOffset of offsets.values()) {
+          const dst = (this.getValue(addr) as number) + valueOfOffset;
+          const src = (value as number) + valueOfOffset;
+          const v = this.getValue(src);
+          this.objectOnMemory.set(dst, v);
+        }
+      } catch (e) {
+        if (e instanceof UniRuntimeError) {
+          this.objectOnMemory.set(addr, value);
+        } else {
+          throw e;
+        }
+      }
+      return;
+    }
+    if (this.parent != null) {
+      this.parent.set(addr, value);
+      return;
+    }
+    throw new UniRuntimeError(`address ${addr} is not declared.`);
+  }
+
+  removeChild(scope: Scope): boolean {
+    return this.children.remove(scope);
+  }
+
+  getNextName(funcName: string): string {
+    if (!this.hasName(funcName)) {
+      return funcName;
+    }
+    for (let i = 2; ; ++i) {
+      const indexName: string = funcName + '.' + i;
+      if (!this.hasName(indexName)) {
+        return indexName;
+      }
+    }
+  }
+
+  closeAllFiles() {
+    for (const value of this.objectOnMemory.values()) {
+      if (value instanceof File) {
+        value.fclose();
+      }
+    }
+  }
+
+  private getValueImple(key: number, stackName: string): any {
+    if (this.objectOnMemory.has(key)) {
+      const variable = this.objectOnMemory.get(key);
+      if (stackName === this.name || this.type === Type.GLOBAL) {
+        if (key === this.tempAddressForListener) {
+          this.objectOnMemory.delete(this.tempAddressForListener);
+        }
+        return variable;
+      }
+    }
+    if (this.parent != null) {
+      return this.parent.getValue(key);
+    } else {
+      throw new UniRuntimeError(`variable ${key} is not defined.`);
+    }
+  }
+
+  private setAreaImple(value: any, type: string, addr: Address, member: string): number {
+    Scope.assertNotUnicoen(value);
+    this.objectOnMemory.set(addr[member], value);
+    this.typeOnMemory.set(addr[member], type);
+    return addr[member]++;
+  }
+
   private setArray(value: any[], type: string): void {
     Scope.assertNotUnicoen(value);
-    for (const _var of value) {
-      if (_var instanceof Array) {
-        this.setArray(_var, type);
+    for (const v of value) {
+      if (v instanceof Array) {
+        this.setArray(v, type);
       } else {
         this.typeOnMemory.set(this.address.stackAddress, type);
-        this.objectOnMemory.set(this.address.stackAddress++, _var);
+        this.objectOnMemory.set(this.address.stackAddress++, v);
       }
     }
   }
 
   private setStringOnCode(value: any[]): void {
     Scope.assertNotUnicoen(value);
-    for (const _var of value) {
-      if (_var instanceof Array) {
-        this.setStringOnCode(_var);
+    for (const v of value) {
+      if (v instanceof Array) {
+        this.setStringOnCode(v);
       } else {
         this.typeOnMemory.set(this.address.codeAddress, 'char');
-        this.objectOnMemory.set(this.address.codeAddress++, _var);
+        this.objectOnMemory.set(this.address.codeAddress++, v);
       }
     }
   }
@@ -334,54 +403,6 @@ export class Scope {
     this.setImple(key, value, type, this.address, 'staticAddress');
   }
 
-  /** 指定したメモリアドレスに値を書き込みます */
-  public set(addr: number, value: any): void {
-    Scope.assertNotUnicoen(value);
-    if (this.objectOnMemory.has(addr)) {
-      try {
-        const type: string = this.getType(addr);
-        const offsets: Map<string, number> = this.get(type);
-        for (const valueOfOffset of offsets.values()) {
-          const dst = <number>this.getValue(addr) + valueOfOffset;
-          const src = <number>value + valueOfOffset;
-          const v = this.getValue(src);
-          this.objectOnMemory.set(dst, v);
-        }
-      } catch (e) {
-        if (e instanceof UniRuntimeError) {
-          this.objectOnMemory.set(addr, value);
-        } else {
-          throw e;
-        }
-      }
-      return;
-    }
-    if (this.parent != null) {
-      this.parent.set(addr, value);
-      return;
-    }
-    throw new UniRuntimeError(`address ${addr} is not declared.`);
-  }
-
-  public static createGlobal(): Scope {
-    return new Scope(Type.GLOBAL, null);
-  }
-
-  public static createObject(global: Scope): Scope {
-    console.assert(global != null);
-    console.assert(global.type === Type.GLOBAL); // 匿名クラスは未対応
-    return new Scope(Type.OBJECT, global);
-  }
-
-  public static createLocal(parent: Scope): Scope {
-    console.assert(parent != null);
-    return new Scope(Type.LOCAL, parent);
-  }
-
-  public removeChild(scope: Scope): boolean {
-    return this.children.remove(scope);
-  }
-
   private hasName(funcName: string): boolean {
     if (this.name === funcName) {
       return true;
@@ -389,25 +410,5 @@ export class Scope {
       return this.parent.hasName(funcName);
     }
     return false;
-  }
-
-  public getNextName(funcName: string): string {
-    if (!this.hasName(funcName)) {
-      return funcName;
-    }
-    for (let i = 2; ; ++i) {
-      const indexName: string = funcName + '.' + i;
-      if (!this.hasName(indexName)) {
-        return indexName;
-      }
-    }
-  }
-
-  public closeAllFiles() {
-    for (const value of this.objectOnMemory.values()) {
-      if (value instanceof File) {
-        value.fclose();
-      }
-    }
   }
 }

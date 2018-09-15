@@ -33,10 +33,16 @@ export class UniIf extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniIf)) return false;
     const that: UniIf = <UniIf>obj;
-    return super.equals(that)
-        && (this.cond == null ? that.cond == null : this.cond.equals(that.cond))
-        && (this.trueStatement == null ? that.trueStatement == null : this.trueStatement.equals(that.trueStatement))
-        && (this.falseStatement == null ? that.falseStatement == null : this.falseStatement.equals(that.falseStatement));
+    return (
+      super.equals(that) &&
+      (this.cond == null ? that.cond == null : this.cond.equals(that.cond)) &&
+      (this.trueStatement == null
+        ? that.trueStatement == null
+        : this.trueStatement.equals(that.trueStatement)) &&
+      (this.falseStatement == null
+        ? that.falseStatement == null
+        : this.falseStatement.equals(that.falseStatement))
+    );
   }
 
   public merge(that: UniIf) {

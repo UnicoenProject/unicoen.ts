@@ -10,10 +10,34 @@ export class UniNumberLiteral extends UniExpr {
   public sufix: string;
 
   public constructor();
-  public constructor(value: any, signed: boolean, bytes: number, isFloat: boolean, type: string, prefix: string, sufix: string);
-  public constructor(value?: any, signed?: boolean, bytes?: number, isFloat?: boolean, type?: string, prefix?: string, sufix?: string) {
+  public constructor(
+    value: any,
+    signed: boolean,
+    bytes: number,
+    isFloat: boolean,
+    type: string,
+    prefix: string,
+    sufix: string,
+  );
+  public constructor(
+    value?: any,
+    signed?: boolean,
+    bytes?: number,
+    isFloat?: boolean,
+    type?: string,
+    prefix?: string,
+    sufix?: string,
+  ) {
     super();
-    if (value === undefined && signed === undefined && bytes === undefined && isFloat === undefined && type === undefined && prefix === undefined && sufix === undefined) {
+    if (
+      value === undefined &&
+      signed === undefined &&
+      bytes === undefined &&
+      isFloat === undefined &&
+      type === undefined &&
+      prefix === undefined &&
+      sufix === undefined
+    ) {
       this.value = null;
       this.signed = null;
       this.bytes = null;
@@ -21,7 +45,15 @@ export class UniNumberLiteral extends UniExpr {
       this.type = null;
       this.prefix = null;
       this.sufix = null;
-    } else if (value === undefined || signed === undefined || bytes === undefined || isFloat === undefined || type === undefined || prefix === undefined || sufix === undefined) {
+    } else if (
+      value === undefined ||
+      signed === undefined ||
+      bytes === undefined ||
+      isFloat === undefined ||
+      type === undefined ||
+      prefix === undefined ||
+      sufix === undefined
+    ) {
       throw new Error('invalid arguments');
     } else {
       this.value = value;
@@ -48,14 +80,16 @@ export class UniNumberLiteral extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniNumberLiteral)) return false;
     const that: UniNumberLiteral = <UniNumberLiteral>obj;
-    return super.equals(that)
-        && (this.value == null ? that.value == null : this.value === that.value)
-        && (this.signed == null ? that.signed == null : this.signed === that.signed)
-        && (this.bytes == null ? that.bytes == null : this.bytes === that.bytes)
-        && (this.isFloat == null ? that.isFloat == null : this.isFloat === that.isFloat)
-        && (this.type == null ? that.type == null : this.type === that.type)
-        && (this.prefix == null ? that.prefix == null : this.prefix === that.prefix)
-        && (this.sufix == null ? that.sufix == null : this.sufix === that.sufix);
+    return (
+      super.equals(that) &&
+      (this.value == null ? that.value == null : this.value === that.value) &&
+      (this.signed == null ? that.signed == null : this.signed === that.signed) &&
+      (this.bytes == null ? that.bytes == null : this.bytes === that.bytes) &&
+      (this.isFloat == null ? that.isFloat == null : this.isFloat === that.isFloat) &&
+      (this.type == null ? that.type == null : this.type === that.type) &&
+      (this.prefix == null ? that.prefix == null : this.prefix === that.prefix) &&
+      (this.sufix == null ? that.sufix == null : this.sufix === that.sufix)
+    );
   }
 
   public merge(that: UniNumberLiteral) {

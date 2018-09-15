@@ -1,21 +1,114 @@
-import * as math from 'mathjs';
 import * as agh from 'agh.sprintf';
-import { Engine } from '../Engine';
+import * as math from 'mathjs';
+import { sscanf } from 'scanf';
 import { UniBinOp } from '../../node/UniBinOp';
-import { Scope } from '../Scope';
-import { UniExpr } from '../../node/UniExpr';
-import { UniUnaryOp } from '../../node/UniUnaryOp';
-import { UniIdent } from '../../node/UniIdent';
-import { UniStringLiteral } from '../../node/UniStringLiteral';
-import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniCast } from '../../node/UniCast';
 import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
+import { UniExpr } from '../../node/UniExpr';
+import { UniIdent } from '../../node/UniIdent';
+import { UniMethodCall } from '../../node/UniMethodCall';
+import { UniStringLiteral } from '../../node/UniStringLiteral';
+import { UniUnaryOp } from '../../node/UniUnaryOp';
+import { Engine } from '../Engine';
 import { File } from '../File';
-import { sscanf } from 'scanf';
+import { Scope } from '../Scope';
 
 export class CPP14Engine extends Engine {
-  public constructor() {
+  // Byte[]
+  static strToBytes(str: string): number[] {
+    const length = str.length;
+    const bytes: number[] = [];
+    for (let i = 0; i < length; ++i) {
+      const code = str.charCodeAt(i);
+      bytes.push(code);
+    }
+    bytes.push(0);
+    return bytes;
+  }
+
+  // Byte[]
+  static bytesToStr(obj: any): string {
+    const bytes = obj as number[];
+    const pos = bytes.indexOf(0);
+    const length = pos === -1 ? bytes.length : pos;
+
+    // new String(data);
+    let str = '';
+    for (let i = 0; i < length; ++i) {
+      str += String.fromCharCode(bytes[i]);
+    }
+    return str;
+  }
+  static getCharArrAsByte(objectOnMemory: Map<number, any>, beginArg: number): number[] {
+    let begin = beginArg;
+    const bytes: number[] = [];
+    const obj: string | number = objectOnMemory.get(begin);
+    if (typeof obj === 'string') {
+      return CPP14Engine.strToBytes(obj);
+    }
+    for (let v = obj; objectOnMemory.containsKey(begin); ++begin) {
+      const o = objectOnMemory.get(begin);
+      if (typeof obj === 'number') {
+        v = o as number;
+        if (v === 0) {
+          break;
+        }
+        bytes.push(v);
+      } else {
+        break;
+      }
+    }
+    bytes.push(0);
+    return bytes;
+  }
+  static charArrToStr(objectOnMemory: Map<number, any>, beginArg: number): string {
+    const bytes = this.getCharArrAsByte(objectOnMemory, beginArg);
+    return this.bytesToStr(bytes);
+  }
+  constructor() {
     super();
+  }
+
+  *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
+    if (uniOp.operator === '++' || uniOp.operator === '--') {
+      uniOp.operator = uniOp.operator + '_';
+    }
+    switch (uniOp.operator) {
+      case '&': {
+        const adr = this.getAddress(uniOp.expr, scope);
+        return adr;
+      }
+      case '*': {
+        const v = scope.getValue((yield* this.execExpr(uniOp.expr, scope)) as number);
+        return v;
+      }
+      case 'sizeof': {
+        const l: UniExpr[] = [];
+        if (uniOp.expr instanceof UniIdent) {
+          l.push(new UniStringLiteral(uniOp.expr.name));
+        } else {
+          l.push(uniOp.expr);
+        }
+        const umc = new UniMethodCall(null, new UniIdent('sizeof'), l);
+        const v = yield* this.execExpr(umc, scope);
+        return v;
+      }
+    }
+    return yield* super.execUnaryOp(uniOp, scope);
+  }
+
+  sizeof(type: string): number {
+    return 1;
+    /*		if(type.contains("char")){
+			return 1;
+		}
+		else if(type.contains("short")){
+			return 2;
+		}
+		else if(type.contains("double")){
+			return 8;
+		}
+		return 4;*/
   }
 
   protected loadLibarary(global: Scope) {
@@ -26,7 +119,7 @@ export class CPP14Engine extends Engine {
       'sizeof',
       (arg: string | number[]) => {
         if (typeof arg === 'string') {
-          return this.sizeof(<string>arg);
+          return this.sizeof(arg as string);
         } else if (Array.isArray(arg)) {
           return this.sizeof(CPP14Engine.bytesToStr(arg));
         }
@@ -44,8 +137,8 @@ export class CPP14Engine extends Engine {
           return 0;
         }
         const args = [];
-        for (let i = 0; i < arguments.length; ++i) {
-          args.push(arguments[i]);
+        for (const argument of arguments) {
+          args.push(argument);
         }
         let text = CPP14Engine.bytesToStr(args[0]);
         text = text.replace('\\n', '\n');
@@ -53,7 +146,7 @@ export class CPP14Engine extends Engine {
           if (global.typeOnMemory.containsKey(args[i])) {
             const type: string = global.typeOnMemory.get(args[i]);
             if (type.includes('char')) {
-              args[i] = CPP14Engine.charArrToStr(global.objectOnMemory, <number>args[i]);
+              args[i] = CPP14Engine.charArrToStr(global.objectOnMemory, args[i] as number);
             }
           }
         }
@@ -106,7 +199,7 @@ export class CPP14Engine extends Engine {
               this.currentScope.set(addr, value);
             }
           } else {
-            const value = Number.parseInt(valueStr);
+            const value = Number.parseInt(valueStr, 10);
             this.currentScope.set(addr, value);
           }
         };
@@ -128,13 +221,13 @@ export class CPP14Engine extends Engine {
 
     global.setTop(
       'fopen',
-      function() {
+      () => {
         if (arguments.length < 1) {
           return 0;
         }
         const args = [];
-        for (let i = 0; i < arguments.length; ++i) {
-          args.push(arguments[i]);
+        for (const argument of arguments) {
+          args.push(argument);
         }
         const filename = CPP14Engine.bytesToStr(args[0]);
         const mode = CPP14Engine.bytesToStr(args[1]);
@@ -194,7 +287,7 @@ export class CPP14Engine extends Engine {
       'fgetc',
       (arg: any) => {
         let ch = -1;
-        const addr = <number>arg;
+        const addr = arg as number;
         const fp: File = global.getValue(addr);
         ch = fp.fgetc();
         return ch;
@@ -210,10 +303,12 @@ export class CPP14Engine extends Engine {
         if (buf === null) {
           return 0;
         }
-        const addr = <number>s;
+        const addr = s as number;
         for (let i = 0; i < buf.length; ++i) {
           global.set(addr + i, buf[i]);
-          if (buf[i] === 0) break;
+          if (buf[i] === 0) {
+            break;
+          }
         }
         return s;
       },
@@ -223,7 +318,7 @@ export class CPP14Engine extends Engine {
       'fputc',
       (c: number, stream: number) => {
         let ch = -1;
-        const addr = <number>stream;
+        const addr = stream as number;
         const fp: File = global.getValue(addr);
         ch = fp.fputc(c);
         return ch;
@@ -233,7 +328,7 @@ export class CPP14Engine extends Engine {
     global.setTop(
       'fputs',
       (s: number | number[], stream: number) => {
-        const addr = <number>stream;
+        const addr = stream as number;
         let bytes = null;
         if (typeof s === 'number') {
           bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s);
@@ -252,7 +347,7 @@ export class CPP14Engine extends Engine {
     global.setTop(
       'fflush',
       (stream: number) => {
-        const addr = <number>stream;
+        const addr = stream as number;
         const fp: File = global.getValue(addr);
         fp.flush();
         return 0;
@@ -262,7 +357,7 @@ export class CPP14Engine extends Engine {
     global.setTop(
       'fclose',
       (stream: number) => {
-        const addr = <number>stream;
+        const addr = stream as number;
         const fp: File = global.getValue(addr);
         fp.fclose();
         return 0;
@@ -517,24 +612,12 @@ export class CPP14Engine extends Engine {
     );
   }
 
-  // Byte[]
-  public static strToBytes(str: string): number[] {
-    const length = str.length;
-    const bytes: number[] = [];
-    for (let i = 0; i < length; ++i) {
-      const code = str.charCodeAt(i);
-      bytes.push(code);
-    }
-    bytes.push(0);
-    return bytes;
-  }
-
   protected *execBinOp(arg: string | UniBinOp, scope: Scope, left?: UniExpr, right?: UniExpr): any {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
-      const binOp = <UniBinOp>arg;
+      const binOp = arg as UniBinOp;
       return yield* this.execBinOp(binOp.operator, scope, binOp.left, binOp.right);
     } else if (typeof arg === 'string' && left instanceof UniExpr) {
-      let op = <string>arg;
+      let op = arg as string;
       if (op === '++' || op === '--') {
         op = '_' + op;
         return yield* this.execUnaryOp(new UniUnaryOp(op, left), scope);
@@ -543,34 +626,6 @@ export class CPP14Engine extends Engine {
         return yield* super.execBinOp(op, scope, left, right);
       }
     }
-  }
-
-  *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
-    if (uniOp.operator === '++' || uniOp.operator === '--') {
-      uniOp.operator = uniOp.operator + '_';
-    }
-    switch (uniOp.operator) {
-      case '&': {
-        const adr = this.getAddress(uniOp.expr, scope);
-        return adr;
-      }
-      case '*': {
-        const v = scope.getValue(<number>(yield* this.execExpr(uniOp.expr, scope)));
-        return v;
-      }
-      case 'sizeof': {
-        const l: UniExpr[] = [];
-        if (uniOp.expr instanceof UniIdent) {
-          l.push(new UniStringLiteral(uniOp.expr.name));
-        } else {
-          l.push(uniOp.expr);
-        }
-        const umc = new UniMethodCall(null, new UniIdent('sizeof'), l);
-        const v = yield* this.execExpr(umc, scope);
-        return v;
-      }
-    }
-    return yield* super.execUnaryOp(uniOp, scope);
   }
 
   protected execCast(expr: UniCast, scope: Scope): any {
@@ -585,13 +640,13 @@ export class CPP14Engine extends Engine {
     }
 
     if (type === 'int') {
-      return <number>value;
+      return value as number;
     } else if (type === 'double') {
-      return <number>value;
+      return value as number;
     } else if (type === 'long') {
-      return <number>value;
+      return value as number;
     } else if (type === 'char') {
-      return <number>value;
+      return value as number;
       // if (value instanceof Integer) {
       //   return (byte)((int)value);
       // }
@@ -615,7 +670,7 @@ export class CPP14Engine extends Engine {
   }
 
   protected execStringLiteral(expr: UniStringLiteral, scope: Scope): any {
-    const value: string = (<UniStringLiteral>expr).value;
+    const value: string = (expr as UniStringLiteral).value;
     const list: number[] = [];
     for (let i = 0; i < value.length; ++i) {
       const byte = value.charCodeAt(i);
@@ -623,59 +678,5 @@ export class CPP14Engine extends Engine {
     }
     list.push(0);
     return list;
-  }
-
-  public sizeof(type: string): number {
-    return 1;
-    /*		if(type.contains("char")){
-			return 1;
-		}
-		else if(type.contains("short")){
-			return 2;
-		}
-		else if(type.contains("double")){
-			return 8;
-		}
-		return 4;*/
-  }
-
-  // Byte[]
-  public static bytesToStr(obj: any): string {
-    const bytes = <number[]>obj;
-    const pos = bytes.indexOf(0);
-    const length = pos === -1 ? bytes.length : pos;
-
-    // new String(data);
-    let str = '';
-    for (let i = 0; i < length; ++i) {
-      str += String.fromCharCode(bytes[i]);
-    }
-    return str;
-  }
-  public static getCharArrAsByte(objectOnMemory: Map<number, any>, _begin: number): number[] {
-    let begin = _begin;
-    const bytes: number[] = [];
-    const obj: string | number = objectOnMemory.get(begin);
-    if (typeof obj === 'string') {
-      return CPP14Engine.strToBytes(obj);
-    }
-    for (let v = obj; objectOnMemory.containsKey(begin); ++begin) {
-      const o = objectOnMemory.get(begin);
-      if (typeof obj === 'number') {
-        v = <number>o;
-        if (v === 0) {
-          break;
-        }
-        bytes.push(v);
-      } else {
-        break;
-      }
-    }
-    bytes.push(0);
-    return bytes;
-  }
-  public static charArrToStr(objectOnMemory: Map<number, any>, _begin: number): String {
-    const bytes = this.getCharArrAsByte(objectOnMemory, _begin);
-    return this.bytesToStr(bytes);
   }
 }

@@ -10,16 +10,40 @@ export class UniFunctionDec extends UniDecralation {
   public block: UniBlock;
 
   public constructor();
-  public constructor(name: string, modifiers: string[], returnType: string, params: UniParam[], block: UniBlock);
-  public constructor(name?: string, modifiers?: string[], returnType?: string, params?: UniParam[], block?: UniBlock) {
+  public constructor(
+    name: string,
+    modifiers: string[],
+    returnType: string,
+    params: UniParam[],
+    block: UniBlock,
+  );
+  public constructor(
+    name?: string,
+    modifiers?: string[],
+    returnType?: string,
+    params?: UniParam[],
+    block?: UniBlock,
+  ) {
     super();
-    if (name === undefined && modifiers === undefined && returnType === undefined && params === undefined && block === undefined) {
+    if (
+      name === undefined &&
+      modifiers === undefined &&
+      returnType === undefined &&
+      params === undefined &&
+      block === undefined
+    ) {
       this.name = null;
       this.modifiers = [];
       this.returnType = null;
       this.params = [];
       this.block = null;
-    } else if (name === undefined || modifiers === undefined || returnType === undefined || params === undefined || block === undefined) {
+    } else if (
+      name === undefined ||
+      modifiers === undefined ||
+      returnType === undefined ||
+      params === undefined ||
+      block === undefined
+    ) {
       throw new Error('invalid arguments');
     } else {
       this.name = name;
@@ -42,12 +66,14 @@ export class UniFunctionDec extends UniDecralation {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniFunctionDec)) return false;
     const that: UniFunctionDec = <UniFunctionDec>obj;
-    return super.equals(that)
-        && (this.name == null ? that.name == null : this.name === that.name)
-        && (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers))
-        && (this.returnType == null ? that.returnType == null : this.returnType === that.returnType)
-        && (this.params == null ? that.params == null : this.params.equals(that.params))
-        && (this.block == null ? that.block == null : this.block.equals(that.block));
+    return (
+      super.equals(that) &&
+      (this.name == null ? that.name == null : this.name === that.name) &&
+      (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers)) &&
+      (this.returnType == null ? that.returnType == null : this.returnType === that.returnType) &&
+      (this.params == null ? that.params == null : this.params.equals(that.params)) &&
+      (this.block == null ? that.block == null : this.block.equals(that.block))
+    );
   }
 
   public merge(that: UniFunctionDec) {
