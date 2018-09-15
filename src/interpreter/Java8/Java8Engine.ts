@@ -12,7 +12,7 @@ import { Engine } from '../Engine';
 import { File } from '../File';
 import { Scope } from '../Scope';
 
-export default class Java8Engine extends Engine {
+export class Java8Engine extends Engine {
   // Byte[]
   static strToBytes(str: string): number[] {
     const length = str.length;
@@ -144,8 +144,9 @@ export default class Java8Engine extends Engine {
     };
 
     const println = (arg: any) => {
-      const output = agh.sprintf(String(arg)).replace('\\n', '\n');
-      this.stdout(output);
+      const text = Array.isArray(arg) ? Java8Engine.bytesToStr(arg) : arg;
+      const output = agh.sprintf(String(text)).replace('\\n', '\n');
+      this.stdout(output + '\n');
     };
 
     const out = {

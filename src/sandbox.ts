@@ -1,21 +1,17 @@
-import { CPP14Engine, CPP14Mapper } from '.';
+import { Java8Engine, Java8Mapper } from '.';
 
 try {
-  const text = String.raw`int main(void){
-    FILE *fp ;
-    int text[] = {'S', 'n', 'o', 'o', 'p', 'y', '\0'};
-    int i;
-    if((fp=fopen("out.txt","w")) != 0){
-            for ( i = 0; i < 6; i++ ) {
-        fputc(text[i], fp);
-            }
+  const text = String.raw`public class Aisatsu {
+    public static void main(String[] args) {
+      System.out.println("おはよう。");
+      System.out.println("こんにちは。");
+      System.out.println("こんばんは。");
     }
-    return 0;
-}`;
+  }`;
 
-  const cmapper = new CPP14Mapper();
+  const cmapper = new Java8Mapper();
   const tree = cmapper.parse(text);
-  const engine = new CPP14Engine();
+  const engine = new Java8Engine();
   engine.stdin('10-2.3');
   const map = new Map<string, ArrayBuffer>();
   engine.setFileList(map);
