@@ -37,6 +37,18 @@ const testData = [
     stdin: null,
     stdout: '3+2は5です。\n',
   },
+  {
+    input: wrapMainFunction(`
+    for (int i = 0; i < 3; i++) {
+      System.out.println(i);
+    }
+    System.out.println("end");
+    `),
+    node: null,
+    ret: null,
+    stdin: null,
+    stdout: '0\n1\n2\nend\n',
+  },
   // {
   //   input: `int main()
   //   {
