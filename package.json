@@ -25,7 +25,7 @@
     "generate:Java8": "antlr4ts -visitor -no-listener src/mapper/Java8/Java8.g4 -o src/mapper/Java8/",
     "precommit": "lint-staged",
     "postcommit": "git update-index --again",
-    "test": "yarn run build && mocha dist/index.spec.js"
+    "test": "yarn run build && mocha dist/*.spec.js"
   },
   "devDependencies": {
     "@types/chai": "^4.1.2",
