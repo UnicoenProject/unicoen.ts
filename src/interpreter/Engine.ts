@@ -579,49 +579,7 @@ export class Engine {
           break;
       }
 
-      const l = yield* this.execExpr(left, scope);
-      const r = yield* this.execExpr(right, scope);
-      switch (op) {
-        case '==':
-          ret = l === r;
-          break;
-        case '!=':
-          ret = l !== r;
-          break;
-        case '<':
-          ret = l < r;
-          break;
-        case '>':
-          ret = l > r;
-          break;
-        case '>=':
-          ret = l >= r;
-          break;
-        case '<=':
-          ret = l <= r;
-          break;
-        case '+':
-          ret = l + r;
-          break;
-        case '-':
-          ret = l - r;
-          break;
-        case '*':
-          ret = l * r;
-          break;
-        case '/':
-          ret = l / r;
-          break;
-        case '%':
-          ret = l % r;
-          break;
-        case '&&':
-          ret = l && r;
-          break;
-        case '&&':
-          ret = l || r;
-          break;
-      }
+      ret = yield* this.execBinOpImple(op, scope, left, right);
       if (ret !== null) {
         yield ret;
         return ret;
@@ -636,6 +594,54 @@ export class Engine {
       }
       throw new RuntimeException('Unkown binary operator: ' + op);
     }
+  }
+
+  protected *execBinOpImple(op: string, scope: Scope, left: UniExpr, right: UniExpr): any {
+    let ret = null;
+    const l = yield* this.execExpr(left, scope);
+    const r = yield* this.execExpr(right, scope);
+    switch (op) {
+      case '==':
+        ret = l === r;
+        break;
+      case '!=':
+        ret = l !== r;
+        break;
+      case '<':
+        ret = l < r;
+        break;
+      case '>':
+        ret = l > r;
+        break;
+      case '>=':
+        ret = l >= r;
+        break;
+      case '<=':
+        ret = l <= r;
+        break;
+      case '+':
+        ret = l + r;
+        break;
+      case '-':
+        ret = l - r;
+        break;
+      case '*':
+        ret = l * r;
+        break;
+      case '/':
+        ret = l / r;
+        break;
+      case '%':
+        ret = l % r;
+        break;
+      case '&&':
+        ret = l && r;
+        break;
+      case '&&':
+        ret = l || r;
+        break;
+    }
+    return ret;
   }
 
   protected execAssign(address: number, value: any, scope: Scope): any {

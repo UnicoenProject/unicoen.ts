@@ -623,6 +623,66 @@ export class Java8Engine extends Engine {
     }
   }
 
+  protected *execBinOpImple(op: string, scope: Scope, left: UniExpr, right: UniExpr): any {
+    let ret = null;
+    let l = yield* this.execExpr(left, scope);
+    let r = yield* this.execExpr(right, scope);
+    let isString = false;
+    if (Array.isArray(l) && l[l.length - 1] === 0) {
+      l = Java8Engine.bytesToStr(l);
+      isString = true;
+    }
+    if (Array.isArray(r) && r[r.length - 1] === 0) {
+      r = Java8Engine.bytesToStr(r);
+      isString = true;
+    }
+    switch (op) {
+      case '==':
+        ret = l === r;
+        break;
+      case '!=':
+        ret = l !== r;
+        break;
+      case '<':
+        ret = l < r;
+        break;
+      case '>':
+        ret = l > r;
+        break;
+      case '>=':
+        ret = l >= r;
+        break;
+      case '<=':
+        ret = l <= r;
+        break;
+      case '+':
+        ret = l + r;
+        break;
+      case '-':
+        ret = l - r;
+        break;
+      case '*':
+        ret = l * r;
+        break;
+      case '/':
+        ret = l / r;
+        break;
+      case '%':
+        ret = l % r;
+        break;
+      case '&&':
+        ret = l && r;
+        break;
+      case '&&':
+        ret = l || r;
+        break;
+    }
+    if (isString) {
+      ret = Java8Engine.strToBytes(ret);
+    }
+    return ret;
+  }
+
   protected execCast(expr: UniCast, scope: Scope): any {
     const value = this.execExpr(expr.value, scope);
     return this._execCast(expr.type, value);
