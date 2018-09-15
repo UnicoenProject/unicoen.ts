@@ -17,6 +17,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && tsc",
+    "watch": "rimraf dist && tsc -w",
     "format": "prettier --write src/**.ts **/*.json",
     "prepublish": "yarn build",
     "generate:node": "ts-node src/node/Generator.ts",
