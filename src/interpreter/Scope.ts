@@ -232,6 +232,7 @@ export class Scope {
     if (this.hasValue(type)) {
       // 構造体
       this.setPrimitive(key, this.address.stackAddress + 1, type);
+      // [offset, type]のタプル
       const offsets: Map<string, number> = this.get(type);
       let arr: any[] = null;
       if (value instanceof Array) {
@@ -245,7 +246,7 @@ export class Scope {
         arr = [];
         for (const valueofOffset of offsets.values()) {
           let addr: number = value;
-          addr += valueofOffset;
+          addr += valueofOffset[0];
           const v: any = this.getValue(addr);
           arr.push(v);
         }
@@ -256,7 +257,19 @@ export class Scope {
           arr.push(null);
         }
       }
-      this.setArray(arr, type);
+      let k = 0;
+      for (const valueofOffset of offsets.values()) {
+        const offset = valueofOffset[0];
+        const fieldType = valueofOffset[1];
+        const v = arr[k++];
+        Scope.assertNotUnicoen(value);
+        if (v instanceof Array) {
+          this.setArray(v, type);
+        } else {
+          this.typeOnMemory.set(this.address.stackAddress, fieldType);
+          this.objectOnMemory.set(this.address.stackAddress++, v);
+        }
+      }
     } else if (value instanceof Array) {
       // 配列の場合
       const arr = value;
@@ -285,8 +298,9 @@ export class Scope {
         const type: string = this.getType(addr);
         const offsets: Map<string, number> = this.get(type);
         for (const valueOfOffset of offsets.values()) {
-          const dst = (this.getValue(addr) as number) + valueOfOffset;
-          const src = (value as number) + valueOfOffset;
+          // srcとdstはどちらもstructを想定
+          const dst = (this.getValue(addr) as number) + valueOfOffset[0];
+          const src = (value as number) + valueOfOffset[0];
           const v = this.getValue(src);
           this.objectOnMemory.set(dst, v);
         }

@@ -270,6 +270,25 @@ const testData = [
     node: null,
     ret: 101, // ASCII Code 0:48, 5:53
   },
+  {
+    input: `#include <stdio.h>
+    struct point {
+        int x;
+        int y;
+    };
+    int main()
+    {
+        struct point p1;
+        struct point p2 = {3, 4};
+        struct point p3 = {5, 6};
+        p1.x = 1;
+        p1.y = 0;
+        p3 = p1;
+        return p1.x + p1.y + p2.x + p2.y + p3.x + p3.y;
+    }`,
+    node: null,
+    ret: 9,
+  },
 ];
 
 describe('node exec', () => {

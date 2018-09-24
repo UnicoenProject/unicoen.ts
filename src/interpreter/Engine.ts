@@ -188,7 +188,7 @@ export class Engine {
         if (uniOp.expr instanceof UniIdent) {
           const ident = uniOp.expr as UniIdent;
           const num = (yield* this.execExpr(uniOp.expr, scope)) as number;
-          const address = this.getAddress(ident, scope);
+          const address = yield* this.getAddress(ident, scope);
           switch (uniOp.operator) {
             case '_++':
               this.execAssign(address, num + 1, scope);
@@ -214,7 +214,7 @@ export class Engine {
     throw new RuntimeException('Unkown binary operator: ' + uniOp.operator);
   }
 
-  getAddress(expr: UniExpr, scope: Scope): number {
+  *getAddress(expr: UniExpr, scope: Scope) {
     if (expr instanceof UniIdent) {
       const ui = expr as UniIdent;
       return scope.getAddress(ui.name);
@@ -230,13 +230,13 @@ export class Engine {
     } else if (expr instanceof UniBinOp) {
       const ubo = expr as UniBinOp;
       if (ubo.operator === '[]') {
-        return this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
+        return yield* this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
       } else if (ubo.operator === '.') {
-        const startAddress: number = this.execExpr(ubo.left, scope);
+        const startAddress: number = yield* this.execExpr(ubo.left, scope);
         const type: string = this.getType(ubo.left, scope);
         const offsets: Map<string, number> = scope.get(type);
         const offset: number = offsets.get((ubo.right as UniIdent).name);
-        return startAddress + offset;
+        return startAddress + offset[0];
       }
     }
     throw new RuntimeException('Assignment failure: ' + expr);
@@ -558,14 +558,14 @@ export class Engine {
       switch (op) {
         case '=': {
           const rightEvaluated = yield* this.execExpr(right, scope);
-          const leftEvaluated = this.getAddress(left, scope);
+          const leftEvaluated = yield* this.getAddress(left, scope);
           ret = this.execAssign(leftEvaluated, rightEvaluated, scope);
           yield ret;
           return ret;
         }
         case '[]':
         case '.': {
-          ret = scope.getValue(this.getAddress(new UniBinOp(op, left, right), scope));
+          ret = scope.getValue(yield* this.getAddress(new UniBinOp(op, left, right), scope));
           yield ret;
           return ret;
         }
@@ -589,7 +589,7 @@ export class Engine {
         if (left instanceof UniIdent) {
           const nextOp: string = op.substring(0, op.length - 1);
           const value = yield* this.execBinOp(nextOp, scope, left, right);
-          return this.execAssign(this.getAddress(left as UniIdent, scope), value, scope);
+          return this.execAssign(yield* this.getAddress(left as UniIdent, scope), value, scope);
         }
       }
       throw new RuntimeException('Unkown binary operator: ' + op);
@@ -748,12 +748,19 @@ export class Engine {
         // グローバル変数のセット
         this.execExpr(node, global);
       } else if (dec instanceof UniClassDec) {
-        // structのセット
+        // structのセット クラス名→[オフセット, 型名]
+        const fieldOffset: Map<string, [number, string]> = new Map();
+        let offset = 0;
         for (const member of dec.members) {
-          if (member instanceof UniFunctionDec) {
+          if (member instanceof UniVariableDec) {
+            for (const def of member.variables) {
+              fieldOffset.set(def.name, [offset++, member.type]);
+            }
+          } else if (member instanceof UniFunctionDec) {
             this.setGlobalObjects(member, global);
           }
         }
+        global.setTop(dec.className, fieldOffset, dec.className);
       }
     }
   }

@@ -74,7 +74,7 @@ export class Java8Engine extends Engine {
     }
     switch (uniOp.operator) {
       case '&': {
-        const adr = this.getAddress(uniOp.expr, scope);
+        const adr = yield* this.getAddress(uniOp.expr, scope);
         return adr;
       }
       case '*': {
