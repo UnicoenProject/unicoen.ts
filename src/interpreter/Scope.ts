@@ -107,6 +107,18 @@ export class Scope {
     this.listeners.push(listener);
   }
 
+  hasType(key: string | number): boolean {
+    try {
+      this.getType(key);
+      return true;
+    } catch (err) {
+      if (err instanceof UniRuntimeError) {
+        return false;
+      }
+      throw err;
+    }
+  }
+
   hasValue(key: string): boolean {
     try {
       this.getValue(this.getAddress(key));
@@ -226,9 +238,7 @@ export class Scope {
     return this.address.codeAddress++;
   }
 
-  /** 現在のスコープに新しい変数を定義し、代入します */
-  setTop(key: string, value: any, type: string): void {
-    Scope.assertNotUnicoen(value);
+  setStruct(key: string, value: any, type: string) {
     if (this.hasValue(type)) {
       // 構造体
       this.setPrimitive(key, this.address.stackAddress + 1, type);
@@ -258,18 +268,29 @@ export class Scope {
         }
       }
       let k = 0;
-      for (const valueofOffset of offsets.values()) {
+      for (const [fieldName,valueofOffset] of offsets) {
         const offset = valueofOffset[0];
         const fieldType = valueofOffset[1];
         const v = arr[k++];
         Scope.assertNotUnicoen(value);
-        if (v instanceof Array) {
+        if (this.hasValue(fieldType)) {
+          this.setStruct(fieldName, v, fieldType);
+        } else if (v instanceof Array) {
           this.setArray(v, type);
         } else {
           this.typeOnMemory.set(this.address.stackAddress, fieldType);
           this.objectOnMemory.set(this.address.stackAddress++, v);
         }
       }
+    }
+  }
+
+  /** 現在のスコープに新しい変数を定義し、代入します */
+  setTop(key: string, value: any, type: string): void {
+    Scope.assertNotUnicoen(value);
+    if (this.hasValue(type)) {
+      // 構造体
+      this.setStruct(key, value, type);  
     } else if (value instanceof Array) {
       // 配列の場合
       const arr = value;

@@ -680,6 +680,11 @@ export class Engine {
         if (right != null) {
           return right;
         }
+      } else if (ubo.operator === '.') {
+        const left: string = this.getType(ubo.left, scope);
+        const offsets: Map<string, number> = scope.get(left);
+        const offset: number = offsets.get((ubo.right as UniIdent).name);
+        return offset[1];
       }
     }
     return null;
@@ -748,13 +753,22 @@ export class Engine {
         // グローバル変数のセット
         this.execExpr(node, global);
       } else if (dec instanceof UniClassDec) {
-        // structのセット クラス名→[オフセット, 型名]
-        const fieldOffset: Map<string, [number, string]> = new Map();
-        let offset = 0;
+        // structのセット クラス名→[オフセット, 型名, sizeof]
+        const fieldOffset: Map<string, [number, string, number]> = new Map();
+        let structAddress = 0;
+        let offset = 1;
         for (const member of dec.members) {
           if (member instanceof UniVariableDec) {
             for (const def of member.variables) {
-              fieldOffset.set(def.name, [offset++, member.type]);
+              if (global.hasValue(member.type)) {
+                const offsets: Map<string, number> = global.get(member.type);
+                offset = 1;
+                for (const value of offsets.values()) {
+                  offset += value[2];
+                }
+              }
+              fieldOffset.set(def.name, [structAddress, member.type, offset]);
+              structAddress += offset;
             }
           } else if (member instanceof UniFunctionDec) {
             this.setGlobalObjects(member, global);

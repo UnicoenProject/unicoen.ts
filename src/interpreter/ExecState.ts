@@ -192,28 +192,38 @@ export class ExecState {
         address = value;
         value = list;
       }
-      try {
+      const makeStructVariable = (type:string, value:any) => {
+        const list: any[] = [];
+        if (!scope.hasType(type)){
+          return list;
+        }
         const classKey = scope.getType(type);
-        if(classKey === 'CLASS') {
-          //class, struct
-          const members: Map<string, number> = scope.get(type);
-          const list: any[] = [];
-          for (const [fieldName, offsetAndType] of members) {
-            const offset = offsetAndType[0];
-            const fieldType = offsetAndType[1];
-            const fieldAddress = value + offset;
-            const fieldValue = scope.objectOnMemory.get(fieldAddress);
-            const v = new Variable(fieldType, fieldName, fieldValue, fieldAddress, scope.depth);
-            list.push(v);
+        if(classKey !== 'CLASS') {
+          return list;
+        }
+        //class, struct
+        const members: Map<string, number> = scope.get(type);
+        for (const [fieldName, offsetAndType] of members) {
+          const offset = offsetAndType[0];
+          const fieldType = offsetAndType[1];
+          let fieldAddress = value + offset;
+          let fieldValue = scope.objectOnMemory.get(fieldAddress);
+          const fieldValueAsStruct:any = makeStructVariable(fieldType,value);
+          if (!fieldValueAsStruct.isEmpty()){
+            fieldAddress = fieldValue;
+            fieldValue = fieldValueAsStruct;
           }
-          address = value;
-          value = list;
+          const v = new Variable(fieldType, fieldName, fieldValue, fieldAddress, scope.depth);
+          list.push(v);
         }
-      } catch (e) {
-        if (!(e instanceof UniRuntimeError)) {
-          throw e;
-        }
+        return list;
+      };
+      const list = makeStructVariable(type, value);
+      if(!list.isEmpty()) {
+        address = value;
+        value = list;
       }
+
       const variable = new Variable(type, varName, value, address, scope.depth);
       this.addVariable(scope.name, variable);
     }

@@ -1,7 +1,7 @@
 export class Variable {
   constructor(
     readonly type: string,
-    readonly name: string,
+    readonly name: string,//p1.x
     private value: any,
     readonly address: number,
     readonly depth: number,
@@ -63,7 +63,8 @@ export class Variable {
           const tempvar = element as Variable;
           const varInArray = new Variable(
             tempvar.type,
-            this.name + '.' + tempvar.name,
+            // this.name + '.' + tempvar.name,//r.p1.p1.xのようになってしまう問題がある
+            tempvar.name,
             tempvar.value,
             lastAddress,
             this.depth,

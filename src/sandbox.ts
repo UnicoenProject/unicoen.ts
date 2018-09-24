@@ -5,18 +5,14 @@ try {
   const text = String.raw`#include <stdio.h>
   struct point {
       int x;
-      int y;
+  };
+  struct rectangle {
+    struct point p1;
   };
   int main()
   {
-      struct point p1;
-      struct point p2 = {3, 4};
-      struct point p3 = {5, 6};
-      p1.x = 1;
-      p1.y = 0;
-      p3 = p1;
-      printf("%d %d\n", p1.x, p1.y);
-      return p1.x + p1.y + p2.x + p2.y + p3.x + p3.y;
+      struct rectangle r;
+      r.p1.x = 10;
   }`;
 
   const cmapper = new CPP14Mapper();
