@@ -760,7 +760,7 @@ export class Engine {
             this.setGlobalObjects(member, global);
           }
         }
-        global.setTop(dec.className, fieldOffset, dec.className);
+        global.setTop(dec.className, fieldOffset, 'CLASS');
       }
     }
   }

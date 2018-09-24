@@ -29,6 +29,7 @@ try {
   const out = engine.getStdout();
   console.log(r);
   console.log(out);
+  engine.getCurrentState().make();
 } catch (e) {
   console.error(e);
 }

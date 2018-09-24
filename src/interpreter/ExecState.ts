@@ -1,3 +1,4 @@
+import { UniRuntimeError } from './RuntimeException';
 import { UniNode } from '../node/UniNode';
 import { UniVariableDec } from '../node/UniVariableDec';
 import { Scope } from './Scope';
@@ -169,7 +170,7 @@ export class ExecState {
     }
     for (const varName of varList) {
       const type: string = scope.variableTypes.get(varName);
-      if (type === 'FUNCTION') {
+      if (type === 'FUNCTION' || type === 'CLASS') {
         continue;
       }
       let address: number = scope.variableAddress.get(varName);
@@ -190,6 +191,28 @@ export class ExecState {
         }
         address = value;
         value = list;
+      }
+      try {
+        const classKey = scope.getType(type);
+        if(classKey === 'CLASS') {
+          //class, struct
+          const members: Map<string, number> = scope.get(type);
+          const list: any[] = [];
+          for (const [fieldName, offsetAndType] of members) {
+            const offset = offsetAndType[0];
+            const fieldType = offsetAndType[1];
+            const fieldAddress = value + offset;
+            const fieldValue = scope.objectOnMemory.get(fieldAddress);
+            const v = new Variable(fieldType, fieldName, fieldValue, fieldAddress, scope.depth);
+            list.push(v);
+          }
+          address = value;
+          value = list;
+        }
+      } catch (e) {
+        if (!(e instanceof UniRuntimeError)) {
+          throw e;
+        }
       }
       const variable = new Variable(type, varName, value, address, scope.depth);
       this.addVariable(scope.name, variable);
