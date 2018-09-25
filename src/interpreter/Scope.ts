@@ -239,9 +239,8 @@ export class Scope {
   }
 
   setStruct(key: string, value: any, type: string) {
+    // 構造体   
     if (this.hasValue(type)) {
-      // 構造体
-      this.setPrimitive(key, this.address.stackAddress + 1, type);
       // [offset, type]のタプル
       const offsets: Map<string, number> = this.get(type);
       let arr: any[] = null;
@@ -274,6 +273,8 @@ export class Scope {
         const v = arr[k++];
         Scope.assertNotUnicoen(value);
         if (this.hasValue(fieldType)) {
+          this.typeOnMemory.set(this.address.stackAddress, fieldType);
+          this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
           this.setStruct(fieldName, v, fieldType);
         } else if (v instanceof Array) {
           this.setArray(v, type);
@@ -290,6 +291,7 @@ export class Scope {
     Scope.assertNotUnicoen(value);
     if (this.hasValue(type)) {
       // 構造体
+      this.setPrimitive(key, this.address.stackAddress + 1, type);
       this.setStruct(key, value, type);  
     } else if (value instanceof Array) {
       // 配列の場合

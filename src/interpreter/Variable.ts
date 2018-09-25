@@ -5,11 +5,16 @@ export class Variable {
     private value: any,
     readonly address: number,
     readonly depth: number,
+    readonly parentName?:string
   ) {
     this.setValue(value);
   }
 
   // 構造体や配列の場合はvalueそのままでなくArrayList<Variable> valuesなど
+
+  getName():string{
+    return this.parentName?this.parentName+'.'+this.name:this.name;
+  }
 
   getValue(): any {
     return this.value;
@@ -58,16 +63,17 @@ export class Variable {
           lastAddress += lastVar.getByteSize();
         }
         const element: any = varArray[i];
+        const parentName = this.parentName?this.parentName + '.':'';
         if (element instanceof Variable) {
           // 構造体の場合
           const tempvar = element as Variable;
           const varInArray = new Variable(
             tempvar.type,
-            // this.name + '.' + tempvar.name,//r.p1.p1.xのようになってしまう問題がある
             tempvar.name,
             tempvar.value,
             lastAddress,
             this.depth,
+            parentName + this.name,
           );
           vars.push(varInArray);
         } else {
@@ -104,7 +110,7 @@ export class Variable {
       'Variable [type=' +
       this.type +
       ', name=' +
-      this.name +
+      this.getName() +
       ', value=' +
       this.value +
       ', ' +

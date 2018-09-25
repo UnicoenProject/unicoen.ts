@@ -208,7 +208,7 @@ export class ExecState {
           const fieldType = offsetAndType[1];
           let fieldAddress = value + offset;
           let fieldValue = scope.objectOnMemory.get(fieldAddress);
-          const fieldValueAsStruct:any = makeStructVariable(fieldType,value);
+          const fieldValueAsStruct:any = makeStructVariable(fieldType,fieldValue);
           if (!fieldValueAsStruct.isEmpty()){
             fieldAddress = fieldValue;
             fieldValue = fieldValueAsStruct;
