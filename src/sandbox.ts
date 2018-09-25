@@ -35,6 +35,7 @@ int main()
     swap3(&d,&e);
     swap2(&b,&c);
     swap1(&a,&d);
+    printf("a=%d,b=%d,c=%d,d=%d,e=%d\n",a,b,c,d,e);
     return 0;
 }`;
 
