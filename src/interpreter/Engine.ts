@@ -69,7 +69,7 @@ export class Engine {
   protected execStepItr: IterableIterator<any> = null;
 
   private isDebugMode: boolean = false;
-  private isCurrentExprSet: boolean = false;
+  private isSetNextExpr: boolean = false;
   private stdoutText: string = '';
   private stdinText: string = '';
   private isWaitingForStdin: boolean = false;
@@ -116,14 +116,16 @@ export class Engine {
     if (this.execStepItr == null) {
       return this.getCurrentState();
     }
-    this.isCurrentExprSet = false;
-    const node = this.execStepItr.next();
+    this.isSetNextExpr = false;
+    let node;
+    do {
+      node = this.execStepItr.next();
+    }
+    while(!node.done && !this.isSetNextExpr);
     const ret = node.value;
     this.currentState.setCurrenValue(ret);
     if (this.isDebugMode) {
       console.log(ret);
-      // console.log(this.getCurrentExpr());
-      // console.log(this.currentState.make());
     }
     if (node.done) {
       this.execStepItr = null;
@@ -412,9 +414,15 @@ export class Engine {
   protected *execBlock(block: UniBlock, scope: Scope) {
     const blockScope: Scope = Scope.createLocal(scope);
     blockScope.name = scope.name;
-    let ret;
+    let ret = null;
     for (const stateOfBlock of block.body) {
+      if (!this.isSetNextExpr) {
+        this.currentState.setNextExpr(stateOfBlock);
+        this.isSetNextExpr = true;
+      }
+      yield ret;
       ret = yield* this.execExpr(stateOfBlock, blockScope);
+      this.currentState.setCurrentExpr(stateOfBlock);
       // この中でさらにexecBlockが呼ばれた場合thisは？//Sumに代入されているかチェック
     }
     return ret;
@@ -521,10 +529,6 @@ export class Engine {
 
   protected *execExpr(expr: UniExpr, scope: Scope): any {
     // firePreExec(expr, scope);
-    if (!this.isCurrentExprSet) {
-      this.currentState.setCurrentExpr(expr);
-      this.isCurrentExprSet = true;
-    }
     const value = yield* this._execExpr(expr, scope);
     // firePostExec(expr, scope, value);
     return value;
@@ -887,8 +891,12 @@ export class Engine {
       for (let i = 0; i < args.length; ++i) {
         const param: UniParam = params[i];
         const arg: UniExpr = args[i];
-        const name = param.variables[0].name;
-        const type = param.type;
+        let name = param.variables[0].name;
+        let type = param.type;
+        while (name.startsWith('*')) {
+          name = name.substring(1);
+          type += '*';
+        }
         const value = yield* this.execExpr(arg, scope);
         funcScope.setTop(name, value, type);
       }

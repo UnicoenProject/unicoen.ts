@@ -8,6 +8,7 @@ import { Variable } from './Variable';
 export class ExecState {
   private currentValue: any;
   private currentExpr: UniNode;
+  private nextExpr: UniNode;
   private stacks: Stack[] = [];
   private readonly stackOffset: number = 0x10000;
   private readonly global: Scope = null;
@@ -122,6 +123,14 @@ export class ExecState {
 
   setCurrentExpr(expr: UniNode) {
     this.currentExpr = expr;
+  }
+
+  getNextExpr(): UniNode {
+    return this.nextExpr;
+  }
+
+  setNextExpr(expr: UniNode) {
+    this.nextExpr = expr;
   }
 
   getStacks(): Stack[] {

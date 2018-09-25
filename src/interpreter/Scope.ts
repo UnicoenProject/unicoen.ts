@@ -274,6 +274,7 @@ export class Scope {
         Scope.assertNotUnicoen(value);
         if (this.hasValue(fieldType)) {
           this.typeOnMemory.set(this.address.stackAddress, fieldType);
+          // JSは関数の引数は左から評価される。
           this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
           this.setStruct(fieldName, v, fieldType);
         } else if (v instanceof Array) {

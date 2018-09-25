@@ -2,25 +2,41 @@
 import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
-  const text = String.raw`#include <stdio.h>
-  struct point {
-      int x;
-      int y;
-  };
-  struct rectangle {
-    struct point p1;
-    struct point p2;
-  };
-  int main()
-  {
-      struct rectangle r;
-      struct rectangle r2;
-      r.p1.x = 10;
-      r.p1.y = 10;
-      r.p2.x = 10;
-      r.p2.y = 10;
-      return r.p1.x + r.p1.y + r.p2.x + r.p2.y;
-  }`;
+  const text = String.raw`void swap1(int* x, int* y){
+    int s = *x;
+    if(s<2){
+        *x = *y;
+        *y = s;
+    }
+}
+void swap2(int *z, int *w){
+    int t = *z;
+    if(t<3){
+        *z = *w;
+        *w = t;
+    }
+}
+void swap3(int *w, int *o){
+    int u = *w;
+    if(u<4){
+        *w = *o;
+        *o = u;
+    }else{
+        *o = 6;
+        swap1(o,w);
+    }
+}
+int main()
+{
+    int a = 1, b = 2, c = 3, d = 4, e = 5;
+    swap1(&a,&b);
+    swap3(&a,&c);
+    swap2(&e,&b);
+    swap3(&d,&e);
+    swap2(&b,&c);
+    swap1(&a,&d);
+    return 0;
+}`;
 
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(text);
@@ -28,6 +44,15 @@ try {
   engine.stdin('10-2.3');
   const map = new Map<string, ArrayBuffer>();
   engine.setFileList(map);
+  {
+    let rr = engine.startStepExecution(tree);
+    let ss = engine.getCurrentState().make();
+    while(engine.isStepExecutionRunning())
+    {
+      rr = engine.stepExecute();
+      ss = engine.getCurrentState().make();
+    }
+  }
   const r = engine.execute(tree);
   const out = engine.getStdout();
   const state = engine.getCurrentState().make();
