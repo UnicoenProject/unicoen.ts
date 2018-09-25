@@ -289,6 +289,29 @@ const testData = [
     node: null,
     ret: 9,
   },
+  {
+    input: `#include <stdio.h>
+    struct point {
+        int x;
+        int y;
+    };
+    struct rectangle {
+      struct point p1;
+      struct point p2;
+    };
+    int main()
+    {
+        struct rectangle r;
+        struct rectangle r2;
+        r.p1.x = 10;
+        r.p1.y = 10;
+        r.p2.x = 10;
+        r.p2.y = 10;
+        return r.p1.x + r.p1.y + r.p2.x + r.p2.y;
+    }`,
+    node: null,
+    ret: 40,
+  },
 ];
 
 describe('node exec', () => {
