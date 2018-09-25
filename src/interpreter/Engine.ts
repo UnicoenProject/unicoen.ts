@@ -235,7 +235,12 @@ export class Engine {
         return yield* this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
-        const type: string = this.getType(ubo.left, scope);
+        let type: string = this.getType(ubo.left, scope);    
+        if(ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
+          while (type.endsWith('*')) {
+            type = type.substring(0,type.length-1);
+          }
+        }    
         const offsets: Map<string, number> = scope.get(type);
         const offset: number = offsets.get((ubo.right as UniIdent).name);
         return startAddress + offset[0];
