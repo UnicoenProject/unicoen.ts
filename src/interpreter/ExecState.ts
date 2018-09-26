@@ -229,7 +229,6 @@ export class ExecState {
       };
       const list = makeStructVariable(type, value);
       if(!list.isEmpty()) {
-        address = value;
         value = list;
       }
 

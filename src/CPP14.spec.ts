@@ -350,7 +350,7 @@ const testData = [
         return 0;
     }`,
     node: null,
-    stdout: `a=3,b=2,c=1,d=4,e=6`,
+    stdout: 'a=3,b=2,c=1,d=4,e=6',
   },
   {
     input: `#include<stdio.h>
@@ -433,7 +433,7 @@ describe('mapper', () => {
       }
       if (test.ret) {
         assert.equal(ret, test.ret);
-      }    
+      }
     });
   }
 });
