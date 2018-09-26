@@ -663,8 +663,13 @@ export class Engine {
       const taddress = value as number;
       if (scope.isMallocArea(taddress)) {
         const size = scope.getMallocSize(taddress);
-        for (let i = 0; i < size; ++i) {
-          scope.typeOnMemory.set(taddress + i, type.substring(0, type.length - 1));
+        const rawType = type.substring(0, type.length - 1);
+        if (scope.hasValue(rawType) && scope.get(rawType) instanceof Map) {
+          scope.objectOnMemory.set(taddress, taddress + 1);
+        } else {
+          for (let i = 0; i < size; ++i) {
+            scope.typeOnMemory.set(taddress + i, rawType);
+          }
         }
       }
     }

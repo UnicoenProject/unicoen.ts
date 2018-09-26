@@ -601,10 +601,24 @@ export class CPP14Engine extends Engine {
       }
       case 'sizeof': {
         const l: UniExpr[] = [];
-        if (uniOp.expr instanceof UniIdent) {
-          l.push(new UniStringLiteral(uniOp.expr.name));
-        } else {
-          l.push(uniOp.expr);
+        const expr: UniExpr = uniOp.expr;
+        if (expr instanceof UniIdent) {
+          l.push(new UniStringLiteral(expr.name));
+        } else if (expr instanceof UniUnaryOp
+          && expr.operator === '*'
+          && expr.expr instanceof UniIdent) {
+            let type: string = this.getType(expr.expr, scope);    
+            while (type.endsWith('*')) {
+              type = type.substring(0,type.length-1);
+            }
+            let typeSize = 1;
+            const offsets: Map<string, number> = scope.get(type);
+            for (const value of offsets.values()) {
+              typeSize += value[2];
+            }
+            return typeSize;
+        } else{
+          l.push(expr);
         }
         const umc = new UniMethodCall(null, new UniIdent('sizeof'), l);
         const v = yield* this.execExpr(umc, scope);

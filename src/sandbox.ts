@@ -3,22 +3,20 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  struct point { 
-      int x; 
-      int y;
-  };
-  void add_point(struct point *pp)
-  {
-    pp->x = pp->x + 1;
-    pp->y = pp->y + 1;
-  };
-  int main(void)
-  {
-    struct point p = {0,0};
-    add_point(&p);
-    printf("%d\n", p.x);
-    return 0;
-  }
+  #include <stdio.h>
+      struct node { 
+        int item; 
+        struct node *next;
+    };
+    int main(void)
+    {
+      struct node *head;
+      head = malloc(sizeof(*head));
+      head->item = 5;
+      head->next = head;
+      printf("head->item = %d", head->item);
+      return 0;
+    }
   `;
 
   const cmapper = new CPP14Mapper();
@@ -27,7 +25,8 @@ try {
   engine.stdin('10-2.3');
   const map = new Map<string, ArrayBuffer>();
   engine.setFileList(map);
-//   {
+  const r = engine.execute(tree);
+  //   {
 //     let rr = engine.startStepExecution(tree);
 //     let ss = engine.getCurrentState().make();
 //     while(engine.isStepExecutionRunning())
@@ -36,7 +35,6 @@ try {
 //       ss = engine.getCurrentState().make();
 //     }
 //   }
-  const r = engine.execute(tree);
   const out = engine.getStdout();
   const state = engine.getCurrentState().make();
   console.log(r);
