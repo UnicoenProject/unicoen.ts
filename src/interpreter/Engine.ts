@@ -240,7 +240,7 @@ export class Engine {
           while (type.endsWith('*')) {
             type = type.substring(0,type.length-1);
           }
-        }    
+        }
         const offsets: Map<string, number> = scope.get(type);
         const offset: number = offsets.get((ubo.right as UniIdent).name);
         return startAddress + offset[0];
