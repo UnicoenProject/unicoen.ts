@@ -14,6 +14,7 @@ try {
       head = malloc(sizeof(*head));
       head->item = 5;
       head->next = head;
+      head->next->item = 10;
       printf("head->item = %d", head->item);
       return 0;
     }

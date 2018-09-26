@@ -237,7 +237,7 @@ export class Engine {
         return yield* this.getAddress(new UniBinOp('.', new UniUnaryOp('*', ubo.left), ubo.right), scope);
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
-        let type: string = this.getType(ubo.left, scope);    
+        let type: string = scope.getType(startAddress-1);    
         if(ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
           while (type.endsWith('*')) {
             type = type.substring(0,type.length-1);
@@ -665,7 +665,12 @@ export class Engine {
         const size = scope.getMallocSize(taddress);
         const rawType = type.substring(0, type.length - 1);
         if (scope.hasValue(rawType) && scope.get(rawType) instanceof Map) {
+          scope.typeOnMemory.set(taddress, rawType);
           scope.objectOnMemory.set(taddress, taddress + 1);
+          let i = 0;
+          for (const value of scope.get(rawType).values()) {
+            scope.typeOnMemory.set(++i + taddress, value[1]);//型名
+          }
         } else {
           for (let i = 0; i < size; ++i) {
             scope.typeOnMemory.set(taddress + i, rawType);
