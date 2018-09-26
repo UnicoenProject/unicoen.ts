@@ -9,8 +9,8 @@ try {
   };
   void add_point(struct point *pp)
   {
-    (*pp).x = (*pp).x + 1;
-    (*pp).y = (*pp).y + 1;
+    pp->x = pp->x + 1;
+    pp->y = pp->y + 1;
   };
   int main(void)
   {

@@ -233,6 +233,8 @@ export class Engine {
       const ubo = expr as UniBinOp;
       if (ubo.operator === '[]') {
         return yield* this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
+      } else if (ubo.operator === '->'){
+        return yield* this.getAddress(new UniBinOp('.', new UniUnaryOp('*', ubo.left), ubo.right), scope);
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
         let type: string = this.getType(ubo.left, scope);    

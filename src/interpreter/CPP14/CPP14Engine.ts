@@ -65,36 +65,10 @@ export class CPP14Engine extends Engine {
     const bytes = this.getCharArrAsByte(objectOnMemory, beginArg);
     return this.bytesToStr(bytes);
   }
+
+
   constructor() {
     super();
-  }
-
-  *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
-    if (uniOp.operator === '++' || uniOp.operator === '--') {
-      uniOp.operator = uniOp.operator + '_';
-    }
-    switch (uniOp.operator) {
-      case '&': {
-        const adr = yield* this.getAddress(uniOp.expr, scope);
-        return adr;
-      }
-      case '*': {
-        const v = scope.getValue((yield* this.execExpr(uniOp.expr, scope)) as number);
-        return v;
-      }
-      case 'sizeof': {
-        const l: UniExpr[] = [];
-        if (uniOp.expr instanceof UniIdent) {
-          l.push(new UniStringLiteral(uniOp.expr.name));
-        } else {
-          l.push(uniOp.expr);
-        }
-        const umc = new UniMethodCall(null, new UniIdent('sizeof'), l);
-        const v = yield* this.execExpr(umc, scope);
-        return v;
-      }
-    }
-    return yield* super.execUnaryOp(uniOp, scope);
   }
 
   sizeof(type: string): number {
@@ -612,6 +586,34 @@ export class CPP14Engine extends Engine {
     );
   }
 
+  *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
+    if (uniOp.operator === '++' || uniOp.operator === '--') {
+      uniOp.operator = uniOp.operator + '_';
+    }
+    switch (uniOp.operator) {
+      case '&': {
+        const adr = yield* this.getAddress(uniOp.expr, scope);
+        return adr;
+      }
+      case '*': {
+        const v = scope.getValue((yield* this.execExpr(uniOp.expr, scope)) as number);
+        return v;
+      }
+      case 'sizeof': {
+        const l: UniExpr[] = [];
+        if (uniOp.expr instanceof UniIdent) {
+          l.push(new UniStringLiteral(uniOp.expr.name));
+        } else {
+          l.push(uniOp.expr);
+        }
+        const umc = new UniMethodCall(null, new UniIdent('sizeof'), l);
+        const v = yield* this.execExpr(umc, scope);
+        return v;
+      }
+    }
+    return yield* super.execUnaryOp(uniOp, scope);
+  }
+
   protected *execBinOp(arg: string | UniBinOp, scope: Scope, left?: UniExpr, right?: UniExpr): any {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
       const binOp = arg as UniBinOp;
@@ -623,6 +625,11 @@ export class CPP14Engine extends Engine {
         return yield* this.execUnaryOp(new UniUnaryOp(op, left), scope);
       }
       if (right instanceof UniExpr) {
+        switch (op) {
+          case '->': {
+            return yield* super.execBinOp('.', scope, new UniUnaryOp('*', left), right);
+          }
+        }
         return yield* super.execBinOp(op, scope, left, right);
       }
     }

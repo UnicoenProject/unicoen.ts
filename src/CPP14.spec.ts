@@ -313,6 +313,27 @@ const testData = [
     ret: 40,
   },
   {
+    input: `#include <stdio.h>
+      struct point { 
+        int x; 
+        int y;
+    };
+    void add_point(struct point *pp)
+    {
+      pp->x = (*pp).x + 1;
+      (*pp).y = pp->y + 2;
+    };
+    int main(void)
+    {
+      struct point p = {10,10};
+      add_point(&p);
+      printf("px=%d,py=%d", p.x,p.y);
+      return 0;
+    }`,
+    node: null,
+    stdout: 'px=11,py=12'
+  },
+  {
     input: `void swap1(int* x, int* y){
         int s = *x;
         if(s<2){
