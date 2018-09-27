@@ -51,7 +51,7 @@ export class CPP14Engine extends Engine {
       if (defineTokens.length < 3) {
         continue;
       }
-      replaceMap.set(defineTokens[1], defineTokens[2]);
+      replaceMap.set(defineTokens[1], defineTokens.slice(2).join(' '));
       pos = lineEnd;
     }
     for (const [key, value] of replaceMap) {
