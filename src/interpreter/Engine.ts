@@ -53,6 +53,8 @@ export class Return extends ControlException {
   }
 }
 
+export class Exit extends Return {}
+
 export class Engine {
   static executeSimpleExpr(expr: UniExpr, scope?: Scope): any {
     if (scope === undefined) {
@@ -173,7 +175,7 @@ export class Engine {
     return ret;
   }
 
-  *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
+  protected *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
     switch (uniOp.operator) {
       case '!':
         return !this.toBool(yield* this.execExpr(uniOp.expr, scope));
@@ -216,7 +218,7 @@ export class Engine {
     throw new RuntimeException('Unkown binary operator: ' + uniOp.operator);
   }
 
-  *getAddress(expr: UniExpr, scope: Scope) {
+  protected *getAddress(expr: UniExpr, scope: Scope) {
     if (expr instanceof UniIdent) {
       const ui = expr as UniIdent;
       return scope.getAddress(ui.name);
@@ -251,11 +253,11 @@ export class Engine {
     throw new RuntimeException('Assignment failure: ' + expr);
   }
 
-  execMethod(arg0: any, arg1: any, arg2: any): any {
+  protected execMethod(arg0: any, arg1: any, arg2: any): any {
     throw new Error('execMethod not implemented.');
   }
 
-  *execArray(uniArray: UniArray, scope: Scope) {
+  protected *execArray(uniArray: UniArray, scope: Scope) {
     const elements = uniArray.items;
     const array: any[] = [];
     for (const element of elements) {
@@ -265,7 +267,7 @@ export class Engine {
     return array;
   }
 
-  *execVariableDec(decVar: UniVariableDec, scope: Scope) {
+  protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
     for (const def of decVar.variables) {
       while (def.name.startsWith('*')) {
@@ -339,7 +341,7 @@ export class Engine {
     return value;
   }
 
-  sizeof(type: string): number {
+  protected sizeof(type: string): number {
     if (type.includes('char')) {
       return 1;
     } else if (type.includes('short')) {
@@ -363,6 +365,7 @@ export class Engine {
     }
     throw new Error('Cannot covert to boolean: ' + obj);
   }
+
   protected stdout(text: string): void {
     this.stdoutText += text;
   }
@@ -924,6 +927,9 @@ export class Engine {
     try {
       yield* this.execBlock(fdec.block, funcScope);
     } catch (e) {
+      if (e instanceof Exit && funcScope.name !== 'main') {
+        throw e;
+      }
       if (e instanceof Return) {
         ret = e.value;
       }

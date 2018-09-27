@@ -4,18 +4,19 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 try {
   const text = String.raw`
   #include <stdio.h>
-      struct node { 
-        int item; 
-        struct node *next;
-    };
+    int aaa()
+    {
+      exit(1);
+    }
     int main(void)
     {
-      struct node *head;
-      head = malloc(sizeof(*head));
-      head->item = 5;
-      head->next = head;
-      head->next->item = 10;
-      printf("head->item = %d", head->item);
+      int *p;
+      if ((p = malloc(sizeof(int)*10000000)) == NULL) {
+        printf("Memory error\n");
+        aaa();
+      }
+      *p = 5;
+      printf("%d\n", *p);
       return 0;
     }
   `;

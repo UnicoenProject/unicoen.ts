@@ -6,10 +6,11 @@ import { UniCast } from '../../node/UniCast';
 import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
 import { UniExpr } from '../../node/UniExpr';
 import { UniIdent } from '../../node/UniIdent';
+import { UniIntLiteral } from '../../node/UniIntLiteral';
 import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniStringLiteral } from '../../node/UniStringLiteral';
 import { UniUnaryOp } from '../../node/UniUnaryOp';
-import { Engine } from '../Engine';
+import { Engine, Exit } from '../Engine';
 import { File } from '../File';
 import { Scope } from '../Scope';
 
@@ -101,6 +102,7 @@ export class CPP14Engine extends Engine {
       },
       'FUNCTION',
     );
+    global.setSystemVariable('int', 'NULL', 0);
   }
 
   protected includeStdio(global: Scope) {
@@ -345,6 +347,9 @@ export class CPP14Engine extends Engine {
       'malloc',
       (x: number) => {
         const num = x;
+        if (10000000 <= num) {
+          return 0;
+        }
         const heapAddress = global.setHeap(this.randInt32(), '?');
         for (let i = 1; i < num; ++i) {
           global.setHeap(this.randInt32(), '?');
@@ -374,6 +379,13 @@ export class CPP14Engine extends Engine {
       'abs',
       (x: number) => {
         return Math.abs(x);
+      },
+      'FUNCTION',
+    );
+    global.setTop(
+      'exit',
+      (status: number) => {
+        throw new Exit(status);
       },
       'FUNCTION',
     );
@@ -586,7 +598,7 @@ export class CPP14Engine extends Engine {
     );
   }
 
-  *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
+  protected *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
     if (uniOp.operator === '++' || uniOp.operator === '--') {
       uniOp.operator = uniOp.operator + '_';
     }
@@ -607,9 +619,9 @@ export class CPP14Engine extends Engine {
         } else if (expr instanceof UniUnaryOp
           && expr.operator === '*'
           && expr.expr instanceof UniIdent) {
-            let type: string = this.getType(expr.expr, scope);    
+            let type: string = this.getType(expr.expr, scope);
             while (type.endsWith('*')) {
-              type = type.substring(0,type.length-1);
+              type = type.substring(0, type.length - 1);
             }
             let typeSize = 1;
             const offsets: Map<string, number> = scope.get(type);
