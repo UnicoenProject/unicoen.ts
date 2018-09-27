@@ -4,19 +4,12 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 try {
   const text = String.raw`
   #include <stdio.h>
-    int aaa()
-    {
-      exit(1);
-    }
     int main(void)
     {
       int *p;
       if ((p = malloc(sizeof(int)*10000000)) == NULL) {
-        printf("Memory error\n");
-        aaa();
+        exit(1);
       }
-      *p = 5;
-      printf("%d\n", *p);
       return 0;
     }
   `;
@@ -29,14 +22,14 @@ try {
   engine.setFileList(map);
   const r = engine.execute(tree);
   //   {
-//     let rr = engine.startStepExecution(tree);
-//     let ss = engine.getCurrentState().make();
-//     while(engine.isStepExecutionRunning())
-//     {
-//       rr = engine.stepExecute();
-//       ss = engine.getCurrentState().make();
-//     }
-//   }
+  //     let rr = engine.startStepExecution(tree);
+  //     let ss = engine.getCurrentState().make();
+  //     while(engine.isStepExecutionRunning())
+  //     {
+  //       rr = engine.stepExecute();
+  //       ss = engine.getCurrentState().make();
+  //     }
+  //   }
   const out = engine.getStdout();
   const state = engine.getCurrentState().make();
   console.log(r);

@@ -1,6 +1,6 @@
-import { UniRuntimeError } from './RuntimeException';
 import { UniNode } from '../node/UniNode';
 import { UniVariableDec } from '../node/UniVariableDec';
+import { UniRuntimeError } from './RuntimeException';
 import { Scope } from './Scope';
 import { Stack } from './Stack';
 import { Variable } from './Variable';
@@ -179,7 +179,7 @@ export class ExecState {
     }
     for (const varName of varList) {
       const type: string = scope.variableTypes.get(varName);
-      if (type === 'FUNCTION' || type === 'CLASS') {
+      if (type === 'FUNCTION' || type === 'CLASS' || type === 'SYSTEM') {
         continue;
       }
       let address: number = scope.variableAddress.get(varName);
@@ -193,42 +193,42 @@ export class ExecState {
       // tslint:disable-next-line:no-bitwise
       if (0 <= type.indexOf('[') && 0 <= type.indexOf(']')) {
         const length = Number(type.substring(type.lastIndexOf('[') + 1, type.length - 1));
-        const list: any[] = [];
+        const arrayList: any[] = [];
         for (let i = 0; i < length; ++i) {
           const arrValue = scope.objectOnMemory.get((value as number) + i);
-          list.push(arrValue);
+          arrayList.push(arrValue);
         }
         address = value;
-        value = list;
+        value = arrayList;
       }
-      const makeStructVariable = (type:string, value:any) => {
-        const list: any[] = [];
-        if (!scope.hasType(type)){
-          return list;
+      const makeStructVariable = (structType: string, structAddr: any) => {
+        const filedList: any[] = [];
+        if (!scope.hasType(structType)) {
+          return filedList;
         }
-        const classKey = scope.getType(type);
-        if(classKey !== 'CLASS') {
-          return list;
+        const classKey = scope.getType(structType);
+        if (classKey !== 'CLASS') {
+          return filedList;
         }
-        //class, struct
-        const members: Map<string, number> = scope.get(type);
+        // class, struct
+        const members: Map<string, number> = scope.get(structType);
         for (const [fieldName, offsetAndType] of members) {
           const offset = offsetAndType[0];
           const fieldType = offsetAndType[1];
-          let fieldAddress = value + offset;
+          let fieldAddress = structAddr + offset;
           let fieldValue = scope.objectOnMemory.get(fieldAddress);
-          const fieldValueAsStruct:any = makeStructVariable(fieldType,fieldValue);
-          if (!fieldValueAsStruct.isEmpty()){
+          const fieldValueAsStruct: any = makeStructVariable(fieldType, fieldValue);
+          if (!fieldValueAsStruct.isEmpty()) {
             fieldAddress = fieldValue;
             fieldValue = fieldValueAsStruct;
           }
           const v = new Variable(fieldType, fieldName, fieldValue, fieldAddress, scope.depth);
-          list.push(v);
+          filedList.push(v);
         }
-        return list;
+        return filedList;
       };
       const list = makeStructVariable(type, value);
-      if(!list.isEmpty()) {
+      if (!list.isEmpty()) {
         value = list;
       }
 

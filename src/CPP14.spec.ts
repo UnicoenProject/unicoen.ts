@@ -314,8 +314,8 @@ const testData = [
   },
   {
     input: `#include <stdio.h>
-      struct point { 
-        int x; 
+      struct point {
+        int x;
         int y;
     };
     void add_point(struct point *pp)
@@ -331,7 +331,19 @@ const testData = [
       return 0;
     }`,
     node: null,
-    stdout: 'px=11,py=12'
+    stdout: 'px=11,py=12',
+  },
+  {
+    input: `int main(void)
+    {
+      int *p;
+      if ((p = malloc(sizeof(int)*10000000)) == NULL) {
+        exit(1);
+      }
+      return 0;
+    }`,
+    node: null,
+    ret: 1,
   },
   {
     input: `void swap1(int* x, int* y){

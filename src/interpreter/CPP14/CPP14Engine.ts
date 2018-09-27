@@ -40,6 +40,26 @@ export class CPP14Engine extends Engine {
     }
     return str;
   }
+
+  // #defineを探してそれ以降の文中の文字列を単純に置換する
+  static replaceDefine(text: string): string {
+    const replaceMap = new Map<string, string>();
+    for (let pos = text.indexOf('#define'); 0 <= pos; pos = text.indexOf('#define', pos)) {
+      const lineEnd = text.indexOf('\n', pos);
+      const defineText = text.substring(pos, lineEnd);
+      const defineTokens = defineText.split(/\s+/);
+      if (defineTokens.length < 3) {
+        continue;
+      }
+      replaceMap.set(defineTokens[1], defineTokens[2]);
+      pos = lineEnd;
+    }
+    for (const [key, value] of replaceMap) {
+      text = text.split(key).join(value);
+    }
+    return text;
+  }
+
   static getCharArrAsByte(objectOnMemory: Map<number, any>, beginArg: number): number[] {
     let begin = beginArg;
     const bytes: number[] = [];
@@ -66,7 +86,6 @@ export class CPP14Engine extends Engine {
     const bytes = this.getCharArrAsByte(objectOnMemory, beginArg);
     return this.bytesToStr(bytes);
   }
-
 
   constructor() {
     super();
@@ -102,7 +121,7 @@ export class CPP14Engine extends Engine {
       },
       'FUNCTION',
     );
-    global.setSystemVariable('int', 'NULL', 0);
+    global.setSystemVariable('SYSTEM', 'NULL', 0);
   }
 
   protected includeStdio(global: Scope) {
@@ -616,20 +635,22 @@ export class CPP14Engine extends Engine {
         const expr: UniExpr = uniOp.expr;
         if (expr instanceof UniIdent) {
           l.push(new UniStringLiteral(expr.name));
-        } else if (expr instanceof UniUnaryOp
-          && expr.operator === '*'
-          && expr.expr instanceof UniIdent) {
-            let type: string = this.getType(expr.expr, scope);
-            while (type.endsWith('*')) {
-              type = type.substring(0, type.length - 1);
-            }
-            let typeSize = 1;
-            const offsets: Map<string, number> = scope.get(type);
-            for (const value of offsets.values()) {
-              typeSize += value[2];
-            }
-            return typeSize;
-        } else{
+        } else if (
+          expr instanceof UniUnaryOp &&
+          expr.operator === '*' &&
+          expr.expr instanceof UniIdent
+        ) {
+          let type: string = this.getType(expr.expr, scope);
+          while (type.endsWith('*')) {
+            type = type.substring(0, type.length - 1);
+          }
+          let typeSize = 1;
+          const offsets: Map<string, number> = scope.get(type);
+          for (const value of offsets.values()) {
+            typeSize += value[2];
+          }
+          return typeSize;
+        } else {
           l.push(expr);
         }
         const umc = new UniMethodCall(null, new UniIdent('sizeof'), l);
