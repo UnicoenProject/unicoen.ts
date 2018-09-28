@@ -770,7 +770,7 @@ export class Engine {
       const dec = node;
       if (dec instanceof UniFunctionDec) {
         // 関数のセット
-        if ('main' !== dec.name) {
+        if ('main' !== dec.name && dec.block != null) {
           global.setTop(dec.name, dec, dec.returnType);
         }
       } else if (dec instanceof UniVariableDec) {

@@ -3,15 +3,17 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  int* getAddr(int a){
-    return &a;
-  }
+  int* getAddr(int a);
   int main()
   {
     int b = 2;
     int* p = getAddr(b);
     return *p;
-  }`;
+  }
+  int* getAddr(int a){
+    return &a;
+  }
+  `;
 
   const cmapper = new CPP14Mapper();
   cmapper.parse('int add();');
