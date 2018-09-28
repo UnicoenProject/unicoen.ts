@@ -21,32 +21,29 @@
     "format": "prettier --write src/**.ts **/*.json",
     "prepare": "yarn build",
     "generate:node": "ts-node src/node/Generator.ts",
-    "generate:CPP14": "antlr4ts -visitor -no-listener src/mapper/CPP14/CPP14.g4 -o src/mapper/CPP14/",
-    "generate:Java8": "antlr4ts -visitor -no-listener src/mapper/Java8/Java8.g4 -o src/mapper/Java8/",
     "precommit": "lint-staged",
     "postcommit": "git update-index --again",
     "test": "yarn run build && mocha dist/*.spec.js"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.2",
+    "@types/chai": "^4.1.5",
     "@types/mocha": "^2.2.48",
-    "antlr4ts-cli": "^0.4.0-alpha.4",
-    "chai": "^4.1.2",
-    "lint-staged": "^7.2.2",
+    "chai": "^4.2.0",
+    "lint-staged": "^7.3.0",
     "mocha": "^4.1.0",
     "pre-commit": "^1.2.2",
-    "prettier": "^1.14.2",
+    "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
     "tslint": "^5.9.1",
-    "typescript": "^3.0.3"
+    "typescript": "^3.1.1"
   },
   "dependencies": {
     "@types/mathjs": "^4.4.0",
-    "@types/node": "^9.4.0",
+    "@types/node": "^9.6.32",
     "agh.sprintf": "0.0.11",
     "antlr4ts": "^0.4.1-alpha.0",
-    "mathjs": "^5.0.0",
+    "mathjs": "^5.1.2",
     "scanf": "^1.0.2"
   },
   "lint-staged": {
