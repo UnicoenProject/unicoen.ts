@@ -86,6 +86,7 @@ import { VariabledeclarationContext } from './CPP14Parser';
 import { VariableDeclaratorListContext } from './CPP14Parser';
 import { VariableDeclaratorContext } from './CPP14Parser';
 import { DimsContext } from './CPP14Parser';
+import { FunctiondeclarationstatementContext } from './CPP14Parser';
 import { SimpledeclarationContext } from './CPP14Parser';
 import { Static_assertdeclarationContext } from './CPP14Parser';
 import { EmptydeclarationContext } from './CPP14Parser';
@@ -824,6 +825,13 @@ export interface CPP14Visitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitDims?: (ctx: DimsContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `CPP14Parser.functiondeclarationstatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFunctiondeclarationstatement?: (ctx: FunctiondeclarationstatementContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `CPP14Parser.simpledeclaration`.

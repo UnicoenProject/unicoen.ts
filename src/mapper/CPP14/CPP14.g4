@@ -509,6 +509,7 @@ myclasshead
 
 declaration
 	:	variabledeclarationstatement 
+	|	functiondeclarationstatement 
 	|	blockdeclaration 
 	|	myclassspecifier 
 	|	functiondefinition 
@@ -561,6 +562,10 @@ variableDeclarator
 
 dims
 	:	LeftBracket RightBracket 
+	;
+
+functiondeclarationstatement
+	:	attributespecifierseq? declspecifierseqwithouttype? functionheader virtspecifierseq? ';'
 	;
 
 simpledeclaration
@@ -1010,7 +1015,7 @@ functiondefinition
 	;
 
 functionheader
-	:	typespecifier? functiondeclarator 
+	:	typespecifier? ptroperator* functiondeclarator 
 	;
 
 functiondeclarator
