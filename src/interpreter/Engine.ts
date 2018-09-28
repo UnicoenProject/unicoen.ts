@@ -775,7 +775,10 @@ export class Engine {
         }
       } else if (dec instanceof UniVariableDec) {
         // グローバル変数のセット
-        this.execExpr(node, global);
+        //console.log('set global variable');
+        for (const n of this.execExpr(node, global)) {
+          //console.log(n);
+        }
       } else if (dec instanceof UniClassDec) {
         // structのセット クラス名→[オフセット, 型名, sizeof]
         const fieldOffset: Map<string, [number, string, number]> = new Map();
