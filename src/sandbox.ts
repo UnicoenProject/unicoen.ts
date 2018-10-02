@@ -5,10 +5,21 @@ try {
   const text = String.raw`
   #include <stdio.h>
   int main() {
-    for(int i=0; i<10; ++i);
-      for(int i=0; i<10; ++i)
-        printf("%d, ",i);
-      return 0;
+    int a=3;
+    switch (a) {
+    	case 1:
+    		printf("a = 1\n");
+    		break;
+    	case 3:
+    		printf("a = 3\n");
+    		break;
+    	case 5:
+    		printf("a = 5\n");
+    		break;
+    	default:
+    		printf("others\n");
+    		break;
+    }
   }
   `;
 

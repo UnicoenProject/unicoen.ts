@@ -1,13 +1,12 @@
 import { UniStatement } from './UniStatement';
-import { UniExpr } from './UniExpr';
 
 export class UniBlock extends UniStatement {
   public blockLabel: string;
-  public body: UniExpr[];
+  public body: UniStatement[];
 
   public constructor();
-  public constructor(blockLabel: string, body: UniExpr[]);
-  public constructor(blockLabel?: string, body?: UniExpr[]) {
+  public constructor(blockLabel: string, body: UniStatement[]);
+  public constructor(blockLabel?: string, body?: UniStatement[]) {
     super();
     if (blockLabel === undefined && body === undefined) {
       this.blockLabel = null;
@@ -19,7 +18,7 @@ export class UniBlock extends UniStatement {
       this.body = body;
     }
     this.fields.set('blockLabel', String);
-    this.fields.set('body', UniExpr);
+    this.fields.set('body', UniStatement);
   }
 
   public toString(): string {

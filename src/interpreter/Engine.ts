@@ -419,7 +419,7 @@ export class Engine {
     } else if (state instanceof UniBlock) {
       return yield* this.execBlock(state, scope);
     } else if (state instanceof UniSwitch) {
-      yield* this.execSwitch(state, scope);
+      return yield* this.execSwitch(state, scope);
     } else if (state instanceof UniEmptyStatement) {
       return null;
     } else if (state instanceof UniLabel) {
@@ -532,11 +532,13 @@ export class Engine {
     let fallthrough = false;
     const cond = yield* this.execExpr(us.cond, scope);
     for (const unit of us.cases) {
+      yield* this.stopByYield(cond, unit.cond);
       const condOfCase = yield* this.execExpr(unit.cond, switchScope);
       if (fallthrough || cond === condOfCase) {
         fallthrough = true;
         try {
           for (const statement of unit.statement) {
+            yield* this.stopByYield(ret, statement);
             ret = yield* this.execExpr(statement, scope);
           }
         } catch (e) {

@@ -97,10 +97,7 @@ export default class Generator {
               children: [
                 new Node({ className: 'Break' }),
                 new Node({ className: 'Continue' }),
-                new Node({
-                  className: 'EmptyStatement',
-                  members: [['endWith', 'string']],
-                }),
+                new Node({ className: 'EmptyStatement' }),
                 new Node({
                   className: 'Return',
                   members: [['value', 'Expr']],
@@ -115,7 +112,7 @@ export default class Generator {
                 }),
                 new Node({
                   className: 'Block',
-                  members: [['blockLabel', 'string'], ['body', 'Expr[]']],
+                  members: [['blockLabel', 'string'], ['body', 'Statement[]']],
                 }),
                 new Node({
                   className: 'If',
@@ -155,7 +152,7 @@ export default class Generator {
                 }),
                 new Node({
                   className: 'SwitchUnit',
-                  members: [['label', 'string'], ['cond', 'Expr'], ['statement', 'Statement[]']],
+                  members: [['label', 'string'], ['cond', 'Expr'], ['statement', 'Expr[]']],
                 }),
               ],
             }),

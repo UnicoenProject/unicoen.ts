@@ -4,11 +4,11 @@ import { UniExpr } from './UniExpr';
 export class UniSwitchUnit extends UniStatement {
   public label: string;
   public cond: UniExpr;
-  public statement: UniStatement[];
+  public statement: UniExpr[];
 
   public constructor();
-  public constructor(label: string, cond: UniExpr, statement: UniStatement[]);
-  public constructor(label?: string, cond?: UniExpr, statement?: UniStatement[]) {
+  public constructor(label: string, cond: UniExpr, statement: UniExpr[]);
+  public constructor(label?: string, cond?: UniExpr, statement?: UniExpr[]) {
     super();
     if (label === undefined && cond === undefined && statement === undefined) {
       this.label = null;
@@ -23,7 +23,7 @@ export class UniSwitchUnit extends UniStatement {
     }
     this.fields.set('label', String);
     this.fields.set('cond', UniExpr);
-    this.fields.set('statement', UniStatement);
+    this.fields.set('statement', UniExpr);
   }
 
   public toString(): string {

@@ -54,12 +54,16 @@ import { AssignmentoperatorContext } from './CPP14Parser';
 import { ExpressionContext } from './CPP14Parser';
 import { ConstantexpressionContext } from './CPP14Parser';
 import { StatementContext } from './CPP14Parser';
+import { StatementWithoutLabeldstatementContext } from './CPP14Parser';
 import { LabeledstatementContext } from './CPP14Parser';
+import { SwitchunitstatementContext } from './CPP14Parser';
+import { StatementWithoutLabeldstatementseqContext } from './CPP14Parser';
 import { ExpressionstatementContext } from './CPP14Parser';
 import { CompoundstatementContext } from './CPP14Parser';
 import { StatementseqContext } from './CPP14Parser';
 import { SelectionstatementContext } from './CPP14Parser';
 import { SwitchstatementContext } from './CPP14Parser';
+import { SwitchunitseqContext } from './CPP14Parser';
 import { ConditionContext } from './CPP14Parser';
 import { WhilestatementContext } from './CPP14Parser';
 import { DowhilestatementContext } from './CPP14Parser';
@@ -603,11 +607,32 @@ export interface CPP14Visitor<Result> extends ParseTreeVisitor<Result> {
 	visitStatement?: (ctx: StatementContext) => Result;
 
 	/**
+	 * Visit a parse tree produced by `CPP14Parser.statementWithoutLabeldstatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStatementWithoutLabeldstatement?: (ctx: StatementWithoutLabeldstatementContext) => Result;
+
+	/**
 	 * Visit a parse tree produced by `CPP14Parser.labeledstatement`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitLabeledstatement?: (ctx: LabeledstatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `CPP14Parser.switchunitstatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSwitchunitstatement?: (ctx: SwitchunitstatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `CPP14Parser.statementWithoutLabeldstatementseq`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStatementWithoutLabeldstatementseq?: (ctx: StatementWithoutLabeldstatementseqContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `CPP14Parser.expressionstatement`.
@@ -643,6 +668,13 @@ export interface CPP14Visitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitSwitchstatement?: (ctx: SwitchstatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `CPP14Parser.switchunitseq`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSwitchunitseq?: (ctx: SwitchunitseqContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `CPP14Parser.condition`.
