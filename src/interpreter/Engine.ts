@@ -136,6 +136,17 @@ export class Engine {
     return clone(this.currentState);
   }
 
+
+  // use this method where you think a step exec.
+  // yield* this.stopByYield(ret, nextExpr);
+  *stopByYield(ret:any, nextExpr:UniExpr){
+    if (!this.isSetNextExpr) {
+      this.currentState.setNextExpr(nextExpr);
+      this.isSetNextExpr = true;
+    }
+    yield ret;
+  }
+
   *executeStepByStep(dec: UniProgram) {
     const main: UniFunctionDec = this.getEntryPoint(dec);
     if (main != null) {
@@ -426,15 +437,12 @@ export class Engine {
     blockScope.name = scope.name;
     let ret = null;
     for (const stateOfBlock of block.body) {
-      if (!this.isSetNextExpr) {
-        this.currentState.setNextExpr(stateOfBlock);
-        this.isSetNextExpr = true;
-      }
-      yield ret;
+      yield* this.stopByYield(ret,stateOfBlock);
       ret = yield* this.execExpr(stateOfBlock, blockScope);
       this.currentState.setCurrentExpr(stateOfBlock);
       // この中でさらにexecBlockが呼ばれた場合thisは？//Sumに代入されているかチェック
     }
+    scope.removeChild(blockScope);
     return ret;
   }
 
@@ -450,14 +458,17 @@ export class Engine {
   protected *execFor(uf: UniFor, scope: Scope) {
     const forScope: Scope = Scope.createLocal(scope);
     forScope.name = scope.name;
-    let ret;
+    let ret = null;
     for (
       yield* this.execExpr(uf.init, forScope);
       this.toBool(yield* this.execExpr(uf.cond, forScope));
       yield* this.execExpr(uf.step, forScope)
     ) {
       try {
-        ret = yield* this.execExpr(uf.statement, forScope); // blockなのでgeneratorが返される。
+        if (!(uf.statement instanceof UniBlock)) {
+          yield* this.stopByYield(ret, uf.statement);
+        }
+        ret = yield* this.execExpr(uf.statement, forScope);
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -468,16 +479,18 @@ export class Engine {
         }
       }
     }
+    scope.removeChild(forScope);
     return ret;
   }
 
   protected *execWhile(uw: UniWhile, scope: Scope) {
-    const whileScope: Scope = Scope.createLocal(scope);
-    whileScope.name = scope.name;
     let ret;
-    while (this.toBool(yield* this.execExpr(uw.cond, whileScope))) {
+    while (this.toBool(yield* this.execExpr(uw.cond, scope))) {
       try {
-        ret = yield* this.execExpr(uw.statement, whileScope);
+        if (!(uw.statement instanceof UniBlock)) {
+          yield* this.stopByYield(ret, uw.statement);
+        }
+        ret = yield* this.execExpr(uw.statement, scope);
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -492,11 +505,12 @@ export class Engine {
   }
 
   protected *execDoWhile(udw: UniDoWhile, scope: Scope) {
-    const doWhileScope: Scope = Scope.createLocal(scope);
-    doWhileScope.name = scope.name;
     let ret;
     do {
       try {
+        if (!(udw.statement instanceof UniBlock)) {
+          yield* this.stopByYield(ret, udw.statement);
+        }
         ret = yield* this.execExpr(udw.statement, scope);
       } catch (e) {
         if (e instanceof Continue) {
@@ -515,18 +529,18 @@ export class Engine {
     const switchScope: Scope = Scope.createLocal(scope);
     switchScope.name = scope.name;
     let ret;
+    let fallthrough = false;
     const cond = yield* this.execExpr(us.cond, scope);
     for (const unit of us.cases) {
       const condOfCase = yield* this.execExpr(unit.cond, switchScope);
-      if (cond === condOfCase) {
+      if (fallthrough || cond === condOfCase) {
+        fallthrough = true;
         try {
           for (const statement of unit.statement) {
             ret = yield* this.execExpr(statement, scope);
           }
         } catch (e) {
-          if (e instanceof Continue) {
-            continue;
-          } else if (e instanceof Break) {
+          if (e instanceof Break) {
             break;
           } else {
             throw e;

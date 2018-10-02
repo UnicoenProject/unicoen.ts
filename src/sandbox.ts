@@ -18,6 +18,15 @@ try {
   engine.stdin('10-2.3');
   const map = new Map<string, ArrayBuffer>();
   engine.setFileList(map);
+     {
+      let rr = engine.startStepExecution(tree);
+      let ss = engine.getCurrentState().make();
+      while(engine.isStepExecutionRunning())
+      {
+        rr = engine.stepExecute();
+        ss = engine.getCurrentState().make();
+      }
+    }
   const r = engine.execute(tree);
   const out = engine.getStdout();
   const state = engine.getCurrentState().make();
@@ -27,12 +36,3 @@ try {
 } catch (e) {
   console.error(e);
 }
-  //   {
-  //     let rr = engine.startStepExecution(tree);
-  //     let ss = engine.getCurrentState().make();
-  //     while(engine.isStepExecutionRunning())
-  //     {
-  //       rr = engine.stepExecute();
-  //       ss = engine.getCurrentState().make();
-  //     }
-  //   }
