@@ -10,4 +10,5 @@ export class UniDoWhile extends UniWhile {
     const that: UniDoWhile = <UniDoWhile>obj;
     return super.equals(that);
   }
+
 }

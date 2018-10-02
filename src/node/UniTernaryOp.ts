@@ -32,12 +32,10 @@ export class UniTernaryOp extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniTernaryOp)) return false;
     const that: UniTernaryOp = <UniTernaryOp>obj;
-    return (
-      super.equals(that) &&
-      (this.cond == null ? that.cond == null : this.cond.equals(that.cond)) &&
-      (this.trueExpr == null ? that.trueExpr == null : this.trueExpr.equals(that.trueExpr)) &&
-      (this.falseExpr == null ? that.falseExpr == null : this.falseExpr.equals(that.falseExpr))
-    );
+    return super.equals(that)
+        && (this.cond == null ? that.cond == null : this.cond.equals(that.cond))
+        && (this.trueExpr == null ? that.trueExpr == null : this.trueExpr.equals(that.trueExpr))
+        && (this.falseExpr == null ? that.falseExpr == null : this.falseExpr.equals(that.falseExpr));
   }
 
   public merge(that: UniTernaryOp) {

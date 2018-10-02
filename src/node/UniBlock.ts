@@ -1,12 +1,13 @@
 import { UniStatement } from './UniStatement';
+import { UniExpr } from './UniExpr';
 
 export class UniBlock extends UniStatement {
   public blockLabel: string;
-  public body: UniStatement[];
+  public body: UniExpr[];
 
   public constructor();
-  public constructor(blockLabel: string, body: UniStatement[]);
-  public constructor(blockLabel?: string, body?: UniStatement[]) {
+  public constructor(blockLabel: string, body: UniExpr[]);
+  public constructor(blockLabel?: string, body?: UniExpr[]) {
     super();
     if (blockLabel === undefined && body === undefined) {
       this.blockLabel = null;
@@ -18,7 +19,7 @@ export class UniBlock extends UniStatement {
       this.body = body;
     }
     this.fields.set('blockLabel', String);
-    this.fields.set('body', UniStatement);
+    this.fields.set('body', UniExpr);
   }
 
   public toString(): string {
@@ -28,11 +29,9 @@ export class UniBlock extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniBlock)) return false;
     const that: UniBlock = <UniBlock>obj;
-    return (
-      super.equals(that) &&
-      (this.blockLabel == null ? that.blockLabel == null : this.blockLabel === that.blockLabel) &&
-      (this.body == null ? that.body == null : this.body.equals(that.body))
-    );
+    return super.equals(that)
+        && (this.blockLabel == null ? that.blockLabel == null : this.blockLabel === that.blockLabel)
+        && (this.body == null ? that.body == null : this.body.equals(that.body));
   }
 
   public merge(that: UniBlock) {

@@ -10,4 +10,5 @@ export class UniContinue extends UniStatement {
     const that: UniContinue = <UniContinue>obj;
     return super.equals(that);
   }
+
 }

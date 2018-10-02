@@ -1,4 +1,4 @@
-// Generated from C:\Users\RYOSUKE\eclipse\java-oxygen\eclipse\..\..\..\..\..\develop\UniMapperGeneratorForTS\net.unicoen\UniMapperGenerator\src-gen\CPP14.g4 by ANTLR 4.6-SNAPSHOT
+// Generated from C:\Users\RYOSUKE\eclipse\java-oxygen\eclipse\..\..\..\..\..\develop\UniMapperGeneratorForTS\net.unicoen\..\UniMapperGenerator\src-gen\CPP14.g4 by ANTLR 4.6-SNAPSHOT
 
 
 import { ATN } from 'antlr4ts/atn/ATN';

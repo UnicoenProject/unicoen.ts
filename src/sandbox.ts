@@ -3,20 +3,16 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  int* getAddr(int a);
-  int main()
-  {
-    int b = 2;
-    int* p = getAddr(b);
-    return *p;
-  }
-  int* getAddr(int a){
-    return &a;
+  #include <stdio.h>
+  int main() {
+    for(int i=0; i<10; ++i);
+      for(int i=0; i<10; ++i)
+        printf("%d, ",i);
+      return 0;
   }
   `;
 
   const cmapper = new CPP14Mapper();
-  cmapper.parse('int add();');
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
   const engine = new CPP14Engine();
   engine.stdin('10-2.3');

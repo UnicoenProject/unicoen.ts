@@ -33,12 +33,10 @@ export class UniVariableDef extends UniDecralation {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniVariableDef)) return false;
     const that: UniVariableDef = <UniVariableDef>obj;
-    return (
-      super.equals(that) &&
-      (this.name == null ? that.name == null : this.name === that.name) &&
-      (this.value == null ? that.value == null : this.value.equals(that.value)) &&
-      (this.typeSuffix == null ? that.typeSuffix == null : this.typeSuffix === that.typeSuffix)
-    );
+    return super.equals(that)
+        && (this.name == null ? that.name == null : this.name === that.name)
+        && (this.value == null ? that.value == null : this.value.equals(that.value))
+        && (this.typeSuffix == null ? that.typeSuffix == null : this.typeSuffix === that.typeSuffix);
   }
 
   public merge(that: UniVariableDef) {

@@ -28,11 +28,9 @@ export class UniNew extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniNew)) return false;
     const that: UniNew = <UniNew>obj;
-    return (
-      super.equals(that) &&
-      (this.type == null ? that.type == null : this.type === that.type) &&
-      (this.args == null ? that.args == null : this.args.equals(that.args))
-    );
+    return super.equals(that)
+        && (this.type == null ? that.type == null : this.type === that.type)
+        && (this.args == null ? that.args == null : this.args.equals(that.args));
   }
 
   public merge(that: UniNew) {

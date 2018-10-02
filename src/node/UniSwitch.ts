@@ -30,11 +30,9 @@ export class UniSwitch extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniSwitch)) return false;
     const that: UniSwitch = <UniSwitch>obj;
-    return (
-      super.equals(that) &&
-      (this.cond == null ? that.cond == null : this.cond.equals(that.cond)) &&
-      (this.cases == null ? that.cases == null : this.cases.equals(that.cases))
-    );
+    return super.equals(that)
+        && (this.cond == null ? that.cond == null : this.cond.equals(that.cond))
+        && (this.cases == null ? that.cases == null : this.cases.equals(that.cases));
   }
 
   public merge(that: UniSwitch) {

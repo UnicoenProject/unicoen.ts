@@ -22,10 +22,8 @@ export class UniArray extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniArray)) return false;
     const that: UniArray = <UniArray>obj;
-    return (
-      super.equals(that) &&
-      (this.items == null ? that.items == null : this.items.equals(that.items))
-    );
+    return super.equals(that)
+        && (this.items == null ? that.items == null : this.items.equals(that.items));
   }
 
   public merge(that: UniArray) {

@@ -33,14 +33,10 @@ export class UniMethodCall extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniMethodCall)) return false;
     const that: UniMethodCall = <UniMethodCall>obj;
-    return (
-      super.equals(that) &&
-      (this.receiver == null ? that.receiver == null : this.receiver.equals(that.receiver)) &&
-      (this.methodName == null
-        ? that.methodName == null
-        : this.methodName.equals(that.methodName)) &&
-      (this.args == null ? that.args == null : this.args.equals(that.args))
-    );
+    return super.equals(that)
+        && (this.receiver == null ? that.receiver == null : this.receiver.equals(that.receiver))
+        && (this.methodName == null ? that.methodName == null : this.methodName.equals(that.methodName))
+        && (this.args == null ? that.args == null : this.args.equals(that.args));
   }
 
   public merge(that: UniMethodCall) {

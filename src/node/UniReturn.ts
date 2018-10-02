@@ -23,10 +23,8 @@ export class UniReturn extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniReturn)) return false;
     const that: UniReturn = <UniReturn>obj;
-    return (
-      super.equals(that) &&
-      (this.value == null ? that.value == null : this.value.equals(that.value))
-    );
+    return super.equals(that)
+        && (this.value == null ? that.value == null : this.value.equals(that.value));
   }
 
   public merge(that: UniReturn) {

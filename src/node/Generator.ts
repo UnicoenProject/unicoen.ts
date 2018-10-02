@@ -97,7 +97,10 @@ export default class Generator {
               children: [
                 new Node({ className: 'Break' }),
                 new Node({ className: 'Continue' }),
-                new Node({ className: 'EmptyStatement' }),
+                new Node({
+                  className: 'EmptyStatement',
+                  members: [['endWith', 'string']],
+                }),
                 new Node({
                   className: 'Return',
                   members: [['value', 'Expr']],
@@ -112,7 +115,7 @@ export default class Generator {
                 }),
                 new Node({
                   className: 'Block',
-                  members: [['blockLabel', 'string'], ['body', 'Statement[]']],
+                  members: [['blockLabel', 'string'], ['body', 'Expr[]']],
                 }),
                 new Node({
                   className: 'If',

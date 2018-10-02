@@ -22,7 +22,8 @@ export class UniLabel extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniLabel)) return false;
     const that: UniLabel = <UniLabel>obj;
-    return super.equals(that) && (this.name == null ? that.name == null : this.name === that.name);
+    return super.equals(that)
+        && (this.name == null ? that.name == null : this.name === that.name);
   }
 
   public merge(that: UniLabel) {

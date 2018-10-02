@@ -22,7 +22,8 @@ export class UniIdent extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniIdent)) return false;
     const that: UniIdent = <UniIdent>obj;
-    return super.equals(that) && (this.name == null ? that.name == null : this.name === that.name);
+    return super.equals(that)
+        && (this.name == null ? that.name == null : this.name === that.name);
   }
 
   public merge(that: UniIdent) {

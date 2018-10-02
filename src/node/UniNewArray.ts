@@ -33,14 +33,10 @@ export class UniNewArray extends UniExpr {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniNewArray)) return false;
     const that: UniNewArray = <UniNewArray>obj;
-    return (
-      super.equals(that) &&
-      (this.type == null ? that.type == null : this.type === that.type) &&
-      (this.elementsNum == null
-        ? that.elementsNum == null
-        : this.elementsNum.equals(that.elementsNum)) &&
-      (this.value == null ? that.value == null : this.value.equals(that.value))
-    );
+    return super.equals(that)
+        && (this.type == null ? that.type == null : this.type === that.type)
+        && (this.elementsNum == null ? that.elementsNum == null : this.elementsNum.equals(that.elementsNum))
+        && (this.value == null ? that.value == null : this.value.equals(that.value));
   }
 
   public merge(that: UniNewArray) {

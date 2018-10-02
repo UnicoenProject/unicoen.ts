@@ -16,12 +16,7 @@ export class UniFor extends UniStatement {
       this.cond = null;
       this.step = null;
       this.statement = null;
-    } else if (
-      init === undefined ||
-      cond === undefined ||
-      step === undefined ||
-      statement === undefined
-    ) {
+    } else if (init === undefined || cond === undefined || step === undefined || statement === undefined) {
       throw new Error('invalid arguments');
     } else {
       this.init = init;
@@ -42,13 +37,11 @@ export class UniFor extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniFor)) return false;
     const that: UniFor = <UniFor>obj;
-    return (
-      super.equals(that) &&
-      (this.init == null ? that.init == null : this.init.equals(that.init)) &&
-      (this.cond == null ? that.cond == null : this.cond.equals(that.cond)) &&
-      (this.step == null ? that.step == null : this.step.equals(that.step)) &&
-      (this.statement == null ? that.statement == null : this.statement.equals(that.statement))
-    );
+    return super.equals(that)
+        && (this.init == null ? that.init == null : this.init.equals(that.init))
+        && (this.cond == null ? that.cond == null : this.cond.equals(that.cond))
+        && (this.step == null ? that.step == null : this.step.equals(that.step))
+        && (this.statement == null ? that.statement == null : this.statement.equals(that.statement));
   }
 
   public merge(that: UniFor) {

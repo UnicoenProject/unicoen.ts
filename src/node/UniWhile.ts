@@ -29,11 +29,9 @@ export class UniWhile extends UniStatement {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniWhile)) return false;
     const that: UniWhile = <UniWhile>obj;
-    return (
-      super.equals(that) &&
-      (this.cond == null ? that.cond == null : this.cond.equals(that.cond)) &&
-      (this.statement == null ? that.statement == null : this.statement.equals(that.statement))
-    );
+    return super.equals(that)
+        && (this.cond == null ? that.cond == null : this.cond.equals(that.cond))
+        && (this.statement == null ? that.statement == null : this.statement.equals(that.statement));
   }
 
   public merge(that: UniWhile) {

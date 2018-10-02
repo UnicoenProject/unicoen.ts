@@ -10,4 +10,5 @@ export class UniParam extends UniVariableDec {
     const that: UniParam = <UniParam>obj;
     return super.equals(that);
   }
+
 }

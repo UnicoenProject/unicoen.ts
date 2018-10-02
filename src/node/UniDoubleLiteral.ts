@@ -22,9 +22,8 @@ export class UniDoubleLiteral extends UniNumberLiteral {
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniDoubleLiteral)) return false;
     const that: UniDoubleLiteral = <UniDoubleLiteral>obj;
-    return (
-      super.equals(that) && (this.value == null ? that.value == null : this.value === that.value)
-    );
+    return super.equals(that)
+        && (this.value == null ? that.value == null : this.value === that.value);
   }
 
   public merge(that: UniDoubleLiteral) {
