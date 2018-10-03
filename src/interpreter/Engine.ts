@@ -530,25 +530,39 @@ export class Engine {
     const switchScope: Scope = Scope.createLocal(scope);
     switchScope.name = scope.name;
     let ret;
-    let fallthrough = false;
+    let didJump = false;
     const cond = yield* this.execExpr(us.cond, scope);
-    for (const unit of us.cases) {
-      yield* this.stopByYield(cond, unit.cond);
-      const condOfCase = yield* this.execExpr(unit.cond, switchScope);
-      if (fallthrough || cond === condOfCase) {
-        fallthrough = true;
-        try {
-          for (const statement of unit.statement) {
-            yield* this.stopByYield(ret, statement);
-            ret = yield* this.execExpr(statement, scope);
-          }
-        } catch (e) {
-          if (e instanceof Break) {
-            break;
+    let defaultCase:UniSwitchUnit = null;
+    while(!didJump){
+      for (const unit of us.cases) {
+        if (unit.label === 'default') {
+          if(defaultCase==null){
+            defaultCase = unit;
+            continue;
           } else {
-            throw e;
+            didJump = true;
           }
         }
+        const condOfCase = (unit.cond!=null)? yield* this.execExpr(unit.cond, switchScope) : null;
+        if (didJump || cond === condOfCase) {
+          yield* this.stopByYield(cond, unit.cond);
+          didJump = true;
+          try {
+            for (const statement of unit.statement) {
+              yield* this.stopByYield(ret, statement);
+              ret = yield* this.execExpr(statement, scope);
+            }
+          } catch (e) {
+            if (e instanceof Break) {
+              break;
+            } else {
+              throw e;
+            }
+          }
+        }
+      }
+      if(defaultCase == null){
+        break;
       }
     }
     return ret;
