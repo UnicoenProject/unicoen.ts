@@ -1,23 +1,31 @@
 // tslint:disable
 import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
-for(let i=0; i<=255; ++i){
-  const t = String.fromCharCode(i);
-  console.log(`${i}=${t}`);
-  console.log(`${t}=${t.charCodeAt(0)}`);
-}
-
 try {
   const text = String.raw`
-int main(void)
-{
-  int n=5, f;
-  if(0<n || n < 10)
+
+  int main(void)
+  {
+  
+    char test1[10] = "abcdef";
+    char test2[20] = "あいうえお";
+  
+    int len1,len2;
+  
+    //test1の文字列の長さを取得
+    len1 = strlen(test1);
+  
+    //test2の文字列の長さを取得
+    len2 = strlen(test2);
+    
+    
+    //表示
+    printf("test1の文字列の長さは→%d\n",len1);
+    printf("test2の文字列の長さは→%d\n",len2);
+  
+  
     return 0;
-	f = fact(n);
-	printf("%d != %d\n", n, f);
-	return 0;
-}
+  }
 `;
 
   const cmapper = new CPP14Mapper();

@@ -128,6 +128,7 @@ export class CPP14Engine extends Engine {
     this.includeStdio(global);
     this.includeStdlib(global);
     this.includeMath(global);
+    this.includeString(global);
     global.setTop(
       'sizeof',
       (arg: string | number[]) => {
@@ -659,6 +660,24 @@ export class CPP14Engine extends Engine {
     );
   }
 
+  protected includeString(global: Scope): any {
+    global.setTop(
+      'strlen',
+      (str : number) => {
+        const ret = CPP14Engine.charArrToStr(global.objectOnMemory, str);
+        let len = 0;
+        for(let i=0; i<ret.length; ++i,  ++len){
+          const code = ret.charCodeAt(i);
+          if(127<code){
+            ++len;
+          }
+        }
+        return len;
+      },
+      'FUNCTION',
+    );
+  }
+
   protected *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
     if (uniOp.operator === '++' || uniOp.operator === '--') {
       uniOp.operator = uniOp.operator + '_';
@@ -766,7 +785,7 @@ export class CPP14Engine extends Engine {
   }
 
   protected execStringLiteral(expr: UniStringLiteral, scope: Scope): any {
-    const value: string = (expr as UniStringLiteral).value;
+    const value: string = CPP14Engine.escapeText(expr.value);
     const list: number[] = [];
     for (let i = 0; i < value.length; ++i) {
       const byte = value.charCodeAt(i);
