@@ -736,9 +736,11 @@ export class Engine {
     const v = math.randomInt(0, a as number);
     return v;
   }
+  
   private clearStdout() {
     this.stdoutText = '';
   }
+
   private clearStdin() {
     this.stdinText = '';
   }

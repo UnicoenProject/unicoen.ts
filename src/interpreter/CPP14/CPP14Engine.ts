@@ -160,6 +160,7 @@ export class CPP14Engine extends Engine {
       function*() {
         this.setIsWaitingForStdin(true); // yield and set stdin
         ////////////////////////////////////////////
+        this.isSetNextExpr = true;
         const args = yield; // get args from next(args) from execUniMethodCall
         ////////////////////////////////////////////
         const input = this.getStdin();
