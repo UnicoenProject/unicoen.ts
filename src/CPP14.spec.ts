@@ -483,6 +483,24 @@ const testData = [
     node: null,
     stdout: `a:	7\nt:	9\nn:	10\nA,B,C`,
   },
+  {
+    input: String.raw`#include <stdio.h>
+    int fact(int n);
+    int main(void)
+    {
+      int n=5, f;
+      f = fact(n);
+      printf("%d != %d", n, f);
+      return 0;
+    }
+    
+    int fact(int n)
+    {
+      return (1 < n) ? n * fact(n - 1): 1;
+    }`,
+    node: null,
+    stdout: `5 != 120`,
+  }
 ];
 
 describe('node exec', () => {
