@@ -468,6 +468,21 @@ const testData = [
     node: null,
     stdout: `1が入力された\n2が入力された\n3が入力された\nqが入力された\nqが入力されました\n`,
   },
+  {
+    input: String.raw`int main(void)
+    {
+      int n, m;
+      n = '\a';
+      m = '\t';
+      printf("a:\t%d\n", '\a');
+      printf("t:\t%d\n", '\t');
+      printf("n:\t%d\n", '\n');
+      printf("\101,\x42,C");
+      return 0;
+    }`,
+    node: null,
+    stdout: `a:	7\nt:	9\nn:	10\nA,B,C`,
+  },
 ];
 
 describe('node exec', () => {

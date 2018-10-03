@@ -87,6 +87,25 @@ export class CPP14Engine extends Engine {
     return this.bytesToStr(bytes);
   }
 
+  //'\''n'を'\n'にする
+  static escapeText(str:string): string {
+    return str
+    .replace(/\\a/g, String.fromCharCode(7))
+    .replace(/\\b/g, '\b')
+    .replace(/\\f/g, '\f')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\v/g, '\v')
+    .replace(/\\'/g, "'")
+    .replace(/\\"/g, '"')
+    .replace(/\\\?/g, '?')
+    .replace(/\\\d{1,3}/g, (match)=>String.fromCharCode(parseInt(match.substr(1),8)))
+    .replace(/\\x[A-Fa-f0-9]{1,2}/g, (match)=>String.fromCharCode(parseInt(match.substr(2),16)))
+    .replace(/\\\\/g, '\\')
+    .replace(/\\/g, '\/');
+  }
+
   constructor() {
     super();
   }
@@ -136,7 +155,7 @@ export class CPP14Engine extends Engine {
           args.push(argument);
         }
         let text = CPP14Engine.bytesToStr(args[0]);
-        text = text.replace('\\n', '\n');
+        text = CPP14Engine.escapeText(text);
         for (let i = 1; i < args.length; ++i) {
           if (global.typeOnMemory.containsKey(args[i])) {
             const type: string = global.typeOnMemory.get(args[i]);
@@ -146,7 +165,7 @@ export class CPP14Engine extends Engine {
           }
         }
         args[0] = text;
-        const output = agh.sprintf(...args).replace('\\n', '\n');
+        const output = CPP14Engine.escapeText(agh.sprintf(...args));
         this.stdout(output);
         const byteCount = (str: string) => encodeURIComponent(str).replace(/%../g, 'x').length;
         const count = byteCount(output);
@@ -741,7 +760,7 @@ export class CPP14Engine extends Engine {
   }
 
   protected execCharLiteral(expr: UniCharacterLiteral, scope: Scope): any {
-    const value: string = expr.value;
+    const value: string = CPP14Engine.escapeText(expr.value);
     const code = value.charCodeAt(0);
     return code;
   }

@@ -3860,7 +3860,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			return undefined;
 		};
 		const text = this.visit(findFirst(ctx)) as String;
-		return new UniCharacterLiteral(text.substring(1, text.length - 1).charAt(0));
+		return new UniCharacterLiteral(text.substring(1, text.length - 1));
 	}
 
 	public visitFloatingliteral(ctx:FloatingliteralContext) {

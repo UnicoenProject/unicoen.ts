@@ -1,32 +1,26 @@
 // tslint:disable
 import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
+for(let i=0; i<=255; ++i){
+  const t = String.fromCharCode(i);
+  console.log(`${i}=${t}`);
+  console.log(`${t}=${t.charCodeAt(0)}`);
+}
+
 try {
   const text = String.raw`
-  #include <stdio.h>
-int main(void)
-{
-	int i;
-	printf("1から4までの数を入力してください: ");
-	scanf("%d", &i);
-	switch (i) {
-	case 1:
-		printf("ひとつ¥n");
-		break;
-	case 2:
-		printf("ふたつ¥n");
-		break;
-	case 3:
-		printf("みっつ¥n");
-		break;
-	case 4:
-		printf("よっつ¥n");
-		break;
-	default:
-		printf("認識できない数字です¥n");
-	}
-	return 0;
-}`;
+  int main(void)
+  {
+
+    int n, m;
+    n = '\a';
+    m = '\t';
+    printf("a:\t%d\n", '\a');
+    printf("t:\t%d\n", '\t');
+    printf("n:\t%d\n", '\n');
+    printf("\101,\x42,C");
+    return 0;
+  }`;
 
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
