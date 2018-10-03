@@ -123,7 +123,7 @@ export class Engine {
     do {
       node = this.execStepItr.next();
     }
-    while(!node.done && !this.isSetNextExpr);
+    while(!node.done && !this.isSetNextExpr && !this.isWaitingForStdin);
     const ret = node.value;
     this.currentState.setCurrenValue(ret);
     if (this.isDebugMode) {
@@ -736,7 +736,7 @@ export class Engine {
     const v = math.randomInt(0, a as number);
     return v;
   }
-  
+
   private clearStdout() {
     this.stdoutText = '';
   }

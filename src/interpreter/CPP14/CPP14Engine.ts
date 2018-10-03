@@ -160,7 +160,6 @@ export class CPP14Engine extends Engine {
       function*() {
         this.setIsWaitingForStdin(true); // yield and set stdin
         ////////////////////////////////////////////
-        this.isSetNextExpr = true;
         const args = yield; // get args from next(args) from execUniMethodCall
         ////////////////////////////////////////////
         const input = this.getStdin();
@@ -214,7 +213,30 @@ export class CPP14Engine extends Engine {
       },
       'FUNCTION',
     );
+    global.setTop(
+      'getchar',
+      function*() {    
+        ////////////////////////////////////////////
+        const isStdinEmpty = (this.getStdin() === '');
+        if(isStdinEmpty){
+          this.setIsWaitingForStdin(true); // yield and set stdin
+          yield; // get args from next(args) from execUniMethodCall
+        }    
+        ////////////////////////////////////////////
+        const input = this.getStdin();
+        this.clearStdin();
+        this.stdin(input.substr(1));
+        if(isStdinEmpty){
+          this.stdin('\n');
+          this.stdout(input + '\n');
+        }
+        this.setIsWaitingForStdin(false);
 
+        const ch = input.charCodeAt(0);
+        return ch;
+      },
+      'FUNCTION',
+    );
     global.setTop(
       'fopen',
       () => {
