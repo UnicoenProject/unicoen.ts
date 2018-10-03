@@ -462,6 +462,7 @@ export class Engine {
     for (
       yield* this.execExpr(uf.init, forScope);
       this.toBool(yield* this.execExpr(uf.cond, forScope));
+      yield* this.stopByYield(ret, uf.cond),
       yield* this.execExpr(uf.step, forScope)
     ) {
       try {

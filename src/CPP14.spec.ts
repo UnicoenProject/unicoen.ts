@@ -426,6 +426,31 @@ const testData = [
     node: null,
     ret: 8,
   },
+  {
+    input: String.raw`#include <stdio.h>
+    int main() {
+      int a=3;
+      int sum = 0;
+      switch (a) {
+        case 1:
+          printf("a = 1\n");
+          break;
+        case 3:
+          printf("a = 3\n");
+          sum += 3;
+        case 5:
+          printf("a = 5\n");
+          sum += 5;
+          break;
+        default:
+          printf("others\n");
+          break;
+      }
+      return sum;
+    }`,
+    node: null,
+    ret: 8,
+  },
 ];
 
 describe('node exec', () => {

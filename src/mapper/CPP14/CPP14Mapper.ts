@@ -2081,7 +2081,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1205: {
+						case 1202: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2091,7 +2091,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 1206: {
+						case 1203: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2133,11 +2133,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1232: {
+					case 1229: {
 						cond.push(this.visit(it));
 					}
 					break;
-					case 1234: {
+					case 1231: {
 						statement.push(this.visit(it));
 					}
 					break;
@@ -2172,11 +2172,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1237: {
+					case 1234: {
 						statement.push(this.visit(it));
 					}
 					break;
-					case 1240: {
+					case 1237: {
 						cond.push(this.visit(it));
 					}
 					break;
@@ -2215,19 +2215,19 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1246: {
+					case 1243: {
 						init.push(this.visit(it));
 					}
 					break;
-					case 1247: {
+					case 1244: {
 						cond.push(this.visit(it));
 					}
 					break;
-					case 1251: {
+					case 1248: {
 						step.push(this.visit(it));
 					}
 					break;
-					case 1255: {
+					case 1252: {
 						statement.push(this.visit(it));
 					}
 					break;
@@ -2263,15 +2263,15 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1259: {
+					case 1256: {
 						merge.push(this.visit(it));
 					}
 					break;
-					case 1261: {
+					case 1258: {
 						container.push(this.visit(it));
 					}
 					break;
-					case 1263: {
+					case 1260: {
 						statement.push(this.visit(it));
 					}
 					break;
@@ -2364,11 +2364,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1291: {
+					case 1288: {
 						value.push(this.visit(it));
 					}
 					break;
-					case 1296: {
+					case 1293: {
 						value.push(this.visit(it));
 					}
 					break;
@@ -2402,7 +2402,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1306: {
+						case 1303: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2422,7 +2422,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 1309: {
+						case 1306: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2463,7 +2463,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1315: {
+						case 1312: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2504,11 +2504,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1318: {
+					case 1315: {
 						merge.push(this.visit(it));
 					}
 					break;
-					case 1320: {
+					case 1317: {
 						members.push(this.visit(it));
 					}
 					break;
@@ -2547,7 +2547,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1331: {
+					case 1328: {
 						className.push(this.visit(it));
 					}
 					break;
@@ -2580,7 +2580,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1383: {
+						case 1380: {
 							ret.push(this.visit(it));
 						}
 						break;
@@ -2621,15 +2621,15 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1389: {
+					case 1386: {
 						modifiers.push(this.visit(it));
 					}
 					break;
-					case 1392: {
+					case 1389: {
 						type.push(this.visit(it));
 					}
 					break;
-					case 1393: {
+					case 1390: {
 						variables.push(this.visit(it));
 					}
 					break;
@@ -2663,7 +2663,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 1397: {
+						case 1394: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2673,7 +2673,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 1399: {
+						case 1396: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -2717,15 +2717,15 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1407: {
+					case 1404: {
 						name.push(this.visit(it));
 					}
 					break;
-					case 1413: {
+					case 1410: {
 						name.push(this.visit(it));
 					}
 					break;
-					case 1425: {
+					case 1422: {
 						value.push(this.visit(it));
 					}
 					break;
@@ -2798,11 +2798,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1434: {
+					case 1431: {
 						modifiers.push(this.visit(it));
 					}
 					break;
-					case 1437: {
+					case 1434: {
 						merge.push(this.visit(it));
 					}
 					break;
@@ -2935,11 +2935,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 1890: {
+					case 1887: {
 						add.push(this.visit(it));
 					}
 					break;
-					case 1892: {
+					case 1889: {
 						add.push(this.visit(it));
 					}
 					break;
@@ -2999,7 +2999,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 2080: {
+						case 2077: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3009,7 +3009,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 2086: {
+						case 2083: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3050,7 +3050,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 2093: {
+						case 2090: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3070,7 +3070,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 2097: {
+						case 2094: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3114,15 +3114,15 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2106: {
+					case 2103: {
 						modifiers.push(this.visit(it));
 					}
 					break;
-					case 2109: {
+					case 2106: {
 						type.push(this.visit(it));
 					}
 					break;
-					case 2110: {
+					case 2107: {
 						variables.push(this.visit(it));
 					}
 					break;
@@ -3158,15 +3158,15 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2116: {
+					case 2113: {
 						modifiers.push(this.visit(it));
 					}
 					break;
-					case 2119: {
+					case 2116: {
 						merge.push(this.visit(it));
 					}
 					break;
-					case 2123: {
+					case 2120: {
 						block.push(this.visit(it));
 					}
 					break;
@@ -3206,15 +3206,15 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
+					case 2122: {
+						returnType.push(this.visit(it));
+					}
+					break;
 					case 2125: {
 						returnType.push(this.visit(it));
 					}
 					break;
-					case 2128: {
-						returnType.push(this.visit(it));
-					}
-					break;
-					case 2134: {
+					case 2131: {
 						merge.push(this.visit(it));
 					}
 					break;
@@ -3255,11 +3255,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2136: {
+					case 2133: {
 						name.push(this.visit(it));
 					}
 					break;
-					case 2138: {
+					case 2135: {
 						params.push(this.visit(it));
 					}
 					break;
@@ -3291,7 +3291,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2144: {
+					case 2141: {
 						merge.push(this.visit(it));
 					}
 					break;
@@ -3331,7 +3331,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 2170: {
+						case 2167: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3341,7 +3341,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 2172: {
+						case 2169: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3381,7 +3381,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2179: {
+					case 2176: {
 						items.push(this.visit(it));
 					}
 					break;
@@ -3442,11 +3442,11 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2193: {
+					case 2190: {
 						merge.push(this.visit(it));
 					}
 					break;
-					case 2194: {
+					case 2191: {
 						members.push(this.visit(it));
 					}
 					break;
@@ -3486,7 +3486,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 2197: {
+						case 2194: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3526,7 +3526,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2209: {
+					case 2206: {
 						className.push(this.visit(it));
 					}
 					break;
@@ -3560,7 +3560,17 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 2234: {
+						case 2231: {
+							const results = this.flatten(this.visit(it));
+							if(Array.isArray(results)){
+								for (const result of results)
+									add.push(result);
+							}
+							else
+								add.push(results);
+						}
+						break;
+						case 2232: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3580,17 +3590,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 2238: {
-							const results = this.flatten(this.visit(it));
-							if(Array.isArray(results)){
-								for (const result of results)
-									add.push(result);
-							}
-							else
-								add.push(results);
-						}
-						break;
-						case 2240: {
+						case 2237: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3629,7 +3629,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2254: {
+					case 2251: {
 						ret.push(this.visit(it));
 					}
 					break;
@@ -3669,19 +3669,19 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2260: {
+					case 2257: {
 						modifiers.push(this.visit(it));
 					}
 					break;
-					case 2263: {
+					case 2260: {
 						type.push(this.visit(it));
 					}
 					break;
-					case 2264: {
+					case 2261: {
 						type.push(this.visit(it));
 					}
 					break;
-					case 2270: {
+					case 2267: {
 						variables.push(this.visit(it));
 					}
 					break;
@@ -3715,7 +3715,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				const it = ctx.getChild(i);
 				if (it instanceof RuleContext) {
 					switch (it.invokingState) {
-						case 2274: {
+						case 2271: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3735,7 +3735,7 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 								add.push(results);
 						}
 						break;
-						case 2278: {
+						case 2275: {
 							const results = this.flatten(this.visit(it));
 							if(Array.isArray(results)){
 								for (const result of results)
@@ -3779,31 +3779,31 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 			const it = ctx.getChild(i);	
 			if (it instanceof RuleContext) {
 				switch (it.invokingState) {
-					case 2284: {
+					case 2281: {
 						name.push(this.visit(it));
 					}
 					break;
-					case 2285: {
+					case 2282: {
 						typeSuffix.push(this.visit(it));
 					}
 					break;
-					case 2291: {
+					case 2288: {
 						name.push(this.visit(it));
+					}
+					break;
+					case 2290: {
+						value.push(this.visit(it));
 					}
 					break;
 					case 2293: {
-						value.push(this.visit(it));
-					}
-					break;
-					case 2296: {
 						name.push(this.visit(it));
 					}
 					break;
-					case 2297: {
+					case 2294: {
 						value.push(this.visit(it));
 					}
 					break;
-					case 2307: {
+					case 2304: {
 						value.push(this.visit(it));
 					}
 					break;
