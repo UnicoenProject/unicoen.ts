@@ -9,22 +9,16 @@ for(let i=0; i<=255; ++i){
 
 try {
   const text = String.raw`
-  #include <stdio.h>
-
-int fact(int n);
-
 int main(void)
 {
-	int n=5, f;
+  int n=5, f;
+  if(0<n || n < 10)
+    return 0;
 	f = fact(n);
 	printf("%d != %d\n", n, f);
 	return 0;
 }
-
-int fact(int n)
-{
-	return (1 < n) ? n * fact(n - 1): 1;
-}`;
+`;
 
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));

@@ -682,7 +682,7 @@ export class Engine {
       case '&&':
         ret = l && r;
         break;
-      case '&&':
+      case '||':
         ret = l || r;
         break;
     }
