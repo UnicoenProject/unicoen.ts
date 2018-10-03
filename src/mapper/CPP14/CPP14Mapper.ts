@@ -562,6 +562,10 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 						name.push(this.visit(it));
 					}
 					break;
+					case 490: {
+						name.push(this.visit(it));
+					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
@@ -1679,6 +1683,10 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 					break;
 					case 1034: {
 						cond.push(this.visit(it));
+					}
+					break;
+					case 1036: {
+						trueExpr.push(this.visit(it));
 					}
 					break;
 					case 1038: {

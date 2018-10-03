@@ -9,18 +9,22 @@ for(let i=0; i<=255; ++i){
 
 try {
   const text = String.raw`
-  int main(void)
-  {
+  #include <stdio.h>
 
-    int n, m;
-    n = '\a';
-    m = '\t';
-    printf("a:\t%d\n", '\a');
-    printf("t:\t%d\n", '\t');
-    printf("n:\t%d\n", '\n');
-    printf("\101,\x42,C");
-    return 0;
-  }`;
+int fact(int n);
+
+int main(void)
+{
+	int n=5, f;
+	f = fact(n);
+	printf("%d != %d\n", n, f);
+	return 0;
+}
+
+int fact(int n)
+{
+	return (1 < n) ? n * fact(n - 1): 1;
+}`;
 
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
