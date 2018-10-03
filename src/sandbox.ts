@@ -12,7 +12,7 @@ try {
       ch = getchar();
       printf("%cが入力された\n",ch);
     }
-    printf("qが入力されました¥n");
+    printf("qが入力されました\n");
     return 0;
   }`;
 

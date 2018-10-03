@@ -451,6 +451,23 @@ const testData = [
     node: null,
     ret: 8,
   },
+  {
+    input: String.raw`int main(void)
+    {
+      char ch;
+      ch = getchar();
+      printf("%cが入力された\n",ch);
+      while (ch != 'q') {
+        ch = getchar();
+        printf("%cが入力された\n",ch);
+      }
+      printf("qが入力されました\n");
+      return 0;
+    }`,
+    stdin: "123q",
+    node: null,
+    stdout: `1が入力された\n2が入力された\n3が入力された\nqが入力された\nqが入力されました\n`,
+  },
 ];
 
 describe('node exec', () => {
