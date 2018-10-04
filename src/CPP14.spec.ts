@@ -578,6 +578,20 @@ const testData = [
     node: null,
     ret: 10,
   },
+  {
+    input: String.raw`int main()
+    {
+      int a[5], *p;
+      a[2] = 5;
+      printf("%d",a[2]);
+      p = &a[2];
+      *p = 7;
+      return a[2];
+    }`,
+    node: null,
+    ret: 7,
+    stdout: '5',
+  },
 ];
 
 describe('node exec', () => {

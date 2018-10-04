@@ -299,6 +299,7 @@ export class Engine {
   protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
     for (const def of decVar.variables) {
+      value = null; // 2これがないと個目以降に残ってしまう。
       while (def.name.startsWith('*')) {
         def.name = def.name.substring(1);
         decVar.type += '*';

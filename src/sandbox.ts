@@ -5,9 +5,12 @@ try {
   const text = String.raw`
   int main()
   {
-    int count[4][5];
-    count[2][3] = 10;
-    return count[2][3];
+    int a[5], *p;
+    a[2] = 5;
+    printf("%d\n",a[2]);
+    p = &a[2];
+    *p = 7;
+    return a[2];
   }
 `;
 
