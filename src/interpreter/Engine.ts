@@ -17,6 +17,7 @@ import { UniFor } from '../node/UniFor';
 import { UniFunctionDec } from '../node/UniFunctionDec';
 import { UniIdent } from '../node/UniIdent';
 import { UniIf } from '../node/UniIf';
+import { UniIntLiteral } from '../node/UniIntLiteral';
 import { UniJump } from '../node/UniJump';
 import { UniLabel } from '../node/UniLabel';
 import { UniMethodCall } from '../node/UniMethodCall';
@@ -373,6 +374,8 @@ export class Engine {
   toBool(obj: any): boolean {
     if (typeof obj === 'boolean') {
       return obj as boolean;
+    } else if(typeof obj === 'number') {
+      return obj !== 0;
     }
     throw new Error('Cannot covert to boolean: ' + obj);
   }
@@ -458,6 +461,15 @@ export class Engine {
   protected *execFor(uf: UniFor, scope: Scope) {
     const forScope: Scope = Scope.createLocal(scope);
     forScope.name = scope.name;
+    if(uf.init == null) {
+      uf.init = new UniEmptyStatement();
+    }
+    if(uf.cond == null) {
+      uf.cond = new UniBoolLiteral(true);
+    }
+    if(uf.step == null) {
+      uf.step = new UniEmptyStatement();
+    }
     let ret = null;
     for (
       yield* this.execExpr(uf.init, forScope);
@@ -575,8 +587,8 @@ export class Engine {
     return value;
   }
 
-  protected execCast(expr: UniCast, scope: Scope): any {
-    return this.execExpr(expr.value, scope);
+  protected *execCast(expr: UniCast, scope: Scope): any {
+    return yield* this.execExpr(expr.value, scope);
   }
   // tslint:disable-next-line:function-name
   protected _execCast(type: string, value: any): any {
@@ -588,6 +600,10 @@ export class Engine {
   }
 
   protected execStringLiteral(expr: UniStringLiteral, scope: Scope): any {
+    return expr.value;
+  }
+
+  protected execIntLiteral(expr: UniIntLiteral, scope: Scope): any {
     return expr.value;
   }
 
@@ -896,6 +912,10 @@ export class Engine {
       const ret = this.execStringLiteral(expr, scope);
       yield ret;
       return ret;
+    } else if (expr instanceof UniIntLiteral) {
+      const ret = this.execIntLiteral(expr, scope);
+      yield ret;
+      return ret;
     } else if (expr instanceof UniNumberLiteral) {
       const ret = (expr as UniNumberLiteral).value;
       yield ret;
@@ -912,7 +932,7 @@ export class Engine {
     } else if (expr instanceof UniArray) {
       return yield* this.execArray(expr as UniArray, scope);
     } else if (expr instanceof UniCast) {
-      return this.execCast(expr as UniCast, scope);
+      return yield* this.execCast(expr as UniCast, scope);
     }
     // if (expr instanceof UniNewArray) {
     //   UniNewArray uniNewArray = (UniNewArray) expr;// C言語ではtypeは取れない

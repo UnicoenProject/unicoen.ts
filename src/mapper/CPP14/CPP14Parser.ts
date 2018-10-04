@@ -17283,6 +17283,7 @@ export class StatementWithoutLabeldstatementseqContext extends ParserRuleContext
 
 
 export class ExpressionstatementContext extends ParserRuleContext {
+	public Semi(): TerminalNode { return this.getToken(CPP14Parser.Semi, 0); }
 	public expression(): ExpressionContext | undefined {
 		return this.tryGetRuleContext(0, ExpressionContext);
 	}

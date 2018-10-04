@@ -1872,6 +1872,8 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 		const none = [];
 		map.set("none", none);
 		const ret = [];
+		const endWith = [];
+		map.set("endWith", endWith);
 		const n = ctx.childCount;
 		for (let i = 0; i < n;++i) {
 			const it = ctx.getChild(i);	
@@ -1888,6 +1890,10 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
+					case CPP14Parser.Semi: {
+						endWith.push(this.flatten(this.visit(it)));
+					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
@@ -1898,7 +1904,8 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 		if (!ret.isEmpty()) {
 			return ret;
 		}
-		return map;
+		const node = this.castTo(map, UniEmptyStatement);
+		return node;
 	}
 
 	public visitCompoundstatement(ctx:CompoundstatementContext) {
