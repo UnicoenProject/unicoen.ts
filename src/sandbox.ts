@@ -3,14 +3,15 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
+  struct point {
+    　int x;
+    　int y;
+　} p1, p2;
   int main()
   {
-    int a[5], *p;
-    a[2] = 5;
-    printf("%d\n",a[2]);
-    p = &a[2];
-    *p = 7;
-    return a[2];
+    p1.x = 1;
+    p1.y = 2;
+    return p1.x + p1.y;
   }
 `;
 
@@ -23,7 +24,7 @@ try {
   //  {
   //   let rr = engine.startStepExecution(tree);
   //   let ss = engine.getCurrentState().make();
-  //   while(engine.isStepExecutionRunning())
+  //   while(engine.isStepExecution5Running())
   //   {
   //     rr = engine.stepExecute();
   //     ss = engine.getCurrentState().make();

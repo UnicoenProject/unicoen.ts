@@ -592,6 +592,21 @@ const testData = [
     ret: 7,
     stdout: '5',
   },
+  {
+    input: String.raw`
+    struct point {
+      　int x;
+      　int y;
+  　} p1, p2;
+    int main()
+    {
+      p1.x = 1;
+      p1.y = 2;
+      return p1.x + p1.y;
+    }`,
+    node: null,
+    ret: 3
+  },
 ];
 
 describe('node exec', () => {

@@ -846,6 +846,11 @@ export class Engine {
       } else if (dec instanceof UniVariableDec) {
         // グローバル変数のセット
         // console.log('set global variable');
+        if(<any>dec.type instanceof UniClassDec) {
+          const ucd:UniClassDec = <UniClassDec><any>dec.type;
+          this.setGlobalObjects(ucd, global);
+          dec.type = ucd.className;
+        }
         for (const n of this.execExpr(node, global)) {
           // console.log(n);
         }

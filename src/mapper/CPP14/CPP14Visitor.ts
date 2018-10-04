@@ -1,4 +1,4 @@
-// Generated from C:\Users\RYOSUKE\eclipse\java-oxygen\eclipse\..\..\..\..\..\develop\UniMapperGeneratorForTS\net.unicoen\..\UniMapperGenerator\src-gen\CPP14.g4 by ANTLR 4.6-SNAPSHOT
+// Generated from C:\develop\UniMapperGeneratorForTS\net.unicoen\..\UniMapperGenerator\src-gen\CPP14.g4 by ANTLR 4.6-SNAPSHOT
 
 
 import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor';
@@ -87,6 +87,7 @@ import { BlockdeclarationContext } from './CPP14Parser';
 import { AliasdeclarationContext } from './CPP14Parser';
 import { VariabledeclarationstatementContext } from './CPP14Parser';
 import { VariabledeclarationContext } from './CPP14Parser';
+import { StructspecifierContext } from './CPP14Parser';
 import { VariableDeclaratorListContext } from './CPP14Parser';
 import { VariableDeclaratorContext } from './CPP14Parser';
 import { DimsContext } from './CPP14Parser';
@@ -836,6 +837,13 @@ export interface CPP14Visitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitVariabledeclaration?: (ctx: VariabledeclarationContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `CPP14Parser.structspecifier`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStructspecifier?: (ctx: StructspecifierContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `CPP14Parser.variableDeclaratorList`.
