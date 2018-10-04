@@ -251,10 +251,7 @@ export class Engine {
     } else if (expr instanceof UniUnaryOp) {
       const uuo = expr as UniUnaryOp;
       if (uuo.operator === '*') {
-        let refAddress = null;
-        for (const execExpr of this.execExpr(uuo.expr, scope)) {
-          refAddress = execExpr;
-        }
+        const refAddress = yield* this.execExpr(uuo.expr, scope);
         return refAddress;
       }
     } else if (expr instanceof UniBinOp) {
@@ -346,16 +343,36 @@ export class Engine {
           k = right;
         }
         if (0 < sizes.length) {
-          length = sizes[0];
-          if (value != null) {
-            // 初期化している場合。
-            for (let i = value.length; i < length; ++i) {
-              value.push(0);
+          if (sizes.length === 1) {
+            length = sizes[0];
+            if (value != null) {
+              // 初期化している場合。
+              for (let i = value.length; i < length; ++i) {
+                value.push(0);
+              }
+            } else {
+              value = [];
+              for (let i = 0; i < length; ++i) {
+                value.push(this.randInt32());
+              }
             }
-          } else {
-            value = [];
-            for (let i = 0; i < length; ++i) {
-              value.push(this.randInt32());
+          } else if (sizes.length === 2) {
+            length = sizes[0];
+            if (value != null) {
+              // 初期化している場合。
+              for (let i = value.length; i < length; ++i) {
+                value.push(0);
+              }
+            } else {
+              value = [];
+              for (let i = 0; i < length; ++i) {
+                const value2 = [];
+                const length2 = sizes[1];
+                for (let k = 0; k < length2; ++k) {
+                  value2.push(this.randInt32());
+                }
+                value.push(value2);
+              }
             }
           }
         }

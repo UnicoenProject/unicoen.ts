@@ -278,7 +278,7 @@ export class Scope {
           this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
           this.setStruct(fieldName, v, fieldType);
         } else if (v instanceof Array) {
-          this.setArray(v, type);
+          this.setArray(fieldName, v, type, []);
         } else {
           this.typeOnMemory.set(this.address.stackAddress, fieldType);
           this.objectOnMemory.set(this.address.stackAddress++, v);
@@ -303,8 +303,17 @@ export class Scope {
         this.setPrimitive(key, this.address.codeAddress, type);
         this.setStringOnCode(arr);
       } else {
-        this.setPrimitiveOnCode(key, this.address.stackAddress, type + '[' + arr.length + ']');
-        this.setArray(arr, type);
+        const dim: number[] = [];
+        let ar = arr;
+        while (Array.isArray(ar)) {
+          dim.push(ar.length);
+          if (0 < ar.length) {
+            ar = ar[0];
+          }
+        }
+        const address = dim.length <= 1 ? this.address.stackAddress : this.address.codeAddress + 1;
+        this.setPrimitiveOnCode(key, address, type + '[' + dim.join('][') + ']');
+        this.setArray(key, arr, type, dim.slice(1));
       }
     } else if (type === 'FUNCTION' || value instanceof UniFunctionDec) {
       this.setPrimitiveOnCode(key, value, type);
@@ -392,14 +401,14 @@ export class Scope {
     return addr[member]++;
   }
 
-  private setArray(value: any[], type: string): void {
+  private setArray(key: string, value: any[], type: string, dims: number[]): void {
     Scope.assertNotUnicoen(value);
     for (const v of value) {
       if (v instanceof Array) {
-        this.setArray(v, type);
+        this.setAreaImple(this.address.stackAddress, type + '[' + dims.join('][') + ']', this.address, 'codeAddress');
+        this.setArray(key, v, type, dims.slice(1));
       } else {
-        this.typeOnMemory.set(this.address.stackAddress, type);
-        this.objectOnMemory.set(this.address.stackAddress++, v);
+        this.setAreaImple(v, type, this.address, 'stackAddress');
       }
     }
   }

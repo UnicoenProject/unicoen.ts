@@ -568,6 +568,16 @@ const testData = [
     stdin: '15',
     stdout: '15\n15! = 1307674368000\n',
   },
+  {
+    input: String.raw`int main()
+    {
+      int count[4][5];
+      count[2][3] = 10;
+      return count[2][3];
+    }`,
+    node: null,
+    ret: 10,
+  },
 ];
 
 describe('node exec', () => {
