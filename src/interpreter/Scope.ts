@@ -239,7 +239,7 @@ export class Scope {
   }
 
   setStruct(key: string, value: any, type: string) {
-    // 構造体   
+    // 構造体
     if (this.hasValue(type)) {
       // [offset, type]のタプル
       const offsets: Map<string, number> = this.get(type);
@@ -267,7 +267,7 @@ export class Scope {
         }
       }
       let k = 0;
-      for (const [fieldName,valueofOffset] of offsets) {
+      for (const [fieldName, valueofOffset] of offsets) {
         const offset = valueofOffset[0];
         const fieldType = valueofOffset[1];
         const v = arr[k++];
@@ -293,7 +293,7 @@ export class Scope {
     if (this.hasValue(type)) {
       // 構造体
       this.setPrimitive(key, this.address.stackAddress + 1, type);
-      this.setStruct(key, value, type);  
+      this.setStruct(key, value, type);
     } else if (value instanceof Array) {
       // 配列の場合
       const arr = value;

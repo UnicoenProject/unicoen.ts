@@ -123,8 +123,7 @@ export class Engine {
     let node;
     do {
       node = this.execStepItr.next();
-    }
-    while(!node.done && !this.isSetNextExpr && !this.isWaitingForStdin);
+    } while (!node.done && !this.isSetNextExpr && !this.isWaitingForStdin);
     const ret = node.value;
     this.currentState.setCurrenValue(ret);
     if (this.isDebugMode) {
@@ -137,10 +136,9 @@ export class Engine {
     return clone(this.currentState);
   }
 
-
   // use this method where you think a step exec.
   // yield* this.stopByYield(ret, nextExpr);
-  *stopByYield(ret:any, nextExpr:UniExpr){
+  *stopByYield(ret: any, nextExpr: UniExpr) {
     if (!this.isSetNextExpr) {
       this.currentState.setNextExpr(nextExpr);
       this.isSetNextExpr = true;
@@ -187,13 +185,29 @@ export class Engine {
     return ret;
   }
 
+  toDouble(obj: any): number {
+    if (obj instanceof Number) {
+      return obj as number;
+    }
+    throw new Error('Cannot covert to integer: ' + obj);
+  }
+
+  toBool(obj: any): boolean {
+    if (typeof obj === 'boolean') {
+      return obj as boolean;
+    } else if (obj instanceof Number) {
+      return obj !== 0;
+    }
+    throw new Error('Cannot covert to boolean: ' + obj);
+  }
+
   protected *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
     switch (uniOp.operator) {
       case '!':
         return !this.toBool(yield* this.execExpr(uniOp.expr, scope));
       case '-': {
         const value = yield* this.execExpr(uniOp.expr, scope);
-        if (typeof value === 'number') {
+        if (value === 'number') {
           return -value;
         }
       }
@@ -246,15 +260,21 @@ export class Engine {
     } else if (expr instanceof UniBinOp) {
       const ubo = expr as UniBinOp;
       if (ubo.operator === '[]') {
-        return yield* this.getAddress(new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)), scope);
-      } else if (ubo.operator === '->'){
-        return yield* this.getAddress(new UniBinOp('.', new UniUnaryOp('*', ubo.left), ubo.right), scope);
+        return yield* this.getAddress(
+          new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)),
+          scope,
+        );
+      } else if (ubo.operator === '->') {
+        return yield* this.getAddress(
+          new UniBinOp('.', new UniUnaryOp('*', ubo.left), ubo.right),
+          scope,
+        );
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
-        let type: string = scope.getType(startAddress-1);    
-        if(ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
+        let type: string = scope.getType(startAddress - 1);
+        if (ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
           while (type.endsWith('*')) {
-            type = type.substring(0,type.length-1);
+            type = type.substring(0, type.length - 1);
           }
         }
         const offsets: Map<string, number> = scope.get(type);
@@ -364,22 +384,6 @@ export class Engine {
     return 4;
   }
 
-  toDouble(obj: any): number {
-    if (typeof obj === 'number') {
-      return obj as number;
-    }
-    throw new Error('Cannot covert to integer: ' + obj);
-  }
-
-  toBool(obj: any): boolean {
-    if (typeof obj === 'boolean') {
-      return obj as boolean;
-    } else if(typeof obj === 'number') {
-      return obj !== 0;
-    }
-    throw new Error('Cannot covert to boolean: ' + obj);
-  }
-
   protected stdout(text: string): void {
     this.stdoutText += text;
   }
@@ -440,7 +444,7 @@ export class Engine {
     blockScope.name = scope.name;
     let ret = null;
     for (const stateOfBlock of block.body) {
-      yield* this.stopByYield(ret,stateOfBlock);
+      yield* this.stopByYield(ret, stateOfBlock);
       ret = yield* this.execExpr(stateOfBlock, blockScope);
       this.currentState.setCurrentExpr(stateOfBlock);
       // この中でさらにexecBlockが呼ばれた場合thisは？//Sumに代入されているかチェック
@@ -461,21 +465,20 @@ export class Engine {
   protected *execFor(uf: UniFor, scope: Scope) {
     const forScope: Scope = Scope.createLocal(scope);
     forScope.name = scope.name;
-    if(uf.init == null) {
+    if (uf.init == null) {
       uf.init = new UniEmptyStatement();
     }
-    if(uf.cond == null) {
+    if (uf.cond == null) {
       uf.cond = new UniBoolLiteral(true);
     }
-    if(uf.step == null) {
+    if (uf.step == null) {
       uf.step = new UniEmptyStatement();
     }
     let ret = null;
     for (
       yield* this.execExpr(uf.init, forScope);
       this.toBool(yield* this.execExpr(uf.cond, forScope));
-      yield* this.stopByYield(ret, uf.cond),
-      yield* this.execExpr(uf.step, forScope)
+      yield* this.stopByYield(ret, uf.cond), yield* this.execExpr(uf.step, forScope)
     ) {
       try {
         if (!(uf.statement instanceof UniBlock)) {
@@ -544,19 +547,19 @@ export class Engine {
     let ret;
     let didJump = false;
     const cond = yield* this.execExpr(us.cond, scope);
-    let defaultCase:UniSwitchUnit = null;
-    while(!didJump){
+    let defaultCase: UniSwitchUnit = null;
+    while (!didJump) {
       for (const unit of us.cases) {
         if (unit.label === 'default') {
-          if(defaultCase==null){
+          if (defaultCase == null) {
             defaultCase = unit;
             continue;
           } else {
             didJump = true;
           }
         }
-        const condOfCase = (unit.cond!=null)? yield* this.execExpr(unit.cond, switchScope) : null;
-        if (didJump || cond === condOfCase) {
+        const condOfCase = unit.cond != null ? yield* this.execExpr(unit.cond, switchScope) : null;
+        if (didJump || cond.valueOf() === condOfCase.valueOf()) {
           yield* this.stopByYield(cond, unit.cond);
           didJump = true;
           try {
@@ -573,7 +576,7 @@ export class Engine {
           }
         }
       }
-      if(defaultCase == null){
+      if (defaultCase == null) {
         break;
       }
     }
@@ -707,7 +710,7 @@ export class Engine {
 
   protected execAssign(address: number, value: any, scope: Scope): any {
     const type: string = scope.getType(address);
-    // value = this._execCast(type,value);
+    value = this._execCast(type, value);
     scope.set(address, value);
     if (type.endsWith('*')) {
       const taddress = value as number;
@@ -718,8 +721,8 @@ export class Engine {
           scope.typeOnMemory.set(taddress, rawType);
           scope.objectOnMemory.set(taddress, taddress + 1);
           let i = 0;
-          for (const value of scope.get(rawType).values()) {
-            scope.typeOnMemory.set(++i + taddress, value[1]);//型名
+          for (const v of scope.get(rawType).values()) {
+            scope.typeOnMemory.set(++i + taddress, v[1]); // 型名
           }
         } else {
           for (let i = 0; i < size; ++i) {
@@ -824,9 +827,9 @@ export class Engine {
         }
       } else if (dec instanceof UniVariableDec) {
         // グローバル変数のセット
-        //console.log('set global variable');
+        // console.log('set global variable');
         for (const n of this.execExpr(node, global)) {
-          //console.log(n);
+          // console.log(n);
         }
       } else if (dec instanceof UniClassDec) {
         // structのセット クラス名→[オフセット, 型名, sizeof]
@@ -926,9 +929,11 @@ export class Engine {
       return yield* this.execBinOp(expr as UniBinOp, scope);
     } else if (expr instanceof UniTernaryOp) {
       const condOp = expr as UniTernaryOp;
-      return this.toBool(yield* this.execExpr(condOp.cond, scope))
-        ? yield* this.execExpr(condOp.trueExpr, scope)
-        : yield* this.execExpr(condOp.falseExpr, scope);
+      if (this.toBool(yield* this.execExpr(condOp.cond, scope))) {
+        return yield* this.execExpr(condOp.trueExpr, scope);
+      } else {
+        return yield* this.execExpr(condOp.falseExpr, scope);
+      }
     } else if (expr instanceof UniArray) {
       return yield* this.execArray(expr as UniArray, scope);
     } else if (expr instanceof UniCast) {

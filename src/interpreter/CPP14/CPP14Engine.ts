@@ -13,6 +13,7 @@ import { UniUnaryOp } from '../../node/UniUnaryOp';
 import { Engine, Exit } from '../Engine';
 import { File } from '../File';
 import { Scope } from '../Scope';
+import { Int } from './Int';
 
 export class CPP14Engine extends Engine {
   // Byte[]
@@ -63,18 +64,18 @@ export class CPP14Engine extends Engine {
   static getCharArrAsByte(objectOnMemory: Map<number, any>, beginArg: number): number[] {
     let begin = beginArg;
     const bytes: number[] = [];
-    const obj: string | number = objectOnMemory.get(begin);
+    const obj: string | number | Int = objectOnMemory.get(begin);
     if (typeof obj === 'string') {
       return CPP14Engine.strToBytes(obj);
     }
     for (let v = obj; objectOnMemory.containsKey(begin); ++begin) {
       const o = objectOnMemory.get(begin);
-      if (typeof obj === 'number') {
+      if (typeof obj === 'number' || obj instanceof Int) {
         v = o as number;
         if (v === 0) {
           break;
         }
-        bytes.push(v);
+        bytes.push(v.valueOf());
       } else {
         break;
       }
@@ -87,23 +88,25 @@ export class CPP14Engine extends Engine {
     return this.bytesToStr(bytes);
   }
 
-  //'\''n'を'\n'にする
-  static escapeText(str:string): string {
+  // '\''n'を'\n'にする
+  static escapeText(str: string): string {
     return str
-    .replace(/\\a/g, String.fromCharCode(7))
-    .replace(/\\b/g, '\b')
-    .replace(/\\f/g, '\f')
-    .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '\r')
-    .replace(/\\t/g, '\t')
-    .replace(/\\v/g, '\v')
-    .replace(/\\'/g, "'")
-    .replace(/\\"/g, '"')
-    .replace(/\\\?/g, '?')
-    .replace(/\\\d{1,3}/g, (match)=>String.fromCharCode(parseInt(match.substr(1),8)))
-    .replace(/\\x[A-Fa-f0-9]{1,2}/g, (match)=>String.fromCharCode(parseInt(match.substr(2),16)))
-    .replace(/\\\\/g, '\\')
-    .replace(/\\/g, '\/');
+      .replace(/\\a/g, String.fromCharCode(7))
+      .replace(/\\b/g, '\b')
+      .replace(/\\f/g, '\f')
+      .replace(/\\n/g, '\n')
+      .replace(/\\r/g, '\r')
+      .replace(/\\t/g, '\t')
+      .replace(/\\v/g, '\v')
+      .replace(/\\'/g, "'")
+      .replace(/\\"/g, '"')
+      .replace(/\\\?/g, '?')
+      .replace(/\\\d{1,3}/g, (match) => String.fromCharCode(parseInt(match.substr(1), 8)))
+      .replace(/\\x[A-Fa-f0-9]{1,2}/g, (match) =>
+        String.fromCharCode(parseInt(match.substr(2), 16)),
+      )
+      .replace(/\\\\/g, '\\')
+      .replace(/\\/g, '/');
   }
 
   constructor() {
@@ -235,18 +238,18 @@ export class CPP14Engine extends Engine {
     );
     global.setTop(
       'getchar',
-      function*() {    
+      function*() {
         ////////////////////////////////////////////
-        const isStdinEmpty = (this.getStdin() === '');
-        if(isStdinEmpty){
+        const isStdinEmpty = this.getStdin() === '';
+        if (isStdinEmpty) {
           this.setIsWaitingForStdin(true); // yield and set stdin
           yield; // get args from next(args) from execUniMethodCall
-        }    
+        }
         ////////////////////////////////////////////
         const input = this.getStdin();
         this.clearStdin();
         this.stdin(input.substr(1));
-        if(isStdinEmpty){
+        if (isStdinEmpty) {
           this.stdin('\n');
           this.stdout(input + '\n');
         }
@@ -369,11 +372,11 @@ export class CPP14Engine extends Engine {
         const addr = stream as number;
         let bytes = null;
         if (typeof s === 'number') {
-          bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s);
+          bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s.valueOf());
         } else if (typeof s === 'string') {
           bytes = CPP14Engine.strToBytes(s);
         }
-        const fp: File = global.getValue(addr);
+        const fp: File = global.getValue(addr.valueOf());
         let ret = -1;
         for (const byte of bytes) {
           ret = fp.fputc(byte);
@@ -663,12 +666,12 @@ export class CPP14Engine extends Engine {
   protected includeString(global: Scope): any {
     global.setTop(
       'strlen',
-      (str : number) => {
+      (str: number) => {
         const ret = CPP14Engine.charArrToStr(global.objectOnMemory, str);
         let len = 0;
-        for(let i=0; i<ret.length; ++i,  ++len){
+        for (let i = 0; i < ret.length; ++i, ++len) {
           const code = ret.charCodeAt(i);
-          if(127<code){
+          if (127 < code) {
             ++len;
           }
         }
@@ -718,6 +721,58 @@ export class CPP14Engine extends Engine {
         const v = yield* this.execExpr(umc, scope);
         return v;
       }
+      case '-': {
+        const value = yield* this.execExpr(uniOp.expr, scope);
+        if (value instanceof Int) {
+          return new Int(-value);
+        }
+        if (value === 'number') {
+          return -value;
+        }
+      }
+      case '_++':
+      case '++_':
+      case '_--':
+      case '--_':
+        if (uniOp.expr instanceof UniIdent) {
+          const ident = uniOp.expr as UniIdent;
+          let num = yield* this.execExpr(uniOp.expr, scope);
+          const address = yield* this.getAddress(ident, scope);
+          switch (uniOp.operator) {
+            case '_++':
+              if (num instanceof Int) {
+                this.execAssign(address, new Int(num.valueOf() + 1), scope);
+              } else {
+                this.execAssign(address, num + 1, scope);
+              }
+              yield num;
+              return num;
+            case '++_':
+              if (num instanceof Int) {
+                num = new Int(num.valueOf() + 1);
+              } else {
+                ++num;
+              }
+              yield num;
+              return this.execAssign(address, num, scope);
+            case '_--':
+              if (num instanceof Int) {
+                this.execAssign(address, new Int(num.valueOf() - 1), scope);
+              } else {
+                this.execAssign(address, num - 1, scope);
+              }
+              yield num;
+              return num;
+            case '--_':
+              if (num instanceof Int) {
+                num = new Int(num.valueOf() - 1);
+              } else {
+                --num;
+              }
+              yield num;
+              return this.execAssign(address, num, scope);
+          }
+        }
     }
     return yield* super.execUnaryOp(uniOp, scope);
   }
@@ -743,8 +798,68 @@ export class CPP14Engine extends Engine {
     }
   }
 
-  protected execCast(expr: UniCast, scope: Scope): any {
-    const value = this.execExpr(expr.value, scope);
+  protected *execBinOpImple(op: string, scope: Scope, left: UniExpr, right: UniExpr): any {
+    let ret = null;
+    const rawl = yield* this.execExpr(left, scope);
+    const rawr = yield* this.execExpr(right, scope);
+    const l = rawl.valueOf();
+    const r = rawr.valueOf();
+    switch (op) {
+      case '==':
+        ret = l === r;
+        break;
+      case '!=':
+        ret = l !== r;
+        break;
+      case '<':
+        ret = l < r;
+        break;
+      case '>':
+        ret = l > r;
+        break;
+      case '>=':
+        ret = l >= r;
+        break;
+      case '<=':
+        ret = l <= r;
+        break;
+      case '+':
+        ret = l + r;
+        break;
+      case '-':
+        ret = l - r;
+        break;
+      case '*':
+        ret = l * r;
+        break;
+      case '/':
+        ret = l / r;
+        break;
+      case '%':
+        ret = l % r;
+        break;
+      case '&&':
+        ret = l && r;
+        break;
+      case '||':
+        ret = l || r;
+        break;
+    }
+
+    switch (op) {
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+        if (rawl instanceof Int && rawr instanceof Int) {
+          ret = new Int(ret);
+        }
+    }
+    return ret;
+  }
+
+  protected *execCast(expr: UniCast, scope: Scope): any {
+    const value = yield* this.execExpr(expr.value, scope);
     return this._execCast(expr.type, value);
   }
   // tslint:disable-next-line:function-name
@@ -755,7 +870,7 @@ export class CPP14Engine extends Engine {
     }
 
     if (type === 'int') {
-      return value as number;
+      return new Int(value);
     } else if (type === 'double') {
       return value as number;
     } else if (type === 'long') {
@@ -793,5 +908,9 @@ export class CPP14Engine extends Engine {
     }
     list.push(0);
     return list;
+  }
+
+  protected execIntLiteral(expr: UniIntLiteral, scope: Scope): any {
+    return new Int(expr.value);
   }
 }

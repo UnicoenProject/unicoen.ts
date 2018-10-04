@@ -346,6 +346,19 @@ const testData = [
     ret: 1,
   },
   {
+    input: `int main(void)
+    {
+      int a, c;
+      double b;
+      a = 31 / 3;
+      b = 3.14;
+      c = a * b;
+      return c;
+    }`,
+    node: null,
+    ret: 31,
+  },
+  {
     input: `void swap1(int* x, int* y){
         int s = *x;
         if(s<2){
@@ -464,9 +477,9 @@ const testData = [
       printf("qが入力されました\n");
       return 0;
     }`,
-    stdin: "123q",
     node: null,
-    stdout: `1が入力された\n2が入力された\n3が入力された\nqが入力された\nqが入力されました\n`,
+    stdin: '123q',
+    stdout: '1が入力された\n2が入力された\n3が入力された\nqが入力された\nqが入力されました\n',
   },
   {
     input: String.raw`int main(void)
@@ -481,7 +494,7 @@ const testData = [
       return 0;
     }`,
     node: null,
-    stdout: `a:	7\nt:	9\nn:	10\nA,B,C`,
+    stdout: 'a:	7\nt:	9\nn:	10\nA,B,C',
   },
   {
     input: String.raw`#include <stdio.h>
@@ -493,14 +506,68 @@ const testData = [
       printf("%d != %d", n, f);
       return 0;
     }
-    
+
     int fact(int n)
     {
       return (1 < n) ? n * fact(n - 1): 1;
     }`,
     node: null,
-    stdout: `5 != 120`,
-  }
+    stdout: '5 != 120',
+  },
+  {
+    input: String.raw`#include <stdio.h>
+    #include <string.h>
+    void multiply_by_int(char *n, int m);
+    int main()
+    {
+      int input, i;
+      char prod[30] = "1"; /*prod[0]に1のくらいの数が入る*/
+      char answer[30] = {};/*最後に反転させる*/
+      //printf("Enter a positive integer with up to 3 digits.\n");
+      scanf("%d", &input);
+      if (input < 0 || 999 < input)//範囲外
+      {
+        printf("OutOfRange.\n");
+        return -1;
+      }
+      for (i = 2; i <= input; ++i)
+      {
+        multiply_by_int(prod, i);
+      }
+      double m = fmax(1,2);
+      int len = strlen(prod);
+      for (i = 0;; ++i)
+      {
+        if (*(prod + i) == '\0')
+          break;
+        answer[i] = (*(prod + (len - i - 1)));
+      }
+      printf("%d! = %s\n", input, answer);
+      return 0;
+    }
+    //文字列の掛け算をする。
+    void multiply_by_int(char *n, int m)
+    {
+      int size = strlen(n)-1;
+      int i = 0;
+      int c = 0;
+      while (1)
+      {
+        int x = (n[i] == '\0') ? 0:(int)n[i]-(int)'0';//i番目の位数
+        int a = x*m + c;//i番目の位の数*m
+        int b = a % 10;//↑の1のくらいの数
+        c = a / 10;//↑↑の10のくらいの数
+        n[i] = b + (int)'0';//i番目のくらいの数を書き換え
+        if (i < size || c != 0)
+          ++i;
+        else
+          break;
+      }
+    }`,
+    node: null,
+    stdin: '15',
+    stdout: '15\n15! = 1307674368000\n',
+  },
 ];
 
 describe('node exec', () => {
