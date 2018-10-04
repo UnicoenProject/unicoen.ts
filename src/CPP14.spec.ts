@@ -605,7 +605,26 @@ const testData = [
       return p1.x + p1.y;
     }`,
     node: null,
-    ret: 3
+    ret: 3,
+  },
+  {
+    input: String.raw`
+    typedef struct node *link;
+    struct node {
+      int item;
+      link next;
+    };
+    int main(void)
+    {
+      link head;
+
+      head = malloc(sizeof(*head));
+      head->item = 5;
+      head->next = head;
+      printf("head->item = %d\n", head->item);
+    }`,
+    node: null,
+    stdout: 'head->item = 5\n',
   },
 ];
 

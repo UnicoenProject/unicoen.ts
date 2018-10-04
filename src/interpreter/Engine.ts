@@ -67,6 +67,7 @@ export class Engine {
   static executeSimpleProgram(program: UniProgram): any {
     return this.executeSimpleExpr(program.block, Scope.createGlobal());
   }
+
   protected currentState: ExecState = null;
   protected currentScope: Scope = null;
   protected execStepItr: IterableIterator<any> = null;
@@ -378,14 +379,11 @@ export class Engine {
           }
         }
       }
-
-      // // 未初期化の配列でない変数の場合、乱数で初期化する。
-      // if (value == null) {
-      //   value = this.randInt32();
-      //   yield value;
-      // }
-
-      const type: string = decVar.type;
+      let type: string = decVar.type;
+      if (decVar.modifiers.includes('typedef')) {
+        value = type;
+        type = 'CLASS';
+      }
       scope.setTop(def.name, value, type);
     }
     return value;
@@ -730,12 +728,12 @@ export class Engine {
     const type: string = scope.getType(address);
     value = this._execCast(type, value);
     scope.set(address, value);
-    if (type.endsWith('*')) {
+    if (type && type.endsWith('*')) {
       const taddress = value as number;
       if (scope.isMallocArea(taddress)) {
         const size = scope.getMallocSize(taddress);
         const rawType = type.substring(0, type.length - 1);
-        if (scope.hasValue(rawType) && scope.get(rawType) instanceof Map) {
+        if (scope.isStructType(rawType)) {
           scope.typeOnMemory.set(taddress, rawType);
           scope.objectOnMemory.set(taddress, taddress + 1);
           let i = 0;
@@ -755,7 +753,8 @@ export class Engine {
   protected getType(expr: UniExpr, scope: Scope): string {
     if (expr instanceof UniIdent) {
       const ui: UniIdent = expr;
-      return scope.getType(ui.name);
+      const type = scope.getType(ui.name);
+      return type;
     } else if (expr instanceof UniUnaryOp) {
       const uuo: UniUnaryOp = expr;
       if (uuo.operator === '*') {
@@ -846,8 +845,8 @@ export class Engine {
       } else if (dec instanceof UniVariableDec) {
         // グローバル変数のセット
         // console.log('set global variable');
-        if(<any>dec.type instanceof UniClassDec) {
-          const ucd:UniClassDec = <UniClassDec><any>dec.type;
+        if ((dec.type as any) instanceof UniClassDec) {
+          const ucd: UniClassDec = dec.type as any as UniClassDec;
           this.setGlobalObjects(ucd, global);
           dec.type = ucd.className;
         }
@@ -862,8 +861,8 @@ export class Engine {
         for (const member of dec.members) {
           if (member instanceof UniVariableDec) {
             for (const def of member.variables) {
-              if (global.hasValue(member.type)) {
-                const offsets: Map<string, number> = global.get(member.type);
+              if (global.isStructType(member.type)) {
+                const offsets = global.get(member.type);
                 offset = 1;
                 for (const value of offsets.values()) {
                   offset += value[2];

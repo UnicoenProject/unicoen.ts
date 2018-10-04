@@ -119,6 +119,18 @@ export class Scope {
     }
   }
 
+  isStructType(type: string): boolean {
+    try {
+      const offsets = this.get(type);
+      return (offsets instanceof Map);
+    } catch (err) {
+      if (err instanceof UniRuntimeError) {
+        return false;
+      }
+      throw err;
+    }
+  }
+
   hasValue(key: string): boolean {
     try {
       this.getValue(this.getAddress(key));
@@ -160,18 +172,29 @@ export class Scope {
   }
 
   getType(key: string | number): string {
+    const typedef = (type: string) => {
+      if (this.hasValue(type)) {
+        const offset = this.get(type);
+        if (offset instanceof Map) {
+          return type;
+        } else {
+          return offset;
+        }
+      }
+      return type;
+    };
     if (typeof key === 'string') {
       if (this.variableTypes.has(key)) {
-        return this.variableTypes.get(key);
+        return typedef(this.variableTypes.get(key));
       } else if (this.parent != null) {
-        return this.parent.getType(key);
+        return typedef(this.parent.getType(key));
       }
     }
     if (typeof key === 'number') {
       if (this.typeOnMemory.has(key)) {
-        return this.typeOnMemory.get(key);
+        return typedef(this.typeOnMemory.get(key));
       } else if (this.parent != null) {
-        return this.parent.getType(key);
+        return typedef(this.parent.getType(key));
       }
     }
 
@@ -240,7 +263,7 @@ export class Scope {
 
   setStruct(key: string, value: any, type: string) {
     // 構造体
-    if (this.hasValue(type)) {
+    if (this.isStructType(type)) {
       // [offset, type]のタプル
       const offsets: Map<string, number> = this.get(type);
       let arr: any[] = null;
@@ -272,7 +295,7 @@ export class Scope {
         const fieldType = valueofOffset[1];
         const v = arr[k++];
         Scope.assertNotUnicoen(value);
-        if (this.hasValue(fieldType)) {
+        if (this.isStructType(fieldType)) {
           this.typeOnMemory.set(this.address.stackAddress, fieldType);
           // JSは関数の引数は左から評価される。
           this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
@@ -290,7 +313,7 @@ export class Scope {
   /** 現在のスコープに新しい変数を定義し、代入します */
   setTop(key: string, value: any, type: string): void {
     Scope.assertNotUnicoen(value);
-    if (this.hasValue(type)) {
+    if (this.isStructType(type)) {
       // 構造体
       this.setPrimitive(key, this.address.stackAddress + 1, type);
       this.setStruct(key, value, type);
@@ -327,8 +350,8 @@ export class Scope {
   set(addr: number, value: any): void {
     Scope.assertNotUnicoen(value);
     if (this.objectOnMemory.has(addr)) {
-      try {
-        const type: string = this.getType(addr);
+      const type: string = this.getType(addr);
+      if (this.isStructType(type)) {
         const offsets: Map<string, number> = this.get(type);
         for (const valueOfOffset of offsets.values()) {
           // srcとdstはどちらもstructを想定
@@ -337,12 +360,8 @@ export class Scope {
           const v = this.getValue(src);
           this.objectOnMemory.set(dst, v);
         }
-      } catch (e) {
-        if (e instanceof UniRuntimeError) {
-          this.objectOnMemory.set(addr, value);
-        } else {
-          throw e;
-        }
+      } else {
+        this.objectOnMemory.set(addr, value);
       }
       return;
     }

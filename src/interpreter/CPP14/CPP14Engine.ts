@@ -709,9 +709,11 @@ export class CPP14Engine extends Engine {
             type = type.substring(0, type.length - 1);
           }
           let typeSize = 1;
-          const offsets: Map<string, number> = scope.get(type);
-          for (const value of offsets.values()) {
-            typeSize += value[2];
+          if (scope.isStructType(type)) {
+            const offsets: Map<string, number> = scope.get(type);
+            for (const value of offsets.values()) {
+              typeSize += value[2];
+            }
           }
           return typeSize;
         } else {

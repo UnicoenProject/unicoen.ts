@@ -3,18 +3,16 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  struct point {
-    　int x;
-    　int y;
-　} p1, p2;
-  int main()
-  {
-    p1.x = 1;
-    p1.y = 2;
-    return p1.x + p1.y;
-  }
+  int main(void)
+    {
+      int a, c;
+      double b;
+      a = 31 / 3;
+      b = 3.14;
+      c = a * b;
+      return c;
+    }
 `;
-
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
   const engine = new CPP14Engine();
