@@ -912,7 +912,7 @@ export class CPP14Engine extends Engine {
             if (value != null) {
               // 初期化している場合。
               for (let i = value.length; i < length; ++i) {
-                value.push(0);
+                value.push(new Int(0));
               }
             } else {
               value = [];
@@ -923,10 +923,27 @@ export class CPP14Engine extends Engine {
           } else if (sizes.length === 2) {
             length = sizes[0];
             if (value != null) {
-              // 初期化している場合。
-              for (let i = value.length; i < length; ++i) {
-                value.push(0);
+              // 初期化リストがある。
+              const value1 = [];
+              let offset = 0;
+              for (let i = 0; i < length; ++i) {
+                if (Array.isArray(value[offset])) {
+                  const value2 = value[offset++];
+                  const length2 = sizes[1];
+                  for (let k = value2.length; k < length2; ++k) {
+                    value2.push(new Int(0));
+                  }
+                  value1.push(value2);
+                } else {
+                  const value2 = [];
+                  const length2 = sizes[1];
+                  for (let k = 0; k < length2; ++k) {
+                    value2.push(value[offset++]);
+                  }
+                  value1.push(value2);
+                }
               }
+              value = value1;
             } else {
               value = [];
               for (let i = 0; i < length; ++i) {

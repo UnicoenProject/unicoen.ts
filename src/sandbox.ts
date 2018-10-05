@@ -3,46 +3,23 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  #include <stdio.h>
-#include <string.h>
-
-int main(void)
-{
-	char str1[10], str2[10];
-	int i;
-  scanf("%d", &i);
-	printf("第1の文字列を入力してください: ");
-	scanf("%s", str1);
-	printf("第2の文字列を入力してください: ");
-	scanf("%s", str2);
-
-	/* 文字列の長さを確認する */
-	printf("%s は %d 文字の長さです\n", str1, strlen(str1));
-	printf("%s は %d 文字の長さです\n", str2, strlen(str2));
-	
-
-	/* 文字列を比較する */
-	i = strcmp(str1, str2);
-	if (!i)
-		printf(" 文字列が等しい.\n");
-	else if (i<0)
-		printf("%sは %s\nより小さい\n",str1,str2);
-	else
-		printf("%sは %s\nより大きい\n", str1, str2);
-
-	/* 十分なスペースがあればstr2をstr1の最後に連結する */
-	if (strlen(str1) + strlen(str2) < 80)
-	{
-		strcat(str1, str2);
-		printf("%s\n", str1);
-	}
-
-	/* str2をstr1にコピーする*/
-	strcpy(str1, str2);
-	printf("%s %s\n", str1, str2);
-	
-	return 0;
-}
+  int main() {
+    int sqr[3][3] = {
+    1, 2, 3,
+    {4, 5},
+    {7}
+    };
+    for (int i = 0; i < 3; ++i) {
+      for (int k = 0; k < 3; ++k) {
+        printf("%d,", sqr[i][k]);
+      }
+    }
+    int* start = &sqr[0][0];
+    for (int i = 0; i < 9; ++i) {
+      printf("%d,", start[i]);
+    }
+    return start[5];
+  }
 `;
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));

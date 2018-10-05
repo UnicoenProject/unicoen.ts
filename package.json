@@ -23,7 +23,8 @@
     "generate:node": "ts-node src/node/Generator.ts",
     "precommit": "lint-staged",
     "postcommit": "git update-index --again",
-    "test": "yarn run build && mocha dist/*.spec.js"
+    "test": "yarn build && yarn exec:test",
+    "exec:test": "mocha dist/*.spec.js"
   },
   "devDependencies": {
     "@types/chai": "^4.1.5",
