@@ -220,7 +220,6 @@ const testData = [
   },
   {
     input: 'int main(){int x = abs(-3);return x;}',
-    node: null,
     ret: 3,
   },
   {
@@ -236,7 +235,6 @@ const testData = [
 
       return x;
     }`,
-    node: null,
     ret: 1.4142135623746899,
   },
   {
@@ -246,7 +244,6 @@ const testData = [
       int y = printf("%u\n",-12345);
       return x+y;
     }`,
-    node: null,
     ret: 13, // "4294954951\n" + 2
   },
   {
@@ -257,7 +254,6 @@ const testData = [
       scanf("%d-%f",&x, &y);
       return x + y;
     }`,
-    node: null,
     ret: 12.3,
     stdin: '10-2.3',
   },
@@ -267,7 +263,6 @@ const testData = [
       moji[3]='0';
       return moji[3] + moji[4];
     }`,
-    node: null,
     ret: 101, // ASCII Code 0:48, 5:53
   },
   {
@@ -286,7 +281,6 @@ const testData = [
         p3 = p1;
         return p1.x + p1.y + p2.x + p2.y + p3.x + p3.y;
     }`,
-    node: null,
     ret: 9,
   },
   {
@@ -309,7 +303,6 @@ const testData = [
         r.p2.y = 10;
         return r.p1.x + r.p1.y + r.p2.x + r.p2.y;
     }`,
-    node: null,
     ret: 40,
   },
   {
@@ -330,7 +323,6 @@ const testData = [
       printf("px=%d,py=%d", p.x,p.y);
       return 0;
     }`,
-    node: null,
     stdout: 'px=11,py=12',
   },
   {
@@ -342,7 +334,6 @@ const testData = [
       }
       return 0;
     }`,
-    node: null,
     ret: 1,
   },
   {
@@ -355,7 +346,6 @@ const testData = [
       c = a * b;
       return c;
     }`,
-    node: null,
     ret: 31,
   },
   {
@@ -395,7 +385,6 @@ const testData = [
         printf("a=%d,b=%d,c=%d,d=%d,e=%d",a,b,c,d,e);
         return 0;
     }`,
-    node: null,
     stdout: 'a=3,b=2,c=1,d=4,e=6',
   },
   {
@@ -415,7 +404,6 @@ const testData = [
         int r = f(&n);
         return r;
     }`,
-    node: null,
     ret: 24,
   },
   {
@@ -436,7 +424,6 @@ const testData = [
         }
         return ps[1][0] + ps[1][1] + ps[1][2];
     }`,
-    node: null,
     ret: 8,
   },
   {
@@ -461,7 +448,6 @@ const testData = [
       }
       return sum;
     }`,
-    node: null,
     ret: 8,
   },
   {
@@ -477,7 +463,6 @@ const testData = [
       printf("qが入力されました\n");
       return 0;
     }`,
-    node: null,
     stdin: '123q',
     stdout: '1が入力された\n2が入力された\n3が入力された\nqが入力された\nqが入力されました\n',
   },
@@ -493,7 +478,6 @@ const testData = [
       printf("\101,\x42,C");
       return 0;
     }`,
-    node: null,
     stdout: 'a:	7\nt:	9\nn:	10\nA,B,C',
   },
   {
@@ -511,7 +495,6 @@ const testData = [
     {
       return (1 < n) ? n * fact(n - 1): 1;
     }`,
-    node: null,
     stdout: '5 != 120',
   },
   {
@@ -564,7 +547,6 @@ const testData = [
           break;
       }
     }`,
-    node: null,
     stdin: '15',
     stdout: '15\n15! = 1307674368000\n',
   },
@@ -575,7 +557,6 @@ const testData = [
       count[2][3] = 10;
       return count[2][3];
     }`,
-    node: null,
     ret: 10,
   },
   {
@@ -588,7 +569,6 @@ const testData = [
       *p = 7;
       return a[2];
     }`,
-    node: null,
     ret: 7,
     stdout: '5',
   },
@@ -604,7 +584,6 @@ const testData = [
       p1.y = 2;
       return p1.x + p1.y;
     }`,
-    node: null,
     ret: 3,
   },
   {
@@ -623,7 +602,6 @@ const testData = [
       head->next = head;
       printf("head->item = %d\n", head->item);
     }`,
-    node: null,
     stdout: 'head->item = 5\n',
   },
   {
@@ -651,24 +629,40 @@ const testData = [
       c.y = a.y + b.y;
       return c;
     }`,
-    node: null,
     ret: 203,
     stdout: '101 102\n',
+  },
+  {
+    input: String.raw`
+    int main() {
+      char str[] = "ABC";
+      char str1[4];
+      strcpy(str1, str);
+      char str2[] = "ABD";
+      char str3[] = "B";
+      char str4[3] = "A";
+      strcat(str4, str3);
+      printf("strcmp(%s, %s) = %d\n", str, str1, strcmp(str, str1));
+      printf("strcmp(%s, %s) = %d\n", str, str2, strcmp(str, str2));
+      printf("strcmp(%s, %s) = %d\n", str, str3, strcmp(str, str3));
+      printf("strcmp(%s, %s) = %d\n", str, str4, strcmp(str, str4));
+      return 0;
+    }`,
+    stdout: 'strcmp(ABC, ABC) = 0\nstrcmp(ABC, ABD) = -1\nstrcmp(ABC, B) = -1\nstrcmp(ABC, AB) = 1\n',
   },
 ];
 
 describe('node exec', () => {
   for (const test of testData) {
-    if (test.node == null) {
-      continue;
+    if (test.node) {
+      it(test.input, () => {
+        const node = test.node();
+        const engine = new CPP14Engine();
+        engine.setDebugMode(false);
+        const ret = engine.execute(node);
+        assert.equal(ret, test.ret);
+      });
     }
-    it(test.input, () => {
-      const node = test.node();
-      const engine = new CPP14Engine();
-      engine.setDebugMode(false);
-      const ret = engine.execute(node);
-      assert.equal(ret, test.ret);
-    });
   }
 });
 
@@ -677,7 +671,7 @@ describe('mapper', () => {
     const cmapper = new CPP14Mapper();
     const text = test.input;
     const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
-    if (test.node != null) {
+    if (test.node) {
       it(test.input + ' node', () => {
         const node = test.node();
         assert.isOk(tree.equals(node));

@@ -680,6 +680,50 @@ export class CPP14Engine extends Engine {
       },
       'FUNCTION',
     );
+    global.setTop(
+      'strcpy',
+      (dst: number, src: number) => {
+        const bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, src);
+        for (let k = 0; k < bytes.length; ++k) {
+          this.currentScope.set(dst + k, bytes[k]);
+        }
+        return dst;
+      },
+      'FUNCTION',
+    );
+    global.setTop(
+      'strcat',
+      (dst: number, src: number) => {
+        const strBytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, src);
+        const dstBytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, dst);
+        const end = dstBytes.indexOf(0);
+        for (let k = 0; k < strBytes.length; ++k) {
+          this.currentScope.set(dst + end + k, strBytes[k]);
+        }
+        return dst;
+      },
+      'FUNCTION',
+    );
+    global.setTop(
+      'strcmp',
+      (s1: number, s2: number) => {
+        // "aiueo" "aiueo" => 0
+        // "aiue" "aiueo" => -1
+        // "aiue" "aiu" => 1
+        const str1 = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s1);
+        const str2 = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s2);
+        const len = Math.min(str1.length, str2.length);
+        for (let i = 0; i < len; ++i) {
+          if (str1[i] > str2[i]) {
+            return 1;
+          } else if (str1[i] < str2[i]) {
+            return -1;
+          }
+        }
+        return 0;
+      },
+      'FUNCTION',
+    );
   }
 
   protected *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {
@@ -839,7 +883,7 @@ export class CPP14Engine extends Engine {
             } else {
               value = [];
               for (let i = 0; i < length; ++i) {
-                value.push(this.randInt32());
+                value.push(this._execCast(decVar.type, this.randInt32()));
               }
             }
           } else if (sizes.length === 2) {
@@ -855,7 +899,7 @@ export class CPP14Engine extends Engine {
                 const value2 = [];
                 const length2 = sizes[1];
                 for (let k = 0; k < length2; ++k) {
-                  value2.push(this.randInt32());
+                  value2.push(this._execCast(decVar.type, this.randInt32()));
                 }
                 value.push(value2);
               }
