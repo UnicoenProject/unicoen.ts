@@ -11,5 +11,6 @@
   "editor.formatOnType": false,
   "editor.formatOnSave": false,
   "editor.formatOnPaste": false,
-  "C_Cpp.errorSquiggles": "Disabled"
+  "C_Cpp.errorSquiggles": "Disabled",
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

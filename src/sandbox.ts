@@ -3,13 +3,27 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
+  #define N 100;
+  typedef struct point Point;
+  struct point {
+    int x;
+    int y;
+  };
+  Point Point_add(Point, Point);
   int main(void)
     {
-      int a, c;
-      double b;
-      a = 31 / 3;
-      b = 3.14;
-      c = a * b;
+      Point p1, p2, p3;
+      p1.x = N; p1.y=N;
+      p2.x = 1; p2.y = 2;
+      p3 = Point_add(p1, p2);
+      printf("%d %d\n", p3.x, p3.y);
+      return 0;
+    }
+    Point Point_add(Point a, Point b)
+    {
+      Point c;
+      c.x = a.x + b.x;
+      c.y = a.y + b.y;
       return c;
     }
 `;

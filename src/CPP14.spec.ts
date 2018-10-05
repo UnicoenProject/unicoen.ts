@@ -626,6 +626,35 @@ const testData = [
     node: null,
     stdout: 'head->item = 5\n',
   },
+  {
+    input: String.raw`
+    #define N 100;
+    typedef struct point Point;
+    struct point {
+      int x;
+      int y;
+    };
+    Point Point_add(Point, Point);
+    int main(void)
+    {
+      Point p1, p2, p3;
+      p1.x = N; p1.y=N;
+      p2.x = 1; p2.y = 2;
+      p3 = Point_add(p1, p2);
+      printf("%d %d\n", p3.x, p3.y);
+      return p3.x + p3.y;
+    }
+    Point Point_add(Point a, Point b)
+    {
+      Point c;
+      c.x = a.x + b.x;
+      c.y = a.y + b.y;
+      return c;
+    }`,
+    node: null,
+    ret: 203,
+    stdout: '101 102\n',
+  },
 ];
 
 describe('node exec', () => {
@@ -647,7 +676,7 @@ describe('mapper', () => {
   for (const test of testData) {
     const cmapper = new CPP14Mapper();
     const text = test.input;
-    const tree = cmapper.parse(text);
+    const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
     if (test.node != null) {
       it(test.input + ' node', () => {
         const node = test.node();

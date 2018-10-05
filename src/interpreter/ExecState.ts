@@ -206,7 +206,7 @@ export class ExecState {
         if (!scope.hasType(structType)) {
           return filedList;
         }
-        const classKey = scope.getType(structType);
+        const classKey = scope.getRawType(structType);
         if (classKey !== 'CLASS') {
           return filedList;
         }

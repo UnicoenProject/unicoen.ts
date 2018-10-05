@@ -68,11 +68,13 @@ export class Scope {
   readonly variableAddress: Map<string, number> = new Map();
   readonly variableTypes: Map<string, string> = new Map();
   readonly functionAddress: Map<string, number>;
+  readonly typedefList: Map<string, string>;
   readonly mallocData: Map<number, number>;
   readonly objectOnMemory: Map<number, any>;
   readonly typeOnMemory: Map<number, string>;
   private listeners: VariableNotFoundListener[] = null;
   private tempAddressForListener: number = -1;
+  private toReturnAddress: number = -1;
 
   private constructor(type: Type, parent: Scope) {
     this.parent = parent;
@@ -82,21 +84,25 @@ export class Scope {
       this.name = 'GLOBAL';
       this.global = this;
       this.address = new Address(0, 10000, 20000, 50000);
+      this.toReturnAddress = 0;
       this.mallocData = new Map();
       this.objectOnMemory = new Map();
       this.typeOnMemory = new Map();
       this.functionAddress = new Map();
+      this.typedefList = new Map();
     } else {
       parent.children.push(this);
       this.depth = parent.depth + 1;
       this.name = parent.name;
       this.global = parent.global;
       this.address = parent.address;
+      this.toReturnAddress = this.address.stackAddress;
       this.address.stackAddress++;
       this.mallocData = parent.mallocData;
       this.objectOnMemory = parent.objectOnMemory;
       this.typeOnMemory = parent.typeOnMemory;
       this.functionAddress = parent.functionAddress;
+      this.typedefList = parent.typedefList;
     }
   }
 
@@ -121,13 +127,29 @@ export class Scope {
 
   isStructType(type: string): boolean {
     try {
-      const offsets = this.get(type);
-      return (offsets instanceof Map);
+      const rawType = this.getTypedef(type);
+      const offsetsOrType = this.get(rawType);
+      if (offsetsOrType instanceof Map) {
+        return true;
+      }
+      return this.isStructType(offsetsOrType);
     } catch (err) {
       if (err instanceof UniRuntimeError) {
         return false;
       }
       throw err;
+    }
+  }
+
+  setTypedef(oldType: string, newType: string) {
+    this.typedefList.set(newType, oldType);
+  }
+
+  getTypedef(newType: string) {
+    if (this.typedefList.has(newType)) {
+      return this.typedefList.get(newType);
+    } else {
+      return newType;
     }
   }
 
@@ -171,30 +193,25 @@ export class Scope {
     return result;
   }
 
+  // typedefを考慮したgetType
+  getRawType(key: string | number): string {
+    return this.getTypedef(this.getType(key));
+  }
+
+  // 変数名 or 変数のアドレス
   getType(key: string | number): string {
-    const typedef = (type: string) => {
-      if (this.hasValue(type)) {
-        const offset = this.get(type);
-        if (offset instanceof Map) {
-          return type;
-        } else {
-          return offset;
-        }
-      }
-      return type;
-    };
     if (typeof key === 'string') {
       if (this.variableTypes.has(key)) {
-        return typedef(this.variableTypes.get(key));
+        return this.variableTypes.get(key);
       } else if (this.parent != null) {
-        return typedef(this.parent.getType(key));
+        return this.parent.getType(key);
       }
     }
     if (typeof key === 'number') {
       if (this.typeOnMemory.has(key)) {
-        return typedef(this.typeOnMemory.get(key));
+        return this.typeOnMemory.get(key);
       } else if (this.parent != null) {
-        return typedef(this.parent.getType(key));
+        return this.parent.getType(key);
       }
     }
 
@@ -263,49 +280,48 @@ export class Scope {
 
   setStruct(key: string, value: any, type: string) {
     // 構造体
-    if (this.isStructType(type)) {
-      // [offset, type]のタプル
-      const offsets: Map<string, number> = this.get(type);
-      let arr: any[] = null;
-      if (value instanceof Array) {
-        // 初期化リストあり
-        arr = value;
-        for (let i = arr.length; i < offsets.size; ++i) {
-          arr.push(0);
-        }
-      } else if (typeof value === 'number') {
-        // コピー
-        arr = [];
-        for (const valueofOffset of offsets.values()) {
-          let addr: number = value;
-          addr += valueofOffset[0];
-          const v: any = this.getValue(addr);
-          arr.push(v);
-        }
-      } else {
-        // 宣言のみ
-        arr = [];
-        for (let i = 0; i < offsets.size; ++i) {
-          arr.push(null);
-        }
+    const rawType = this.getTypedef(type);
+    // [offset, type]のタプル
+    const offsets: Map<string, number> = this.get(rawType);
+    let arr: any[] = null;
+    if (value instanceof Array) {
+      // 初期化リストあり
+      arr = value;
+      for (let i = arr.length; i < offsets.size; ++i) {
+        arr.push(0);
       }
-      let k = 0;
-      for (const [fieldName, valueofOffset] of offsets) {
-        const offset = valueofOffset[0];
-        const fieldType = valueofOffset[1];
-        const v = arr[k++];
-        Scope.assertNotUnicoen(value);
-        if (this.isStructType(fieldType)) {
-          this.typeOnMemory.set(this.address.stackAddress, fieldType);
-          // JSは関数の引数は左から評価される。
-          this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
-          this.setStruct(fieldName, v, fieldType);
-        } else if (v instanceof Array) {
-          this.setArray(fieldName, v, type, []);
-        } else {
-          this.typeOnMemory.set(this.address.stackAddress, fieldType);
-          this.objectOnMemory.set(this.address.stackAddress++, v);
-        }
+    } else if (typeof value === 'number') {
+      // コピー
+      arr = [];
+      for (const valueofOffset of offsets.values()) {
+        let addr: number = value;
+        addr += valueofOffset[0];
+        const v: any = this.getValue(addr);
+        arr.push(v);
+      }
+    } else {
+      // 宣言のみ
+      arr = [];
+      for (let i = 0; i < offsets.size; ++i) {
+        arr.push(null);
+      }
+    }
+    let k = 0;
+    for (const [fieldName, valueofOffset] of offsets) {
+      const offset = valueofOffset[0];
+      const fieldType = valueofOffset[1];
+      const v = arr[k++];
+      Scope.assertNotUnicoen(value);
+      if (this.isStructType(fieldType)) {
+        this.typeOnMemory.set(this.address.stackAddress, fieldType);
+        // JSは関数の引数は左から評価される。
+        this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
+        this.setStruct(fieldName, v, fieldType);
+      } else if (v instanceof Array) {
+        this.setArray(fieldName, v, type, []);
+      } else {
+        this.typeOnMemory.set(this.address.stackAddress, fieldType);
+        this.objectOnMemory.set(this.address.stackAddress++, v);
       }
     }
   }
@@ -313,7 +329,9 @@ export class Scope {
   /** 現在のスコープに新しい変数を定義し、代入します */
   setTop(key: string, value: any, type: string): void {
     Scope.assertNotUnicoen(value);
-    if (this.isStructType(type)) {
+    if (type === 'FUNCTION' || value instanceof UniFunctionDec) {
+      this.setPrimitiveOnCode(key, value, type);
+    } else if (this.isStructType(type)) {
       // 構造体
       this.setPrimitive(key, this.address.stackAddress + 1, type);
       this.setStruct(key, value, type);
@@ -338,8 +356,6 @@ export class Scope {
         this.setPrimitiveOnCode(key, address, type + '[' + dim.join('][') + ']');
         this.setArray(key, arr, type, dim.slice(1));
       }
-    } else if (type === 'FUNCTION' || value instanceof UniFunctionDec) {
-      this.setPrimitiveOnCode(key, value, type);
     } else {
       // 組み込み型の場合
       this.setPrimitive(key, value, type);
@@ -350,7 +366,7 @@ export class Scope {
   set(addr: number, value: any): void {
     Scope.assertNotUnicoen(value);
     if (this.objectOnMemory.has(addr)) {
-      const type: string = this.getType(addr);
+      const type: string = this.getRawType(addr);
       if (this.isStructType(type)) {
         const offsets: Map<string, number> = this.get(type);
         for (const valueOfOffset of offsets.values()) {
@@ -373,7 +389,12 @@ export class Scope {
   }
 
   removeChild(scope: Scope): boolean {
-    return this.children.remove(scope);
+    const toReturnAddress = scope.toReturnAddress;
+    if (this.children.remove(scope) ) {
+      this.address.stackAddress = toReturnAddress;
+      return true;
+    }
+    return false;
   }
 
   getNextName(funcName: string): string {

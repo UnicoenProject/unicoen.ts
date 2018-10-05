@@ -22,7 +22,7 @@ import {
 } from '.';
 
 const wrapMainFunction = (text: string) => {
-  return String.raw`public class Aisatsu {
+  return String.raw`public class Main {
     public static void main(String[] args) {
       ${text}
     }

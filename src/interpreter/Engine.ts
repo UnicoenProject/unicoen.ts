@@ -269,7 +269,7 @@ export class Engine {
         );
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
-        let type: string = scope.getType(startAddress - 1);
+        let type: string = scope.getRawType(startAddress - 1);
         if (ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
           while (type.endsWith('*')) {
             type = type.substring(0, type.length - 1);
@@ -281,10 +281,6 @@ export class Engine {
       }
     }
     throw new RuntimeException('Assignment failure: ' + expr);
-  }
-
-  protected execMethod(arg0: any, arg1: any, arg2: any): any {
-    throw new Error('execMethod not implemented.');
   }
 
   protected *execArray(uniArray: UniArray, scope: Scope) {
@@ -300,36 +296,10 @@ export class Engine {
   protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
     for (const def of decVar.variables) {
-      value = null; // 2これがないと個目以降に残ってしまう。
-      while (def.name.startsWith('*')) {
-        def.name = def.name.substring(1);
-        decVar.type += '*';
-      }
-      while (def.name.startsWith('&')) {
-        def.name = def.name.substring(1);
-        decVar.type += '&';
-      }
-
       // 初期化されている場合
       if (def.value != null) {
         value = yield* this.execExpr(def.value, scope);
         value = this._execCast(decVar.type, value);
-        if (decVar.type.endsWith('*') && !Array.isArray(value)) {
-          if (value instanceof String) {
-            value = scope.setStatic(value, 'char[]');
-          } else {
-            const address = value as number;
-            if (scope.isMallocArea(address)) {
-              const size: number = scope.getMallocSize(address);
-              // tslint:disable-next-line:no-shadowed-variable
-              const type = decVar.type.substring(0, decVar.type.length - 1);
-              const typeSize = this.sizeof(type);
-              for (let i = 0; i < size; i += typeSize) {
-                scope.typeOnMemory.set(address + i, type);
-              }
-            }
-          }
-        }
       }
 
       // 配列の場合
@@ -379,12 +349,7 @@ export class Engine {
           }
         }
       }
-      let type: string = decVar.type;
-      if (decVar.modifiers.includes('typedef')) {
-        value = type;
-        type = 'CLASS';
-      }
-      scope.setTop(def.name, value, type);
+      scope.setTop(def.name, value, decVar.type);
     }
     return value;
   }
@@ -725,7 +690,7 @@ export class Engine {
   }
 
   protected execAssign(address: number, value: any, scope: Scope): any {
-    const type: string = scope.getType(address);
+    const type: string = scope.getRawType(address);
     value = this._execCast(type, value);
     scope.set(address, value);
     if (type && type.endsWith('*')) {
@@ -785,6 +750,41 @@ export class Engine {
     const a = math.pow(2, 32);
     const v = math.randomInt(0, a as number);
     return v;
+  }
+
+  protected *execMethoodCall(mc: UniMethodCall, scope: Scope) {
+    const args: any[] = [];
+    for (let i = 0; mc.args !== null && i < mc.args.length; i++) {
+      args.push(yield* this.execExpr(mc.args[i], scope));
+    }
+    this.currentScope = scope;
+    let ret: any = null;
+    if (mc.receiver != null) {
+      if (mc.receiver instanceof UniArray) {
+        const item = mc.receiver.items;
+        let rec = yield* this.execExpr(item[0], scope);
+        for (let i = 1; i < item.length; ++i) {
+          if (item[i] instanceof UniIdent) {
+            rec = rec[(item[i] as UniIdent).name];
+          } else {
+            rec = rec[yield* this.execExpr(item[i], scope)];
+          }
+        }
+        ret = yield* this.execFuncCall(rec[mc.methodName.name], args);
+      } else {
+        const receiver: any = yield* this.execExpr(mc.receiver, scope);
+        ret = yield* this.execFuncCall(receiver[mc.methodName.name], args);
+      }
+    } else {
+      const func: any = scope.get(mc.methodName.name);
+      if (func instanceof UniFunctionDec) {
+        ret = yield* this.execFunc(func, scope, mc.args);
+      } else {
+        ret = yield* this.execFuncCall(func, args);
+      }
+    }
+    this.currentScope = null;
+    return ret;
   }
 
   private clearStdout() {
@@ -888,39 +888,7 @@ export class Engine {
     } else if (expr instanceof UniDecralation) {
       return yield* this.execDecralation(expr, scope);
     } else if (expr instanceof UniMethodCall) {
-      const mc = expr as UniMethodCall;
-      const args: any[] = [];
-      for (let i = 0; mc.args !== null && i < mc.args.length; i++) {
-        args.push(yield* this.execExpr(mc.args[i], scope));
-      }
-      this.currentScope = scope;
-      let ret: any = null;
-      if (mc.receiver != null) {
-        if (mc.receiver instanceof UniArray) {
-          const item = mc.receiver.items;
-          let rec = yield* this.execExpr(item[0], scope);
-          for (let i = 1; i < item.length; ++i) {
-            if (item[i] instanceof UniIdent) {
-              rec = rec[(item[i] as UniIdent).name];
-            } else {
-              rec = rec[yield* this.execExpr(item[i], scope)];
-            }
-          }
-          ret = yield* this.execMethodCall(rec, mc.methodName.name, args);
-        } else {
-          const receiver: any = yield* this.execExpr(mc.receiver, scope);
-          ret = yield* this.execMethodCall(receiver, mc.methodName.name, args);
-        }
-      } else {
-        const func: any = scope.get(mc.methodName.name);
-        if (func instanceof UniFunctionDec) {
-          ret = yield* this.execFunc(func, scope, mc.args);
-        } else {
-          ret = yield* this.execFuncCall(func, args);
-        }
-      }
-      this.currentScope = null;
-      return ret;
+      return yield* this.execMethoodCall(expr, scope);
     } else if (expr instanceof UniIdent) {
       const ret = scope.get((expr as UniIdent).name);
       yield ret;
@@ -1041,9 +1009,5 @@ export class Engine {
       return ret;
     }
     throw new Error('Not support function type: ' + func);
-  }
-
-  private *execMethodCall(receiver: any, name: string, args: any[]): any {
-    return yield* this.execFuncCall(receiver[name], args);
   }
 }

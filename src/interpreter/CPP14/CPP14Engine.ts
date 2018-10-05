@@ -10,6 +10,7 @@ import { UniIntLiteral } from '../../node/UniIntLiteral';
 import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniStringLiteral } from '../../node/UniStringLiteral';
 import { UniUnaryOp } from '../../node/UniUnaryOp';
+import { UniVariableDec } from '../../node/UniVariableDec';
 import { Engine, Exit } from '../Engine';
 import { File } from '../File';
 import { Scope } from '../Scope';
@@ -705,6 +706,7 @@ export class CPP14Engine extends Engine {
           expr.expr instanceof UniIdent
         ) {
           let type: string = this.getType(expr.expr, scope);
+          type = scope.getTypedef(type);
           while (type.endsWith('*')) {
             type = type.substring(0, type.length - 1);
           }
@@ -777,6 +779,98 @@ export class CPP14Engine extends Engine {
         }
     }
     return yield* super.execUnaryOp(uniOp, scope);
+  }
+
+  protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
+    let value = null;
+    for (const def of decVar.variables) {
+      value = null; // 2これがないと個目以降に残ってしまう。
+      while (def.name.startsWith('*')) {
+        def.name = def.name.substring(1);
+        decVar.type += '*';
+      }
+      while (def.name.startsWith('&')) {
+        def.name = def.name.substring(1);
+        decVar.type += '&';
+      }
+
+      // 初期化されている場合
+      if (def.value != null) {
+        value = yield* this.execExpr(def.value, scope);
+        value = this._execCast(decVar.type, value);
+        if (decVar.type.endsWith('*') && !Array.isArray(value)) {
+          if (value instanceof String) {
+            value = scope.setStatic(value, 'char[]');
+          } else {
+            const address = value as number;
+            if (scope.isMallocArea(address)) {
+              const size: number = scope.getMallocSize(address);
+              // tslint:disable-next-line:no-shadowed-variable
+              const type = decVar.type.substring(0, decVar.type.length - 1);
+              const typeSize = this.sizeof(type);
+              for (let i = 0; i < size; i += typeSize) {
+                scope.typeOnMemory.set(address + i, type);
+              }
+            }
+          }
+        }
+      }
+
+      // 配列の場合
+      let length = 0;
+      if (def.typeSuffix != null && def.typeSuffix !== '') {
+        const sizes: number[] = [];
+        const typeSuffix: string = def.typeSuffix;
+        for (let k = 0; k < typeSuffix.length; ++k) {
+          const left = typeSuffix.indexOf('[', k);
+          const right = typeSuffix.indexOf(']', k);
+          const size = typeSuffix.slice(left + 1, right);
+          sizes.push(Number.parseInt(size, 10));
+          k = right;
+        }
+        if (0 < sizes.length) {
+          if (sizes.length === 1) {
+            length = sizes[0];
+            if (value != null) {
+              // 初期化している場合。
+              for (let i = value.length; i < length; ++i) {
+                value.push(0);
+              }
+            } else {
+              value = [];
+              for (let i = 0; i < length; ++i) {
+                value.push(this.randInt32());
+              }
+            }
+          } else if (sizes.length === 2) {
+            length = sizes[0];
+            if (value != null) {
+              // 初期化している場合。
+              for (let i = value.length; i < length; ++i) {
+                value.push(0);
+              }
+            } else {
+              value = [];
+              for (let i = 0; i < length; ++i) {
+                const value2 = [];
+                const length2 = sizes[1];
+                for (let k = 0; k < length2; ++k) {
+                  value2.push(this.randInt32());
+                }
+                value.push(value2);
+              }
+            }
+          }
+        }
+      }
+
+      if (decVar.modifiers.includes('typedef')) {
+        scope.setTypedef(decVar.type, def.name);
+      } else {
+        scope.setTop(def.name, value, decVar.type);
+      }
+    }
+    return value;
   }
 
   protected *execBinOp(arg: string | UniBinOp, scope: Scope, left?: UniExpr, right?: UniExpr): any {

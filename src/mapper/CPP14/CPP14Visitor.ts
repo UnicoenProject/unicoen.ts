@@ -80,6 +80,7 @@ import { DeclarationstatementContext } from './CPP14Parser';
 import { DeclarationseqContext } from './CPP14Parser';
 import { MyclassbodyContext } from './CPP14Parser';
 import { MyclassspecifierContext } from './CPP14Parser';
+import { MyclassspecifierstatementContext } from './CPP14Parser';
 import { MyclassheadContext } from './CPP14Parser';
 import { DeclarationContext } from './CPP14Parser';
 import { BlockdeclarationwithoutsimpledeclarationContext } from './CPP14Parser';
@@ -788,6 +789,13 @@ export interface CPP14Visitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitMyclassspecifier?: (ctx: MyclassspecifierContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `CPP14Parser.myclassspecifierstatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitMyclassspecifierstatement?: (ctx: MyclassspecifierstatementContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `CPP14Parser.myclasshead`.
