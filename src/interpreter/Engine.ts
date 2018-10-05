@@ -436,10 +436,12 @@ export class Engine {
 
   protected *execIf(ui: UniIf, scope: Scope) {
     const cond = this.toBool(yield* this.execExpr(ui.cond, scope));
-    if (cond) {
-      return yield* this.execExpr(ui.trueStatement, scope);
-    } else if (ui.falseStatement != null) {
-      return yield* this.execExpr(ui.falseStatement, scope);
+    const nextStatement: UniStatement = cond ? ui.trueStatement : ui.falseStatement;
+    if (nextStatement) {
+      if (!(nextStatement instanceof UniBlock)) {
+        yield* this.stopByYield(cond, nextStatement);
+      }
+      return yield* this.execExpr(nextStatement, scope);
     }
   }
 
@@ -497,6 +499,7 @@ export class Engine {
           throw e;
         }
       }
+      yield* this.stopByYield(ret, uw.cond);
     }
     return ret;
   }
@@ -518,6 +521,7 @@ export class Engine {
           throw e;
         }
       }
+      yield* this.stopByYield(ret, udw.cond);
     } while (this.toBool(yield* this.execExpr(udw.cond, scope)));
     return ret;
   }
@@ -882,7 +886,9 @@ export class Engine {
 
   // tslint:disable-next-line:function-name
   private *_execExpr(expr: UniExpr, scope: Scope): any {
-    console.assert(expr != null);
+    if (expr === null) {
+      console.assert(expr != null);
+    }
     if (expr instanceof UniStatement) {
       return yield* this.execStatement(expr, scope);
     } else if (expr instanceof UniDecralation) {
