@@ -3,33 +3,46 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  int main() {
-    int inum;
-    char ptr[5];
-  
-    inum = atoi("123");
-    printf("inum=%d\n", inum);/* 123 */
-  
-    inum = atoi("abc");
-    printf("inum=%d\n", inum);/* 0 */
-  
-    inum = atoi("1a2b3c");
-    printf("inum=%d\n", inum);/* 1 */
-  
-    inum = atoi("a7b8c9");
-    printf("inum=%d\n", inum);/* 0 */
-  
-    inum = atoi("");
-    printf("inum=%d\n", inum);/* 0 */
-  
-    ptr[0] = '\0';
-    inum = atoi(&ptr[0]);
-    printf("inum=%d\n", inum);/* 0 */
-  
-    ptr[0] = '1'; ptr[1] = '2'; ptr[2] = '3'; ptr[3] = '\0';
-    inum = atoi(ptr);
-    printf("inum=%d\n", inum);/* 123 */
-  }
+  #include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+	char str1[10], str2[10];
+	int i;
+  scanf("%d", &i);
+	printf("第1の文字列を入力してください: ");
+	scanf("%s", str1);
+	printf("第2の文字列を入力してください: ");
+	scanf("%s", str2);
+
+	/* 文字列の長さを確認する */
+	printf("%s は %d 文字の長さです\n", str1, strlen(str1));
+	printf("%s は %d 文字の長さです\n", str2, strlen(str2));
+	
+
+	/* 文字列を比較する */
+	i = strcmp(str1, str2);
+	if (!i)
+		printf(" 文字列が等しい.\n");
+	else if (i<0)
+		printf("%sは %s\nより小さい\n",str1,str2);
+	else
+		printf("%sは %s\nより大きい\n", str1, str2);
+
+	/* 十分なスペースがあればstr2をstr1の最後に連結する */
+	if (strlen(str1) + strlen(str2) < 80)
+	{
+		strcat(str1, str2);
+		printf("%s\n", str1);
+	}
+
+	/* str2をstr1にコピーする*/
+	strcpy(str1, str2);
+	printf("%s %s\n", str1, str2);
+	
+	return 0;
+}
 `;
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));

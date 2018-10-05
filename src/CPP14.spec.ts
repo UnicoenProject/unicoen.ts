@@ -549,7 +549,7 @@ const testData = [
       }
     }`,
     stdin: '15',
-    stdout: '15\n15! = 1307674368000\n',
+    stdout: '15! = 1307674368000\n',
   },
   {
     input: String.raw`int main()

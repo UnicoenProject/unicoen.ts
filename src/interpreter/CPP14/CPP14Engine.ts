@@ -182,14 +182,29 @@ export class CPP14Engine extends Engine {
     global.setTop(
       'scanf',
       function*() {
-        this.setIsWaitingForStdin(true); // yield and set stdin
+        const isStdinEmpty = this.getStdin() === '';
+        if (isStdinEmpty) {
+          this.setIsWaitingForStdin(true); // yield and set stdin
+        }
         ////////////////////////////////////////////
         const args = yield; // get args from next(args) from execUniMethodCall
         ////////////////////////////////////////////
-        const input = this.getStdin();
+        const stdin: string = this.getStdin();
         this.clearStdin();
-        this.stdout(input + '\n');
-        this.setIsWaitingForStdin(false);
+        if (isStdinEmpty) {
+          this.stdout(stdin + '\n');
+        }
+        let input = stdin.trim();
+        const spacePos = input.search(/\s/);
+
+        if (0 <= spacePos) {
+          this.stdin(input.substr(spacePos + 1));
+          input = input.substring(0, spacePos);
+        }
+        if (isStdinEmpty) {
+          this.setIsWaitingForStdin(false);
+        }
+
         if (!Array.isArray(args) || args.length === 0) {
           return 0;
         }
@@ -206,7 +221,7 @@ export class CPP14Engine extends Engine {
             if (1 < valueStr.length) {
               try {
                 const bytes: number[] = CPP14Engine.strToBytes(valueStr);
-                for (let k = 0; k < valueStr.length(); ++k) {
+                for (let k = 0; k < bytes.length; ++k) {
                   this.currentScope.set(addr + k, bytes[k]);
                 }
               } catch (e) {
