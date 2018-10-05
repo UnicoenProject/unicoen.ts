@@ -455,6 +455,25 @@ export class CPP14Engine extends Engine {
       },
       'FUNCTION',
     );
+    global.setTop(
+      'atoi',
+      (str: number|number[]) => {
+        const bytes = Array.isArray(str) ? str : CPP14Engine.getCharArrAsByte(global.objectOnMemory, str);
+        let buf = '';
+        for (const byte of bytes) {
+          if ('0'.charCodeAt(0) <= byte && byte <= '9'.charCodeAt(0)) {
+            buf += String.fromCharCode(byte);
+          } else {
+            break;
+          }
+        }
+        if (buf === '') {
+          return 0;
+        }
+        return Number(buf);
+      },
+      'FUNCTION',
+    );
   }
 
   protected includeMath(global: Scope) {

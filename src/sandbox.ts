@@ -3,12 +3,33 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  int main()
-    {
-      int count[4][5];
-      count[2][3] = 10;
-      return count[2][3];
-    }
+  int main() {
+    int inum;
+    char ptr[5];
+  
+    inum = atoi("123");
+    printf("inum=%d\n", inum);/* 123 */
+  
+    inum = atoi("abc");
+    printf("inum=%d\n", inum);/* 0 */
+  
+    inum = atoi("1a2b3c");
+    printf("inum=%d\n", inum);/* 1 */
+  
+    inum = atoi("a7b8c9");
+    printf("inum=%d\n", inum);/* 0 */
+  
+    inum = atoi("");
+    printf("inum=%d\n", inum);/* 0 */
+  
+    ptr[0] = '\0';
+    inum = atoi(&ptr[0]);
+    printf("inum=%d\n", inum);/* 0 */
+  
+    ptr[0] = '1'; ptr[1] = '2'; ptr[2] = '3'; ptr[3] = '\0';
+    inum = atoi(ptr);
+    printf("inum=%d\n", inum);/* 123 */
+  }
 `;
   const cmapper = new CPP14Mapper();
   const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
