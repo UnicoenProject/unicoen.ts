@@ -318,7 +318,7 @@ export class Scope {
         this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
         this.setStruct(fieldName, v, fieldType);
       } else if (v instanceof Array) {
-        this.setArray(v, type, [v.length], false);
+        this.setArray(v, type, [v.length]);
       } else {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
         this.objectOnMemory.set(this.address.stackAddress++, v);
@@ -352,7 +352,7 @@ export class Scope {
             ar = ar[0];
           }
         }
-        const addr = this.setArray(arr, type, dims.slice(1), true);
+        const addr = this.setArray(arr, type, dims.slice(1));
         this.setPrimitiveOnCode(key, addr, type + '[' + dims.join('][') + ']');
       }
     } else {
@@ -440,13 +440,13 @@ export class Scope {
     return addr[member]++;
   }
 
-  private setArray(value: any[], type: string, dims: number[], isTop: boolean): number {
+  private setArray(value: any[], type: string, dims: number[]): number {
     Scope.assertNotUnicoen(value);
     let ret = null;
     const addrs: number[] = [];
     if (value.every((v: any) => Array.isArray(v))) {
       for (const v of value) {
-        const addr = this.setArray(v, type, dims.slice(1), false);
+        const addr = this.setArray(v, type, dims.slice(1));
         addrs.push(addr);
       }
       if (ret == null) {
