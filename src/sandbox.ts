@@ -4,21 +4,22 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 try {
   const text = String.raw`
   int main() {
-    int sqr[3][3] = {
-    1, 2, 3,
-    {4, 5},
-    {7}
-    };
-    for (int i = 0; i < 3; ++i) {
+    int sqr[2][3][4];
+    for (int i = 0; i < 2; ++i) {
       for (int k = 0; k < 3; ++k) {
-        printf("%d,", sqr[i][k]);
+        for (int m = 0; m < 4; ++m) {
+          printf("%d,", sqr[i][k][m]);
+        }
+        printf("\n");
       }
+      printf("\n");
     }
-    int* start = &sqr[0][0];
-    for (int i = 0; i < 9; ++i) {
+    printf("\n");
+    int* start = &sqr[0][0][0];
+    for (int i = 0; i < 24; ++i) {
       printf("%d,", start[i]);
     }
-    return start[5];
+    return 0;
   }
 `;
   const cmapper = new CPP14Mapper();
@@ -41,7 +42,6 @@ try {
   const state = engine.getCurrentState().make();
   console.log(r);
   console.log(out);
-  console.log(state);
 } catch (e) {
   console.error(e);
 }

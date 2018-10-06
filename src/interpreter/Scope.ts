@@ -344,17 +344,17 @@ export class Scope {
         this.setPrimitive(key, this.address.codeAddress, type);
         this.setStringOnCode(arr);
       } else {
-        const dim: number[] = [];
+        const dims: number[] = [];
         let ar = arr;
         while (Array.isArray(ar)) {
-          dim.push(ar.length);
+          dims.push(ar.length);
           if (0 < ar.length) {
             ar = ar[0];
           }
         }
-        const address = dim.length <= 1 ? this.address.stackAddress : this.address.codeAddress + 1;
-        this.setPrimitiveOnCode(key, address, type + '[' + dim.join('][') + ']');
-        this.setArray(key, arr, type, dim.slice(1));
+        const address = dims.length <= 1 ? this.address.stackAddress : this.address.codeAddress + 1;
+        this.setPrimitiveOnCode(key, address, type + '[' + dims.join('][') + ']');
+        this.setArray(key, arr, type, dims.slice(1));
       }
     } else {
       // 組み込み型の場合
@@ -445,7 +445,8 @@ export class Scope {
     Scope.assertNotUnicoen(value);
     for (const v of value) {
       if (v instanceof Array) {
-        this.setAreaImple(this.address.stackAddress, type + '[' + dims.join('][') + ']', this.address, 'codeAddress');
+        const address = dims.length <= 1 ? this.address.stackAddress : this.address.codeAddress + 1;
+        this.setAreaImple(address, type + '[' + dims.join('][') + ']', this.address, 'codeAddress');
         this.setArray(key, v, type, dims.slice(1));
       } else {
         this.setAreaImple(v, type, this.address, 'stackAddress');

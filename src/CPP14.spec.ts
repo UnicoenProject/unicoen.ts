@@ -692,21 +692,30 @@ inum=123
   {
     input: String.raw`
     int main() {
-      int sqr[3][3] = {
-      1, 2, 3,
-      {4, 5},
-      {7}
-      };
-      for (int i = 0; i < 3; ++i) {
-        for (int k = 0; k < 3; ++k) {
-          printf("%d,", sqr[i][k]);
+      {
+        int sqr[3][3] = {
+        1, 2, 3,
+        {4, 5},
+        {7}
+        };
+        for (int i = 0; i < 3; ++i) {
+          for (int k = 0; k < 3; ++k) {
+            printf("%d,", sqr[i][k]);
+          }
         }
       }
-      int* start = &sqr[0][0];
-      for (int i = 0; i < 9; ++i) {
-        printf("%d,", start[i]);
+      {
+        int sqr[][3] = {
+          1, 2, 3,
+          {4, 5},
+          {7}
+          };
+          int* start = &sqr[0][0];
+          for (int i = 0; i < 9; ++i) {
+            printf("%d,", start[i]);
+          }
       }
-      return start[5];
+      return 0;
     }`,
     stdout: '1,2,3,4,5,0,7,0,0,1,2,3,4,5,0,7,0,0,',
   },

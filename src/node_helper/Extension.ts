@@ -4,6 +4,7 @@ declare interface Array<T> {
   equals(array: T[]): boolean;
   isEmpty(): boolean;
   remove(obj: T): boolean;
+  divide(n: number): T[];
 }
 
 // Warn if overriding existing method
@@ -68,6 +69,33 @@ Array.prototype.remove = function(obj) {
 };
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, 'remove', { enumerable: false });
+
+if (Array.prototype.divide) {
+  console.warn(
+    "Overriding existing Array.prototype.divide. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.",
+  );
+}
+
+Array.prototype.divide = function(n) {
+  const ary = this;
+  let idx = 0;
+  const results = [];
+  const length = ary.length;
+  if (n === length) {
+    return this;
+  }
+  while (idx + n < length) {
+      const result = ary.slice(idx, idx + n);
+      results.push(result);
+      idx = idx + n;
+  }
+
+  const rest = ary.slice(idx, length + 1);
+  results.push(rest);
+  return results;
+};
+// Hide method from for-in loops
+Object.defineProperty(Array.prototype, 'divide', { enumerable: false });
 
 interface Map<K, V> {
   containsKey(key: K): boolean;

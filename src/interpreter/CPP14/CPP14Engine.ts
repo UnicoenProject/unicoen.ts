@@ -895,7 +895,6 @@ export class CPP14Engine extends Engine {
       }
 
       // 配列の場合
-      let length = 0;
       if (def.typeSuffix != null && def.typeSuffix !== '') {
         const sizes: number[] = [];
         const typeSuffix: string = def.typeSuffix;
@@ -907,53 +906,54 @@ export class CPP14Engine extends Engine {
           k = right;
         }
         if (0 < sizes.length) {
-          if (sizes.length === 1) {
-            length = sizes[0];
-            if (value != null) {
-              // 初期化している場合。
-              for (let i = value.length; i < length; ++i) {
-                value.push(new Int(0));
-              }
-            } else {
-              value = [];
-              for (let i = 0; i < length; ++i) {
-                value.push(this._execCast(decVar.type, this.randInt32()));
-              }
+          if (value === null) {
+            // 初期化リストがない場合
+            const sum = sizes.reduce((pre: number, cur: number) => pre * cur, 1);
+            value = Array(sum).fill(0).map(() => this._execCast(decVar.type, this.randInt32()));
+            for (const size of sizes.reverse()) {
+              value = value.divide(size);
             }
-          } else if (sizes.length === 2) {
-            length = sizes[0];
-            if (value != null) {
-              // 初期化リストがある。
+          } else {
+            if (sizes.length === 1) {
+              if (!isNaN(sizes[0])) {
+                // 要素数が指定されている場合
+                for (let i = value.length; i < sizes[0]; ++i) {
+                  value.push(new Int(0));
+                }
+              }
+              // 要素数が省略されている場合はvalueをそのまま使う
+            } else if (sizes.length === 2) {
+              // 初期化リストがある場合
               const value1 = [];
               let offset = 0;
-              for (let i = 0; i < length; ++i) {
+              const length2 = sizes[1];
+              const makeArray = () => {
                 if (Array.isArray(value[offset])) {
                   const value2 = value[offset++];
-                  const length2 = sizes[1];
                   for (let k = value2.length; k < length2; ++k) {
                     value2.push(new Int(0));
                   }
-                  value1.push(value2);
+                  return value2;
                 } else {
                   const value2 = [];
-                  const length2 = sizes[1];
                   for (let k = 0; k < length2; ++k) {
                     value2.push(value[offset++]);
                   }
-                  value1.push(value2);
+                  return value2.map((v: any) => Array.isArray(v) && v.length === 1 ? v[0] : v);
+                }
+              };
+              if (!isNaN(sizes[0])) {
+                // 要素数が指定されている場合
+                for (let i = 0; i < sizes[0]; ++i) {
+                  value1.push(makeArray());
+                }
+              } else {
+                // 1つ目の要素数が省略されている場合
+                while (offset < value.length) {
+                  value1.push(makeArray());
                 }
               }
               value = value1;
-            } else {
-              value = [];
-              for (let i = 0; i < length; ++i) {
-                const value2 = [];
-                const length2 = sizes[1];
-                for (let k = 0; k < length2; ++k) {
-                  value2.push(this._execCast(decVar.type, this.randInt32()));
-                }
-                value.push(value2);
-              }
             }
           }
         }
