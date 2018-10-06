@@ -954,6 +954,38 @@ export class CPP14Engine extends Engine {
                 }
               }
               value = value1;
+            } else if (sizes.length === 3) {
+              // 初期化リストがある場合
+              const value1 = [];
+              let offset = 0;
+              const length2 = sizes[1];
+              const makeArray = (valueLocal: any[], length: number) => {
+                if (Array.isArray(valueLocal[offset])) {
+                  const buf = valueLocal[offset++];
+                  for (let k = buf.length; k < length; ++k) {
+                    buf.push(new Int(0));
+                  }
+                  return buf;
+                } else {
+                  const buf = [];
+                  for (let k = 0; k < length; ++k) {
+                    buf.push(valueLocal[offset++]);
+                  }
+                  return buf.map((v: any) => Array.isArray(v) && v.length === 1 ? v[0] : v);
+                }
+              };
+              if (!isNaN(sizes[0])) {
+                // 要素数が指定されている場合
+                for (let i = 0; i < sizes[0]; ++i) {
+                  value1.push(makeArray(value, length2));
+                }
+              } else {
+                // 1つ目の要素数が省略されている場合
+                while (offset < value.length) {
+                  value1.push(makeArray(value, length2));
+                }
+              }
+              value = value1;
             }
           }
         }

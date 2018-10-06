@@ -318,7 +318,7 @@ export class Scope {
         this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
         this.setStruct(fieldName, v, fieldType);
       } else if (v instanceof Array) {
-        this.setArray(fieldName, v, type, []);
+        this.setArray(v, type, [v.length], false);
       } else {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
         this.objectOnMemory.set(this.address.stackAddress++, v);
@@ -352,9 +352,8 @@ export class Scope {
             ar = ar[0];
           }
         }
-        const address = dims.length <= 1 ? this.address.stackAddress : this.address.codeAddress + 1;
-        this.setPrimitiveOnCode(key, address, type + '[' + dims.join('][') + ']');
-        this.setArray(key, arr, type, dims.slice(1));
+        const addr = this.setArray(arr, type, dims.slice(1), true);
+        this.setPrimitiveOnCode(key, addr, type + '[' + dims.join('][') + ']');
       }
     } else {
       // 組み込み型の場合
@@ -441,17 +440,30 @@ export class Scope {
     return addr[member]++;
   }
 
-  private setArray(key: string, value: any[], type: string, dims: number[]): void {
+  private setArray(value: any[], type: string, dims: number[], isTop: boolean): number {
     Scope.assertNotUnicoen(value);
-    for (const v of value) {
-      if (v instanceof Array) {
-        const address = dims.length <= 1 ? this.address.stackAddress : this.address.codeAddress + 1;
-        this.setAreaImple(address, type + '[' + dims.join('][') + ']', this.address, 'codeAddress');
-        this.setArray(key, v, type, dims.slice(1));
-      } else {
-        this.setAreaImple(v, type, this.address, 'stackAddress');
+    let ret = null;
+    const addrs: number[] = [];
+    if (value.every((v: any) => Array.isArray(v))) {
+      for (const v of value) {
+        const addr = this.setArray(v, type, dims.slice(1), false);
+        addrs.push(addr);
+      }
+      if (ret == null) {
+        ret = this.address.codeAddress;
+      }
+      for (const addr of addrs) {
+        this.setAreaImple(addr, type + '[' + dims.join('][') + ']', this.address, 'codeAddress');
+      }
+    } else {
+      for (const v of value) {
+        const addr = this.setAreaImple(v, type, this.address, 'stackAddress');
+        if (ret == null) {
+          ret = addr;
+        }
       }
     }
+    return ret;
   }
 
   private setStringOnCode(value: any[]): void {
