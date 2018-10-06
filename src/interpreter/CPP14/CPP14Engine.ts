@@ -914,6 +914,67 @@ export class CPP14Engine extends Engine {
               value = value.divide(size);
             }
           } else {
+            const make2array = (valueLocal: any[], sizesLocal: number[]) => {
+              const value1 = [];
+              const length = sizesLocal[1];
+              let offset = 0;
+              const makeArray = () => {
+                if (Array.isArray(valueLocal[offset])) {
+                  const value2 = valueLocal[offset++];
+                  for (let k = value2.length; k < length; ++k) {
+                    value2.push(new Int(0));
+                  }
+                  return value2;
+                } else {
+                  const value2 = [];
+                  for (let k = 0; k < length; ++k) {
+                    const v = valueLocal[offset];
+                    if (Array.isArray(v) && 2 <= v.length) {
+                      for (; k < length; ++k) {
+                        value2.push(new Int(0));
+                      }
+                    } else {
+                      value2.push(v);
+                      ++offset;
+                    }
+                  }
+                  return value2.map((v: any) => Array.isArray(v) && v.length === 1 ? v[0] : v);
+                }
+              };
+              if (!isNaN(sizesLocal[0])) {
+                // 要素数が指定されている場合
+                for (let i = 0; i < sizesLocal[0]; ++i) {
+                  value1.push(makeArray());
+                }
+              } else {
+                // 1つ目の要素数が省略されている場合
+                while (offset < valueLocal.length) {
+                  value1.push(makeArray());
+                }
+              }
+              return value1;
+            };
+            const makeNarray = (n: number, valueLocal: any[], sizesLocal: number[]) => {
+              const value1 = [];
+              if (!isNaN(sizesLocal[0])) {
+                // 要素数が指定されている場合
+                for (let i = 0; i < sizesLocal[0]; ++i) {
+                  let value2 = null;
+                  if (n === 3) {
+                    value2 = make2array(valueLocal[i], sizes.slice(1));
+                  } else {
+                    value2 = makeNarray(n - 1, valueLocal[i], sizes.slice(1));
+                  }
+                  value1.push(value2);
+                }
+              } else {
+                // 1つ目の要素数が省略されている場合
+                for (const v of valueLocal) {
+                  value1.push(makeNarray(n - 1, v, sizes.slice(1)));
+                }
+              }
+              return value1;
+            };
             if (sizes.length === 1) {
               if (!isNaN(sizes[0])) {
                 // 要素数が指定されている場合
@@ -923,69 +984,9 @@ export class CPP14Engine extends Engine {
               }
               // 要素数が省略されている場合はvalueをそのまま使う
             } else if (sizes.length === 2) {
-              // 初期化リストがある場合
-              const value1 = [];
-              let offset = 0;
-              const length2 = sizes[1];
-              const makeArray = () => {
-                if (Array.isArray(value[offset])) {
-                  const value2 = value[offset++];
-                  for (let k = value2.length; k < length2; ++k) {
-                    value2.push(new Int(0));
-                  }
-                  return value2;
-                } else {
-                  const value2 = [];
-                  for (let k = 0; k < length2; ++k) {
-                    value2.push(value[offset++]);
-                  }
-                  return value2.map((v: any) => Array.isArray(v) && v.length === 1 ? v[0] : v);
-                }
-              };
-              if (!isNaN(sizes[0])) {
-                // 要素数が指定されている場合
-                for (let i = 0; i < sizes[0]; ++i) {
-                  value1.push(makeArray());
-                }
-              } else {
-                // 1つ目の要素数が省略されている場合
-                while (offset < value.length) {
-                  value1.push(makeArray());
-                }
-              }
-              value = value1;
-            } else if (sizes.length === 3) {
-              // 初期化リストがある場合
-              const value1 = [];
-              let offset = 0;
-              const length2 = sizes[1];
-              const makeArray = (valueLocal: any[], length: number) => {
-                if (Array.isArray(valueLocal[offset])) {
-                  const buf = valueLocal[offset++];
-                  for (let k = buf.length; k < length; ++k) {
-                    buf.push(new Int(0));
-                  }
-                  return buf;
-                } else {
-                  const buf = [];
-                  for (let k = 0; k < length; ++k) {
-                    buf.push(valueLocal[offset++]);
-                  }
-                  return buf.map((v: any) => Array.isArray(v) && v.length === 1 ? v[0] : v);
-                }
-              };
-              if (!isNaN(sizes[0])) {
-                // 要素数が指定されている場合
-                for (let i = 0; i < sizes[0]; ++i) {
-                  value1.push(makeArray(value, length2));
-                }
-              } else {
-                // 1つ目の要素数が省略されている場合
-                while (offset < value.length) {
-                  value1.push(makeArray(value, length2));
-                }
-              }
-              value = value1;
+              value = make2array(value, sizes);
+            } else if (3 <= sizes.length) {
+              value = makeNarray(sizes.length, value, sizes);
             }
           }
         }
