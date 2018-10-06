@@ -749,6 +749,18 @@ inum=123
 13,14,15,16,\n17,18,19,20,\n21,22,23,24,\n
 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,`,
   },
+  {
+    input: String.raw`
+    #include <stdio.h>
+    main()
+    {
+      char    buff[30];
+      gets(buff);
+      printf("[%s]", buff);
+    }`,
+    stdin: 'Hello, unicoen.ts\n',
+    stdout: '[Hello, unicoen.ts]',
+  },
 ];
 
 describe('node exec', () => {

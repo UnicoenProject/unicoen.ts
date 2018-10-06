@@ -253,6 +253,48 @@ export class CPP14Engine extends Engine {
       'FUNCTION',
     );
     global.setTop(
+      'gets',
+      function*() {
+        const isStdinEmpty = this.getStdin() === '';
+        if (isStdinEmpty) {
+          this.setIsWaitingForStdin(true); // yield and set stdin
+        }
+        ////////////////////////////////////////////
+        const args = yield; // get args from next(args) from execUniMethodCall
+        ////////////////////////////////////////////
+        let input: string = this.getStdin();
+        this.clearStdin();
+        if (isStdinEmpty) {
+          this.stdout(input + '\n');
+        }
+        const spacePos = input.indexOf('\n');
+
+        if (0 <= spacePos) {
+          this.stdin(input.substr(spacePos + 1));
+          input = input.substring(0, spacePos);
+        }
+        if (isStdinEmpty) {
+          this.setIsWaitingForStdin(false);
+        }
+
+        if (!Array.isArray(args) || args.length === 0) {
+          return 0;
+        }
+
+        const addr = args[0];
+        try {
+          const bytes: number[] = CPP14Engine.strToBytes('' + input);
+          for (let k = 0; k < bytes.length; ++k) {
+            this.currentScope.set(addr + k, bytes[k]);
+          }
+        } catch (e) {
+          // TODO 自動生成された catch ブロック
+          e.printStackTrace();
+        }
+      },
+      'FUNCTION',
+    );
+    global.setTop(
       'getchar',
       function*() {
         ////////////////////////////////////////////
