@@ -618,17 +618,12 @@ export class Engine {
           yield ret;
           return ret;
         }
-        // case '()': {
-        //   const umc = new UniMethodCall(null,(<UniIdent>left).name,((UniArray)right).items);
-        //   return this.execExpr(umc,scope);
-        // }
-        // 		case ".":
-        // 			return this.execExpr(getLeftReference(new UniBinOp(op,left,right),scope),scope);
         default:
           break;
       }
-
-      ret = yield* this.execBinOpImple(op, scope, left, right);
+      const l = yield* this.execExpr(left, scope);
+      const r = yield* this.execExpr(right, scope);
+      ret = this.execBinOpImple(op, l, r);
       if (ret !== null) {
         yield ret;
         return ret;
@@ -645,10 +640,9 @@ export class Engine {
     }
   }
 
-  protected *execBinOpImple(op: string, scope: Scope, left: UniExpr, right: UniExpr): any {
+  protected execBinOpImple(op: string, l: any, r: any): any {
     let ret = null;
-    const l = yield* this.execExpr(left, scope);
-    const r = yield* this.execExpr(right, scope);
+
     switch (op) {
       case '==':
         ret = l === r;

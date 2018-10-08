@@ -623,10 +623,7 @@ export class Java8Engine extends Engine {
     }
   }
 
-  protected *execBinOpImple(op: string, scope: Scope, left: UniExpr, right: UniExpr): any {
-    let ret = null;
-    let l = yield* this.execExpr(left, scope);
-    let r = yield* this.execExpr(right, scope);
+  protected execBinOpImple(op: string, l: any, r: any): any {
     let isString = false;
     if (Array.isArray(l) && l[l.length - 1] === 0) {
       l = Java8Engine.bytesToStr(l);
@@ -636,47 +633,7 @@ export class Java8Engine extends Engine {
       r = Java8Engine.bytesToStr(r);
       isString = true;
     }
-    switch (op) {
-      case '==':
-        ret = l === r;
-        break;
-      case '!=':
-        ret = l !== r;
-        break;
-      case '<':
-        ret = l < r;
-        break;
-      case '>':
-        ret = l > r;
-        break;
-      case '>=':
-        ret = l >= r;
-        break;
-      case '<=':
-        ret = l <= r;
-        break;
-      case '+':
-        ret = l + r;
-        break;
-      case '-':
-        ret = l - r;
-        break;
-      case '*':
-        ret = l * r;
-        break;
-      case '/':
-        ret = l / r;
-        break;
-      case '%':
-        ret = l % r;
-        break;
-      case '&&':
-        ret = l && r;
-        break;
-      case '&&':
-        ret = l || r;
-        break;
-    }
+    let ret = super.execBinOpImple(op, l, r);
     if (isString) {
       ret = Java8Engine.strToBytes(ret);
     }

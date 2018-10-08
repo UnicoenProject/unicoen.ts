@@ -1064,53 +1064,13 @@ export class CPP14Engine extends Engine {
     }
   }
 
-  protected *execBinOpImple(op: string, scope: Scope, left: UniExpr, right: UniExpr): any {
-    let ret = null;
-    const rawl = yield* this.execExpr(left, scope);
-    const rawr = yield* this.execExpr(right, scope);
+  protected execBinOpImple(op: string,  rawl: any, rawr: any): any {
+    if (op === ',') {
+      return rawl;
+    }
     const l = rawl.valueOf();
     const r = rawr.valueOf();
-    switch (op) {
-      case '==':
-        ret = l === r;
-        break;
-      case '!=':
-        ret = l !== r;
-        break;
-      case '<':
-        ret = l < r;
-        break;
-      case '>':
-        ret = l > r;
-        break;
-      case '>=':
-        ret = l >= r;
-        break;
-      case '<=':
-        ret = l <= r;
-        break;
-      case '+':
-        ret = l + r;
-        break;
-      case '-':
-        ret = l - r;
-        break;
-      case '*':
-        ret = l * r;
-        break;
-      case '/':
-        ret = l / r;
-        break;
-      case '%':
-        ret = l % r;
-        break;
-      case '&&':
-        ret = l && r;
-        break;
-      case '||':
-        ret = l || r;
-        break;
-    }
+    let ret = super.execBinOpImple(op, l, r);
 
     switch (op) {
       case '+':

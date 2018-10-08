@@ -41,6 +41,7 @@ LogicalandexpressionContext,
 LogicalorexpressionContext,
 ConditionalexpressionContext,
 AssignmentexpressionContext,
+ExpressionContext,
 SwitchunitstatementContext,
 StatementWithoutLabeldstatementseqContext,
 ExpressionstatementContext,
@@ -1755,6 +1756,59 @@ export class CPP14Mapper implements CPP14Visitor<any> {
 				}
 			} else if (it instanceof TerminalNode) {
 				switch (it.symbol.type) {
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			}
+		}
+		if (!ret.isEmpty()) {
+			return ret;
+		}
+		const node = this.castTo(map, UniBinOp);
+		return node;
+	}
+
+	public visitExpression(ctx:ExpressionContext) {
+		const map = new Map<string,any>();
+		const none = [];
+		map.set("none", none);
+		const ret = [];
+		const left = [];
+		map.set("left", left);
+		const right = [];
+		map.set("right", right);
+		const operator = [];
+		map.set("operator", operator);
+		const n = ctx.childCount;
+		for (let i = 0; i < n;++i) {
+			const it = ctx.getChild(i);	
+			if (it instanceof RuleContext) {
+				switch (it.invokingState) {
+					case 1068: {
+						ret.push(this.visit(it));
+					}
+					break;
+					case 96: {
+						left.push(this.visit(it));
+					}
+					break;
+					case 1072: {
+						right.push(this.visit(it));
+					}
+					break;
+					default: {
+						none.push(this.visit(it));
+					}
+					break;
+				}
+			} else if (it instanceof TerminalNode) {
+				switch (it.symbol.type) {
+					case CPP14Parser.Comma: {
+						operator.push(this.flatten(this.visit(it)));
+					}
+					break;
 					default: {
 						none.push(this.visit(it));
 					}
