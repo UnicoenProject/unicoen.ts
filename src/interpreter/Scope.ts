@@ -326,6 +326,29 @@ export class Scope {
     }
   }
 
+  getArrayDims(arrObjOrTypeStr: any[] | string): number[] {
+    const dims: number[] = [];
+    if (typeof arrObjOrTypeStr === 'string') {
+      const typeStr = arrObjOrTypeStr;
+      for (let k = 0; k < typeStr.length; ++k) {
+        const left = typeStr.indexOf('[', k);
+        const right = typeStr.indexOf(']', k);
+        const size = typeStr.slice(left + 1, right);
+        dims.push(Number.parseInt(size, 10));
+        k = right;
+      }
+    } else if (Array.isArray(arrObjOrTypeStr)) {
+      let arr = arrObjOrTypeStr;
+      while (Array.isArray(arr)) {
+        dims.push(arr.length);
+        if (0 < arr.length) {
+          arr = arr[0];
+        }
+      }
+    }
+    return dims;
+  }
+
   /** 現在のスコープに新しい変数を定義し、代入します */
   setTop(key: string, value: any, type: string): void {
     Scope.assertNotUnicoen(value);
@@ -344,14 +367,7 @@ export class Scope {
         this.setPrimitive(key, this.address.codeAddress, type);
         this.setStringOnCode(arr);
       } else {
-        const dims: number[] = [];
-        let ar = arr;
-        while (Array.isArray(ar)) {
-          dims.push(ar.length);
-          if (0 < ar.length) {
-            ar = ar[0];
-          }
-        }
+        const dims = this.getArrayDims(arr);
         const addr = this.setArray(arr, type, dims.slice(1));
         this.setPrimitiveOnCode(key, addr, type + '[' + dims.join('][') + ']');
       }

@@ -65,22 +65,37 @@ export class Variable {
         const element: any = varArray[i];
         const parentName = this.parentName ? this.parentName + '.' : '';
         if (element instanceof Variable) {
-          // 構造体の場合
-          const tempvar = element as Variable;
-          const varInArray = new Variable(
-            tempvar.type,
-            tempvar.name,
-            tempvar.value,
-            lastAddress,
-            this.depth,
-            parentName + this.name,
-          );
-          vars.push(varInArray);
+          if (element.type != null) {
+            // 構造体の場合
+            const tempvar = element as Variable;
+            const varInArray = new Variable(
+              tempvar.type,
+              tempvar.name,
+              tempvar.value,
+              lastAddress,
+              this.depth,
+              parentName + this.name,
+            );
+            vars.push(varInArray);
+          } else {
+            // 多次元配列の場合
+            const baseType: string = this.type.substring(0, this.type.indexOf('['));
+            const suffix: string = this.type.substring(this.type.indexOf(']') + 1);
+            const varInArray = new Variable(
+              baseType + suffix,
+              this.name + '[' + i + ']',
+              element.value,
+              element.address,
+              this.depth,
+            );
+            vars.push(varInArray);
+          }
         } else {
-          // 配列の場合
-          const baseType: string = this.type.substring(0, this.type.lastIndexOf('['));
+          // 1次元配列配列の場合
+          const baseType: string = this.type.substring(0, this.type.indexOf('['));
+          const suffix: string = this.type.substring(this.type.indexOf(']') + 1);
           const varInArray = new Variable(
-            baseType,
+            baseType + suffix,
             this.name + '[' + i + ']',
             element,
             lastAddress,

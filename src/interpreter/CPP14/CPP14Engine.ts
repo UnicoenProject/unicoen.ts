@@ -940,22 +940,12 @@ export class CPP14Engine extends Engine {
 
       // 配列の場合
       if (def.typeSuffix != null && def.typeSuffix !== '') {
-        const sizes: number[] = [];
-        const typeSuffix: string = def.typeSuffix;
-        for (let k = 0; k < typeSuffix.length; ++k) {
-          const left = typeSuffix.indexOf('[', k);
-          const right = typeSuffix.indexOf(']', k);
-          const size = typeSuffix.slice(left + 1, right);
-          sizes.push(Number.parseInt(size, 10));
-          k = right;
-        }
+        const sizes: number[] = scope.getArrayDims(def.typeSuffix);
         if (0 < sizes.length) {
           if (value === null) {
             // 初期化リストがない場合
             const sum = sizes.reduce((pre: number, cur: number) => pre * cur, 1);
-            value = Array(sum)
-              .fill(0)
-              .map(() => this._execCast(decVar.type, this.randInt32()));
+            value = new Array(sum).fill(0).map(() => this._execCast(decVar.type, this.randInt32()));
             for (const size of sizes.reverse()) {
               value = value.divide(size);
             }
@@ -1007,16 +997,16 @@ export class CPP14Engine extends Engine {
                 for (let i = 0; i < sizesLocal[0]; ++i) {
                   let value2 = null;
                   if (n === 3) {
-                    value2 = make2array(valueLocal[i], sizes.slice(1));
+                    value2 = make2array(valueLocal[i], sizesLocal.slice(1));
                   } else {
-                    value2 = makeNarray(n - 1, valueLocal[i], sizes.slice(1));
+                    value2 = makeNarray(n - 1, valueLocal[i], sizesLocal.slice(1));
                   }
                   value1.push(value2);
                 }
               } else {
                 // 1つ目の要素数が省略されている場合
                 for (const v of valueLocal) {
-                  value1.push(makeNarray(n - 1, v, sizes.slice(1)));
+                  value1.push(makeNarray(n - 1, v, sizesLocal.slice(1)));
                 }
               }
               return value1;

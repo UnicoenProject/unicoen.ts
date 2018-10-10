@@ -190,20 +190,32 @@ export class ExecState {
       if (value instanceof Function) {
         continue;
       }
-      // tslint:disable-next-line:no-bitwise
+
+      // 配列 (valueが先頭要素のaddress)
       if (0 <= type.indexOf('[') && 0 <= type.indexOf(']')) {
-        const length = Number(type.substring(type.lastIndexOf('[') + 1, type.length - 1));
-        const arrayList: any[] = [];
-        for (let i = 0; i < length; ++i) {
-          const arrValue = scope.objectOnMemory.get((value as number) + i);
-          arrayList.push(arrValue);
+        const dims = scope.getArrayDims(type);
+        // 初期化リストがない場合
+        const sum = dims.reduce((pre: number, cur: number) => pre * cur, 1);
+        let startAddr: number = value;
+        for (let i = 1; i < dims.length; ++i) {
+          startAddr = scope.objectOnMemory.get(startAddr);
+        }
+        let arrayList = Array.from(new Array(sum), (v: any, i: number) => {
+          const addr = startAddr + i;
+          const val = scope.objectOnMemory.get(addr);
+          return new Variable(null, varName, val, addr, scope.depth);
+        });
+        for (const dim of dims.reverse()) {
+          arrayList = arrayList.divide(dim);
         }
         address = value;
         value = arrayList;
       }
+
+      // 構造体
       const makeStructVariable = (structType: string, structAddr: any) => {
         const filedList: any[] = [];
-        if (!scope.hasType(structType)) {
+        if (!scope.isStructType(structType)) {
           return filedList;
         }
         const classKey = scope.getRawType(structType);

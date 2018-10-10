@@ -2,7 +2,7 @@
   "compilerOptions": {
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "lib": ["esnext"],
+    "lib": ["esnext", "es6"],
     "module": "commonjs",
     "sourceMap": true,
     "target": "esnext",
