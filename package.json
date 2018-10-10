@@ -32,6 +32,7 @@
     "chai": "^4.2.0",
     "lint-staged": "^7.3.0",
     "mocha": "^4.1.0",
+    "post-commit": "^0.0.1",
     "pre-commit": "^1.2.2",
     "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
@@ -47,6 +48,8 @@
     "mathjs": "^5.1.2",
     "scanf": "^1.0.2"
   },
+  "pre-commit": "precommit",
+  "post-commit": "postcommit",
   "lint-staged": {
     "*.{js,json}": [
       "prettier --write",
