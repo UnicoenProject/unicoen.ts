@@ -94,7 +94,7 @@ export default class Node {
       ret += `import { ${this.superClassName} } from './${this.superClassName}';\n`;
     }
     for (const field of this.members) {
-      for (const type of field.type.split('|').map((type:string)=>type.trim())){
+      for (const type of field.type.split('|').map((t: string) => t.trim())) {
         if (type.startsWith('Uni')) {
           if (type.endsWith('[]')) {
             const t = type.slice(0, -2);
@@ -243,7 +243,12 @@ export default class Node {
     ret += `${s2}return '${this.className.substr(3)}('`;
     let isFirst = true;
     for (const field of this.members) {
-      if (field.type.split('|').map((type:string)=>type.trim()).includes('string')) {
+      if (
+        field.type
+          .split('|')
+          .map((type: string) => type.trim())
+          .includes('string')
+      ) {
         if (isFirst) {
           ret += ' + ';
           isFirst = false;
@@ -274,15 +279,23 @@ export default class Node {
     if (this.className !== 'UniNode') {
       for (const field of this.members) {
         ret += `\n${s4}&& (this.${field.name} == null ? that.${field.name} == null : `;
-        const types = field.type.split('|').map((type:string)=>type.trim());
-        const eqaulsTypes = types.filter((value:string)=>value !=='string' && value !== 'number' && value !== 'boolean' && value !== 'any');
-        const opeTypes = types.filter((value:string)=>value === 'string' || value === 'number' || value ===  'boolean' || value ===  'any');
+        const types = field.type.split('|').map((type: string) => type.trim());
+        const eqaulsTypes = types.filter(
+          (value: string) =>
+            value !== 'string' && value !== 'number' && value !== 'boolean' && value !== 'any',
+        );
+        const opeTypes = types.filter(
+          (value: string) =>
+            value === 'string' || value === 'number' || value === 'boolean' || value === 'any',
+        );
         if (2 <= types.length) {
-          if (0<eqaulsTypes.length && 0<opeTypes.length) {
-            ret += `(this.${field.name} instanceof ${eqaulsTypes[0]})?this.${field.name}.equals(that.${field.name}): this.${field.name} === that.${field.name})`;
-          } else if (0<eqaulsTypes.length) {
+          if (0 < eqaulsTypes.length && 0 < opeTypes.length) {
+            ret += `(this.${field.name} instanceof ${eqaulsTypes[0]})?this.${
+              field.name
+            }.equals(that.${field.name}): this.${field.name} === that.${field.name})`;
+          } else if (0 < eqaulsTypes.length) {
             ret += `this.${field.name}.equals(that.${field.name}))`;
-          } else if (0<opeTypes.length){
+          } else if (0 < opeTypes.length) {
             ret += `this.${field.name} === that.${field.name})`;
           }
         } else {

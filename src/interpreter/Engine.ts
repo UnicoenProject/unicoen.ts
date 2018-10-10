@@ -844,7 +844,7 @@ export class Engine {
         // グローバル変数のセット
         // console.log('set global variable');
         if ((dec.type as any) instanceof UniClassDec) {
-          const ucd: UniClassDec = dec.type as any as UniClassDec;
+          const ucd: UniClassDec = (dec.type as any) as UniClassDec;
           this.setGlobalObjects(ucd, global);
           dec.type = ucd.className;
         }

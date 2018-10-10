@@ -85,9 +85,9 @@ Array.prototype.divide = function(n) {
     return this;
   }
   while (idx + n < length) {
-      const result = ary.slice(idx, idx + n);
-      results.push(result);
-      idx = idx + n;
+    const result = ary.slice(idx, idx + n);
+    results.push(result);
+    idx = idx + n;
   }
 
   const rest = ary.slice(idx, length + 1);

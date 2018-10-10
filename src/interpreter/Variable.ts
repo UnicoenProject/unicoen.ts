@@ -1,19 +1,19 @@
 export class Variable {
   constructor(
     readonly type: string,
-    readonly name: string,//p1.x
+    readonly name: string, // p1.x
     private value: any,
     readonly address: number,
     readonly depth: number,
-    readonly parentName?:string
+    readonly parentName?: string,
   ) {
     this.setValue(value);
   }
 
   // 構造体や配列の場合はvalueそのままでなくArrayList<Variable> valuesなど
 
-  getName():string{
-    return this.parentName?this.parentName+'.'+this.name:this.name;
+  getName(): string {
+    return this.parentName ? this.parentName + '.' + this.name : this.name;
   }
 
   getValue(): any {
@@ -63,7 +63,7 @@ export class Variable {
           lastAddress += lastVar.getByteSize();
         }
         const element: any = varArray[i];
-        const parentName = this.parentName?this.parentName + '.':'';
+        const parentName = this.parentName ? this.parentName + '.' : '';
         if (element instanceof Variable) {
           // 構造体の場合
           const tempvar = element as Variable;

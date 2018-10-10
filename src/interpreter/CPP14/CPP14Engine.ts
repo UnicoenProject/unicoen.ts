@@ -514,8 +514,10 @@ export class CPP14Engine extends Engine {
     );
     global.setTop(
       'atoi',
-      (str: number|number[]) => {
-        const bytes = Array.isArray(str) ? str : CPP14Engine.getCharArrAsByte(global.objectOnMemory, str);
+      (str: number | number[]) => {
+        const bytes = Array.isArray(str)
+          ? str
+          : CPP14Engine.getCharArrAsByte(global.objectOnMemory, str);
         let buf = '';
         for (const byte of bytes) {
           if ('0'.charCodeAt(0) <= byte && byte <= '9'.charCodeAt(0)) {
@@ -951,7 +953,9 @@ export class CPP14Engine extends Engine {
           if (value === null) {
             // 初期化リストがない場合
             const sum = sizes.reduce((pre: number, cur: number) => pre * cur, 1);
-            value = Array(sum).fill(0).map(() => this._execCast(decVar.type, this.randInt32()));
+            value = Array(sum)
+              .fill(0)
+              .map(() => this._execCast(decVar.type, this.randInt32()));
             for (const size of sizes.reverse()) {
               value = value.divide(size);
             }
@@ -980,7 +984,7 @@ export class CPP14Engine extends Engine {
                       ++offset;
                     }
                   }
-                  return value2.map((v: any) => Array.isArray(v) && v.length === 1 ? v[0] : v);
+                  return value2.map((v: any) => (Array.isArray(v) && v.length === 1 ? v[0] : v));
                 }
               };
               if (!isNaN(sizesLocal[0])) {
@@ -1064,7 +1068,7 @@ export class CPP14Engine extends Engine {
     }
   }
 
-  protected execBinOpImple(op: string,  rawl: any, rawr: any): any {
+  protected execBinOpImple(op: string, rawl: any, rawr: any): any {
     if (op === ',') {
       return rawl;
     }

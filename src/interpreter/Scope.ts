@@ -389,7 +389,7 @@ export class Scope {
 
   removeChild(scope: Scope): boolean {
     const toReturnAddress = scope.toReturnAddress;
-    if (this.children.remove(scope) ) {
+    if (this.children.remove(scope)) {
       this.address.stackAddress = toReturnAddress;
       return true;
     }
