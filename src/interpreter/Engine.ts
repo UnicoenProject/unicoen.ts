@@ -776,7 +776,7 @@ export class Engine {
     } else {
       const func: any = scope.get(mc.methodName.name);
       if (func instanceof UniFunctionDec) {
-        ret = yield* this.execFunc(func, scope, mc.args);
+        ret = yield* this.execFunc(func, scope, args);
       } else {
         ret = yield* this.execFuncCall(func, args);
       }
@@ -951,7 +951,7 @@ export class Engine {
     throw new RuntimeException('Not support expr type: ' + expr);
   }
 
-  private *execFunc(fdec: UniFunctionDec, scope: Scope, args: UniExpr[]): any {
+  private *execFunc(fdec: UniFunctionDec, scope: Scope, args: any[]): any {
     const funcScope: Scope = Scope.createLocal(scope);
     funcScope.name = funcScope.getNextName(fdec.name);
 
@@ -961,14 +961,13 @@ export class Engine {
       console.assert(params.length === args.length);
       for (let i = 0; i < args.length; ++i) {
         const param: UniParam = params[i];
-        const arg: UniExpr = args[i];
         let name = param.variables[0].name;
         let type = param.type;
         while (name.startsWith('*')) {
           name = name.substring(1);
           type += '*';
         }
-        const value = yield* this.execExpr(arg, scope);
+        const value = args[i];
         funcScope.setTop(name, value, type);
       }
     }
