@@ -430,10 +430,12 @@ export class CPP14Engine extends Engine {
     );
     global.setTop(
       'fputs',
-      (s: number | number[], stream: number) => {
+      (s: string | number | number[], stream: number) => {
         const addr = stream as number;
         let bytes = null;
-        if (typeof s === 'number') {
+        if (Array.isArray(s)) {
+          bytes = s;
+        } else if (typeof s === 'number') {
           bytes = CPP14Engine.getCharArrAsByte(global.objectOnMemory, s.valueOf());
         } else if (typeof s === 'string') {
           bytes = CPP14Engine.strToBytes(s);
