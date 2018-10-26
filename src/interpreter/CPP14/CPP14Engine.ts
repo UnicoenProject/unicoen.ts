@@ -151,7 +151,9 @@ export class CPP14Engine extends Engine {
   protected includeStdio(global: Scope) {
     global.setTop(
       'printf',
+      // tslint:disable-next-line:only-arrow-functions
       function() {
+        // アロー関数にするとargumentsがincludeStdioのargument(すなわちglobal:Scope)になってしまう。
         if (arguments.length < 1) {
           return 0;
         }
@@ -320,7 +322,9 @@ export class CPP14Engine extends Engine {
     );
     global.setTop(
       'fopen',
-      () => {
+      // tslint:disable-next-line:only-arrow-functions
+      function() {
+        // アロー関数にするとargumentsがincludeStdioのargument(すなわちglobal:Scope)になってしまう。
         if (arguments.length < 1) {
           return 0;
         }
