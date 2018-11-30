@@ -1,5 +1,4 @@
 import * as agh from 'agh.sprintf';
-import * as math from 'mathjs';
 import { UniBinOp } from '../../node/UniBinOp';
 import { UniCast } from '../../node/UniCast';
 import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
@@ -601,7 +600,9 @@ export class Java8Engine extends Engine {
     global.setTop(
       'fmod',
       (x: number, y: number) => {
-        return math.mod(x, y);
+        const div = x / y;
+        const n = 0 < div ? Math.floor(div) : Math.ceil(div);
+        return x - y * n;
       },
       'FUNCTION',
     );

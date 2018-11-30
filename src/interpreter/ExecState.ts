@@ -145,6 +145,10 @@ export class ExecState {
     return sum;
   }
 
+  getTypedef(type: string) {
+    return this.global.getTypedef(type);
+  }
+
   private makeImple(scope: Scope): ExecState {
     if (!this.hasStack(scope.name)) {
       this.addStack(scope.name);

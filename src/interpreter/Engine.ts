@@ -1,4 +1,3 @@
-import math = require('mathjs');
 import { isArray } from 'util';
 import { UniArray } from '../node/UniArray';
 import { UniBinOp } from '../node/UniBinOp';
@@ -745,8 +744,8 @@ export class Engine {
   }
 
   protected randInt32(): number {
-    const a = math.pow(2, 32);
-    const v = math.randomInt(0, a as number);
+    const a = Math.pow(2, 32);
+    const v = Math.floor(Math.random() * a);
     return v;
   }
 
