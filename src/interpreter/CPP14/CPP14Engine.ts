@@ -1,5 +1,4 @@
 import * as agh from 'agh.sprintf';
-import * as math from 'mathjs';
 import { sscanf } from 'scanf';
 import { UniBinOp } from '../../node/UniBinOp';
 import { UniCast } from '../../node/UniCast';
@@ -742,7 +741,9 @@ export class CPP14Engine extends Engine {
     global.setTop(
       'fmod',
       (x: number, y: number) => {
-        return math.mod(x, y);
+        const div = x / y;
+        const n = 0 < div ? Math.floor(div) : Math.ceil(div);
+        return x - y * n;
       },
       'FUNCTION',
     );

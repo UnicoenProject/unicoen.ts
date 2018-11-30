@@ -41,11 +41,9 @@
     "typescript": "^3.1.1"
   },
   "dependencies": {
-    "@types/mathjs": "^4.4.0",
     "@types/node": "^9.6.32",
     "agh.sprintf": "0.0.11",
     "antlr4ts": "^0.4.1-alpha.0",
-    "mathjs": "^5.1.2",
     "scanf": "^1.0.2"
   },
   "pre-commit": "precommit",
