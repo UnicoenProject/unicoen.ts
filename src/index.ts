@@ -33,5 +33,6 @@ export * from './node/UniIntLiteral';
 export * from './interpreter/Engine';
 export * from './interpreter/CPP14/CPP14Engine';
 export * from './interpreter/Java8/Java8Engine';
+export * from './interpreter/ExecState';
 export * from './mapper/CPP14/CPP14Mapper';
 export * from './mapper/Java8/Java8Mapper';

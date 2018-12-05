@@ -116,44 +116,44 @@ export class Java8Engine extends Engine {
   }
 
   protected includeStdio(global: Scope) {
-    const printf = function() {
-      if (arguments.length < 1) {
-        return 0;
-      }
-      const args = [];
-      for (const argument of arguments) {
-        args.push(argument);
-      }
-      let text = Java8Engine.bytesToStr(args[0]);
-      text = text.replace('\\n', '\n');
-      for (let i = 1; i < args.length; ++i) {
-        if (global.typeOnMemory.containsKey(args[i])) {
-          const type: string = global.typeOnMemory.get(args[i]);
-          if (type.includes('char')) {
-            args[i] = Java8Engine.charArrToStr(global.objectOnMemory, args[i] as number);
-          }
-        }
-      }
-      args[0] = text;
-      const output = agh.sprintf(...args).replace('\\n', '\n');
-      this.stdout(output);
-      const byteCount = (str: string) => encodeURIComponent(str).replace(/%../g, 'x').length;
-      const count = byteCount(output);
-      return count;
-    };
-
-    const println = (arg: any) => {
-      const text = Array.isArray(arg) ? Java8Engine.bytesToStr(arg) : arg;
-      const output = agh.sprintf(String(text)).replace('\\n', '\n');
-      this.stdout(output + '\n');
-    };
-
-    const out = {
-      printf,
-      println,
-    };
-    const system = { out };
-    global.setTop('System', system, 'class');
+    global.setTop(
+      'System',
+      {
+        out: {
+          printf() {
+            if (arguments.length < 1) {
+              return 0;
+            }
+            const args = [];
+            for (const argument of arguments) {
+              args.push(argument);
+            }
+            let text = Java8Engine.bytesToStr(args[0]);
+            text = text.replace('\\n', '\n');
+            for (let i = 1; i < args.length; ++i) {
+              if (global.typeOnMemory.containsKey(args[i])) {
+                const type: string = global.typeOnMemory.get(args[i]);
+                if (type.includes('char')) {
+                  args[i] = Java8Engine.charArrToStr(global.objectOnMemory, args[i] as number);
+                }
+              }
+            }
+            args[0] = text;
+            const output = agh.sprintf(...args).replace('\\n', '\n');
+            this.stdout(output);
+            const byteCount = (str: string) => encodeURIComponent(str).replace(/%../g, 'x').length;
+            const count = byteCount(output);
+            return count;
+          },
+          println(arg: any) {
+            const text = Array.isArray(arg) ? Java8Engine.bytesToStr(arg) : arg;
+            const output = agh.sprintf(String(text)).replace('\\n', '\n');
+            this.stdout(output + '\n');
+          },
+        },
+      },
+      'CLASS',
+    );
 
     global.setTop(
       'scanf',
