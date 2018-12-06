@@ -56,10 +56,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-antlr4ts@^0.4.1-alpha.0:
-  version "0.4.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/antlr4ts/-/antlr4ts-0.4.1-alpha.0.tgz#ac5717f30f3efa3617b004e8ff4f860b9c7d4d20"
-  integrity sha1-rFcX8w8++jYXsATo/0+GC5x9TSA=
+antlr4ts@^0.5.0-alpha.1:
+  version "0.5.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/antlr4ts/-/antlr4ts-0.5.0-alpha.1.tgz#c421d8269523356c42c5533603aec0410b423806"
+  integrity sha512-LU5FLWq2fUwg2cTL/DeIL16ucUm5jv6SNVFoMjbYLviXAp6p5g1ZzkTAnWiOKX/muEEy0PY78perPj6WUBSQCw==
 
 any-observable@^0.3.0:
   version "0.3.0"

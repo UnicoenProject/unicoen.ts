@@ -43,7 +43,7 @@
   "dependencies": {
     "@types/node": "^9.6.32",
     "agh.sprintf": "0.0.11",
-    "antlr4ts": "^0.4.1-alpha.0",
+    "antlr4ts": "^0.5.0-alpha.1",
     "scanf": "^1.0.2"
   },
   "pre-commit": "precommit",
