@@ -30,7 +30,7 @@
     "@types/chai": "4.1.7",
     "@types/mocha": "5.2.5",
     "chai": "4.2.0",
-    "lint-staged": "7.3.0",
+    "lint-staged": "8.1.0",
     "mocha": "5.2.0",
     "post-commit": "0.0.1",
     "pre-commit": "1.2.2",
