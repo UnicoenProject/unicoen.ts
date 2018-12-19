@@ -5,7 +5,7 @@
     "lib": ["esnext"],
     "module": "commonjs",
     "sourceMap": true,
-    "target": "es5",
+    "target": "es6", //Cannot set "es5" because of ES6 class inheritance
     "outDir": "dist",
     "declaration": true
   },
