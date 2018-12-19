@@ -215,7 +215,8 @@ export class Java8Engine extends Engine {
 
     global.setTop(
       'fopen',
-      () => {
+      // tslint:disable-next-line:only-arrow-functions
+      function() {
         if (arguments.length < 1) {
           return 0;
         }
