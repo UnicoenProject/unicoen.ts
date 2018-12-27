@@ -117,7 +117,7 @@ describe('mapper', () => {
   for (const test of testData) {
     const cmapper = new Java8Mapper();
     const text = test.input;
-    const tree = cmapper.parse(text);
+    const tree = cmapper.parseToUniTree(text);
     if (test.node != null) {
       it(test.input + ' node', () => {
         const node = test.node();

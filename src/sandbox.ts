@@ -29,7 +29,8 @@ try {
 	}
 `;
   const cmapper = new CPP14Mapper();
-  const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
+  const syntaxError = cmapper.checkSyntaxError(text);
+  const tree = cmapper.parseToUniTree(text);
   const engine = new CPP14Engine();
   engine.stdin('10\n+\n15\n-\n5\n=\n20');
   const map = new Map<string, ArrayBuffer>();

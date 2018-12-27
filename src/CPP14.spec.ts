@@ -649,7 +649,8 @@ const testData = [
       printf("strcmp(%s, %s) = %d\n", str, str4, strcmp(str, str4));
       return 0;
     }`,
-    stdout: 'strcmp(ABC, ABC) = 0\nstrcmp(ABC, ABD) = -1\nstrcmp(ABC, B) = -1\nstrcmp(ABC, AB) = 1\n',
+    stdout:
+      'strcmp(ABC, ABC) = 0\nstrcmp(ABC, ABD) = -1\nstrcmp(ABC, B) = -1\nstrcmp(ABC, AB) = 1\n',
   },
   {
     input: String.raw`
@@ -781,7 +782,7 @@ describe('mapper', () => {
   for (const test of testData) {
     const cmapper = new CPP14Mapper();
     const text = test.input;
-    const tree = cmapper.parse(CPP14Engine.replaceDefine(text));
+    const tree = cmapper.parseToUniTree(text);
     if (test.node) {
       it(test.input + ' node', () => {
         const node = test.node();
