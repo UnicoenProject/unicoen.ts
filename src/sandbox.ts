@@ -1,40 +1,38 @@
+import { CPP14Interpreter } from './interpreter/CPP14/CPP14Interpreter';
 // tslint:disable
 import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  int main() {
-		int sqr[2][3][4]= {
-			{ {1,2,3,4},
-				{5,6,7,8},
-				{9,10,11,12}, },
-			{  {13,14,15,16},
-				{17,18,19,20},
-				{21,22,23,24}, },
-		};
-		for (int i = 0; i < 2; ++i) {
-			for (int k = 0; k < 3; ++k) {
-				for (int m = 0; m < 4; ++m) {
-					printf("%d,", sqr[i][k][m]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-		}
-		//int* start = &sqr[0][0][0];
-		for (int i = 0; i < 24; ++i) {
-			printf("%d,", start[i]);
-		}
-		return 0;
-	}
+  #define N 100
+    typedef struct point Point;
+    struct point {
+      int x;
+      int y;
+    };
+    Point Point_add(Point, Point);
+    int main(void)
+    {
+      Point p1, p2, p3;
+      p1.x = N; p1.y=N;
+      p2.x = 1; p2.y = 2;
+      p3 = Point_add(p1, p2);
+      printf("%d %d\n", p3.x, p3.y);
+      return p3.x + p3.y;
+    }
+    Point Point_add(Point a, Point b)
+    {
+      Point c;
+      c.x = a.x + b.x;
+      c.y = a.y + b.y;
+      return c;
+    }
 `;
-  const cmapper = new CPP14Mapper();
-  const syntaxError = cmapper.checkSyntaxError(text);
-  const tree = cmapper.parseToUniTree(text);
-  const engine = new CPP14Engine();
-  engine.stdin('10\n+\n15\n-\n5\n=\n20');
+  const interpreter = new CPP14Interpreter();
+  const syntaxError = interpreter.checkSyntaxError(text);
+  interpreter.stdin('10\n+\n15\n-\n5\n=\n20');
   const map = new Map<string, ArrayBuffer>();
-  engine.setFileList(map);
+  interpreter.setFileList(map);
   //  {
   //   let rr = engine.startStepExecution(tree);
   //   let ss = engine.getCurrentState().make();
@@ -44,9 +42,9 @@ try {
   //     ss = engine.getCurrentState().make();
   //   }
   // }
-  const r = engine.execute(tree);
-  const out = engine.getStdout();
-  const state = engine.getCurrentState().make();
+  const r = interpreter.execute(text);
+  const out = interpreter.getStdout();
+  const state = interpreter.getCurrentState();
   console.log(r);
   console.log(out);
 } catch (e) {

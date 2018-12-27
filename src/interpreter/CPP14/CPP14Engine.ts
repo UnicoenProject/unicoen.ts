@@ -10,9 +10,9 @@ import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniStringLiteral } from '../../node/UniStringLiteral';
 import { UniUnaryOp } from '../../node/UniUnaryOp';
 import { UniVariableDec } from '../../node/UniVariableDec';
-import { Engine, Exit } from '../Engine';
-import { File } from '../File';
-import { Scope } from '../Scope';
+import { Engine, Exit } from '../Engine/Engine';
+import { File } from '../Engine/File';
+import { Scope } from '../Engine/Scope';
 import { Int } from './Int';
 
 export class CPP14Engine extends Engine {

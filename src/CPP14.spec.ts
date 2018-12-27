@@ -1,9 +1,8 @@
 // tslint:disable:no-trailing-whitespace
 import { assert } from 'chai';
 import {
-  CodeLocation,
-  CodeRange,
   CPP14Engine,
+  CPP14Interpreter,
   CPP14Mapper,
   UniArray,
   UniBinOp,
@@ -607,7 +606,7 @@ const testData = [
   },
   {
     input: String.raw`
-    #define N 100;
+    #define N 100
     typedef struct point Point;
     struct point {
       int x;
@@ -780,22 +779,23 @@ describe('node exec', () => {
 
 describe('mapper', () => {
   for (const test of testData) {
-    const cmapper = new CPP14Mapper();
-    const text = test.input;
-    const tree = cmapper.parseToUniTree(text);
     if (test.node) {
+      const mapper = new CPP14Mapper();
+      const text = test.input;
+      const tree = mapper.parseToUniTree(text);
       it(test.input + ' node', () => {
         const node = test.node();
         assert.isOk(tree.equals(node));
       });
     }
+
     it(test.input + ' exec', () => {
-      const engine = new CPP14Engine();
+      const interpreter = new CPP14Interpreter();
       if (test.stdin) {
-        engine.stdin(test.stdin);
+        interpreter.stdin(test.stdin);
       }
-      const ret = engine.execute(tree);
-      const stdout = engine.getStdout();
+      const ret = interpreter.execute(test.input);
+      const stdout = interpreter.getStdout();
       if (test.stdout) {
         assert.equal(stdout, test.stdout);
       }

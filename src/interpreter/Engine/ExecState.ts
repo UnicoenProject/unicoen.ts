@@ -1,5 +1,5 @@
-import { UniNode } from '../node/UniNode';
-import { UniVariableDec } from '../node/UniVariableDec';
+import { UniNode } from '../../node/UniNode';
+import { UniVariableDec } from '../../node/UniVariableDec';
 import { UniRuntimeError } from './RuntimeException';
 import { Scope } from './Scope';
 import { Stack } from './Stack';

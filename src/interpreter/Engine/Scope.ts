@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
-import { UniExpr } from '../node/UniExpr';
-import { UniFunctionDec } from '../node/UniFunctionDec';
+import { UniExpr } from '../../node/UniExpr';
+import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { File } from './File';
 import { RuntimeException, UniRuntimeError } from './RuntimeException';
 

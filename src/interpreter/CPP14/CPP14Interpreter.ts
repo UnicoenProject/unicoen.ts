@@ -1,8 +1,11 @@
-// tslint:disable
-// tslint:disable
-import { CPP14MapperBase } from './CPP14MapperBase';
-export class CPP14Mapper extends CPP14MapperBase {
-  // #defineを探してそれ以降の文中の文字列を単純に置換する
+import { Interpreter } from '../Interpreter';
+import { CPP14Engine } from './CPP14Engine';
+import { CPP14Mapper } from './CPP14Mapper';
+
+export class CPP14Interpreter extends Interpreter {
+  constructor() {
+    super(new CPP14Engine(), new CPP14Mapper());
+  }
   preProcess(text: string): string {
     const replaceMap = new Map<string, string>();
     for (let pos = text.indexOf('#define'); 0 <= pos; pos = text.indexOf('#define', pos)) {

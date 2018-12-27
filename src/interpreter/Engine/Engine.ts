@@ -1,40 +1,40 @@
 import { isArray } from 'util';
-import { UniArray } from '../node/UniArray';
-import { UniBinOp } from '../node/UniBinOp';
-import { UniBlock } from '../node/UniBlock';
-import { UniBoolLiteral } from '../node/UniBoolLiteral';
-import { UniBreak } from '../node/UniBreak';
-import { UniCast } from '../node/UniCast';
-import { UniCharacterLiteral } from '../node/UniCharacterLiteral';
-import { UniClassDec } from '../node/UniClassDec';
-import { UniContinue } from '../node/UniContinue';
-import { UniDecralation } from '../node/UniDecralation';
-import { UniDoWhile } from '../node/UniDoWhile';
-import { UniEmptyStatement } from '../node/UniEmptyStatement';
-import { UniExpr } from '../node/UniExpr';
-import { UniFor } from '../node/UniFor';
-import { UniFunctionDec } from '../node/UniFunctionDec';
-import { UniIdent } from '../node/UniIdent';
-import { UniIf } from '../node/UniIf';
-import { UniIntLiteral } from '../node/UniIntLiteral';
-import { UniJump } from '../node/UniJump';
-import { UniLabel } from '../node/UniLabel';
-import { UniMethodCall } from '../node/UniMethodCall';
-import { UniNode } from '../node/UniNode';
-import { UniNumberLiteral } from '../node/UniNumberLiteral';
-import { UniParam } from '../node/UniParam';
-import { UniProgram } from '../node/UniProgram';
-import { UniReturn } from '../node/UniReturn';
-import { UniStatement } from '../node/UniStatement';
-import { UniStringLiteral } from '../node/UniStringLiteral';
-import { UniSwitch } from '../node/UniSwitch';
-import { UniSwitchUnit } from '../node/UniSwitchUnit';
-import { UniTernaryOp } from '../node/UniTernaryOp';
-import { UniUnaryOp } from '../node/UniUnaryOp';
-import { UniVariableDec } from '../node/UniVariableDec';
-import { UniVariableDef } from '../node/UniVariableDef';
-import { UniWhile } from '../node/UniWhile';
-import { clone } from '../node_helper/clone';
+import { UniArray } from '../../node/UniArray';
+import { UniBinOp } from '../../node/UniBinOp';
+import { UniBlock } from '../../node/UniBlock';
+import { UniBoolLiteral } from '../../node/UniBoolLiteral';
+import { UniBreak } from '../../node/UniBreak';
+import { UniCast } from '../../node/UniCast';
+import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
+import { UniClassDec } from '../../node/UniClassDec';
+import { UniContinue } from '../../node/UniContinue';
+import { UniDecralation } from '../../node/UniDecralation';
+import { UniDoWhile } from '../../node/UniDoWhile';
+import { UniEmptyStatement } from '../../node/UniEmptyStatement';
+import { UniExpr } from '../../node/UniExpr';
+import { UniFor } from '../../node/UniFor';
+import { UniFunctionDec } from '../../node/UniFunctionDec';
+import { UniIdent } from '../../node/UniIdent';
+import { UniIf } from '../../node/UniIf';
+import { UniIntLiteral } from '../../node/UniIntLiteral';
+import { UniJump } from '../../node/UniJump';
+import { UniLabel } from '../../node/UniLabel';
+import { UniMethodCall } from '../../node/UniMethodCall';
+import { UniNode } from '../../node/UniNode';
+import { UniNumberLiteral } from '../../node/UniNumberLiteral';
+import { UniParam } from '../../node/UniParam';
+import { UniProgram } from '../../node/UniProgram';
+import { UniReturn } from '../../node/UniReturn';
+import { UniStatement } from '../../node/UniStatement';
+import { UniStringLiteral } from '../../node/UniStringLiteral';
+import { UniSwitch } from '../../node/UniSwitch';
+import { UniSwitchUnit } from '../../node/UniSwitchUnit';
+import { UniTernaryOp } from '../../node/UniTernaryOp';
+import { UniUnaryOp } from '../../node/UniUnaryOp';
+import { UniVariableDec } from '../../node/UniVariableDec';
+import { UniVariableDef } from '../../node/UniVariableDef';
+import { UniWhile } from '../../node/UniWhile';
+import { clone } from '../../node_helper/clone';
 import { ExecState } from './ExecState';
 import { File } from './File';
 import { RuntimeException } from './RuntimeException';
@@ -80,7 +80,9 @@ export class Engine {
   setDebugMode(enable: boolean) {
     this.isDebugMode = enable;
   }
-
+  getCurrentValue(): ExecState {
+    return this.currentState.getCurrentValue();
+  }
   getCurrentExpr(): UniNode {
     return this.currentState.getCurrentExpr();
   }
@@ -136,9 +138,40 @@ export class Engine {
     return clone(this.currentState);
   }
 
+  execute(dec: UniProgram) {
+    let ret: any = 0;
+    let node;
+    const gen = this.executeStepByStep(dec);
+    do {
+      node = gen.next();
+      ret = node.value;
+      if (this.isDebugMode) {
+        console.log(ret);
+      }
+    } while (!node.done);
+    // this.currentState.make();
+    this.currentState.setCurrenValue(ret);
+    return ret;
+  }
+
+  toDouble(obj: any): number {
+    if (obj instanceof Number) {
+      return obj as number;
+    }
+    throw new Error('Cannot covert to integer: ' + obj);
+  }
+
+  toBool(obj: any): boolean {
+    if (typeof obj === 'boolean') {
+      return obj as boolean;
+    } else if (obj instanceof Number) {
+      return obj !== 0;
+    }
+    throw new Error('Cannot covert to boolean: ' + obj);
+  }
   // use this method where you think a step exec.
   // yield* this.stopByYield(ret, nextExpr);
-  *stopByYield(ret: any, nextExpr: UniExpr) {
+  protected *stopByYield(ret: any, nextExpr: UniExpr) {
     if (!this.isSetNextExpr) {
       this.currentState.setNextExpr(nextExpr);
       this.isSetNextExpr = true;
@@ -146,7 +179,7 @@ export class Engine {
     yield ret;
   }
 
-  *executeStepByStep(dec: UniProgram) {
+  protected *executeStepByStep(dec: UniProgram) {
     const main: UniFunctionDec = this.getEntryPoint(dec);
     if (main != null) {
       const global: Scope = Scope.createGlobal();
@@ -167,38 +200,6 @@ export class Engine {
     } else {
       throw new RuntimeException('No entry point in ' + dec);
     }
-  }
-
-  execute(dec: UniProgram) {
-    let ret = 0;
-    let node;
-    const gen = this.executeStepByStep(dec);
-    do {
-      node = gen.next();
-      ret = node.value;
-      if (this.isDebugMode) {
-        console.log(ret);
-        // console.log(this.getCurrentExpr());
-        // console.log(this.currentState.make());
-      }
-    } while (!node.done);
-    return ret;
-  }
-
-  toDouble(obj: any): number {
-    if (obj instanceof Number) {
-      return obj as number;
-    }
-    throw new Error('Cannot covert to integer: ' + obj);
-  }
-
-  toBool(obj: any): boolean {
-    if (typeof obj === 'boolean') {
-      return obj as boolean;
-    } else if (obj instanceof Number) {
-      return obj !== 0;
-    }
-    throw new Error('Cannot covert to boolean: ' + obj);
   }
 
   protected *execUnaryOp(uniOp: UniUnaryOp, scope: Scope): any {

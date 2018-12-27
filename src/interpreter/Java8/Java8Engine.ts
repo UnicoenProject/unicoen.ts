@@ -7,9 +7,9 @@ import { UniIdent } from '../../node/UniIdent';
 import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniStringLiteral } from '../../node/UniStringLiteral';
 import { UniUnaryOp } from '../../node/UniUnaryOp';
-import { Engine } from '../Engine';
-import { File } from '../File';
-import { Scope } from '../Scope';
+import { Engine } from '../Engine/Engine';
+import { File } from '../Engine/File';
+import { Scope } from '../Engine/Scope';
 
 export class Java8Engine extends Engine {
   // Byte[]
