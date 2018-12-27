@@ -170,6 +170,10 @@ import { Mapper } from '../mapper/Mapper';
 import '../../node_helper/Extension';
 
 export class Java8Mapper extends Mapper implements Java8Visitor<any> {
+  preProcess(text: string): string {
+    return text;
+  }
+
   parseToANTLRTree(code): ParserRuleContext {
     const preProcessedCode = this.preProcess(code);
     const chars = new ANTLRInputStream(preProcessedCode);

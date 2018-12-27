@@ -137,7 +137,6 @@ import { UniVariableDec } from '../../node/UniVariableDec';
 import { UniVariableDef } from '../../node/UniVariableDef';
 import { UniSwitchUnit } from '../../node/UniSwitchUnit';
 import { UniSwitch } from '../../node/UniSwitch';
-import { UniProgram } from '../../node/UniProgram';
 import { SyntaxErrorListener } from '../mapper/SyntaxErrorListener';
 import { SyntaxErrorData } from '../mapper/SyntaxErrorData';
 import { NodeComment } from '../mapper/NodeComment';
@@ -239,11 +238,9 @@ export class CPP14Mapper extends Mapper implements CPP14Visitor<any> {
         }
       }
     }
-
     if (!ret.isEmpty()) {
       return ret;
     }
-
     const node = this.castTo(map, UniUnaryOp);
     return node;
   }
