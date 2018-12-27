@@ -172,7 +172,7 @@ export class CPP14MapperBase implements CPP14Visitor<any> {
     return tree;
   }
 
-  parseToUniTree(code: string) {
+  parseToUniTree(code: string): UniProgram {
     const antTree = this.parseToANTLRTree(code);
     const uniTree = this.makeUniTree(antTree, <CommonTokenStream>this.parser.inputStream);
     return uniTree;
@@ -188,7 +188,7 @@ export class CPP14MapperBase implements CPP14Visitor<any> {
     return [];
   }
 
-  makeUniTree(tree: ParserRuleContext, tokens: CommonTokenStream) {
+  makeUniTree(tree: ParserRuleContext, tokens: CommonTokenStream): UniProgram {
     this._comments = [];
     this._stream = tokens;
     this._lastNode = null;
