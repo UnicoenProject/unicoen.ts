@@ -4,29 +4,39 @@ import { Java8Engine, Java8Mapper, CPP14Mapper, CPP14Engine } from '.';
 
 try {
   const text = String.raw`
-  #define N 100
-    typedef struct point Point;
-    struct point {
-      int x;
-      int y;
-    };
-    Point Point_add(Point, Point);
-    int main(void)
-    {
-      Point p1, p2, p3;
-      p1.x = N; p1.y=N;
-      p2.x = 1; p2.y = 2;
-      p3 = Point_add(p1, p2);
-      printf("%d %d\n", p3.x, p3.y);
-      return p3.x + p3.y;
+  #include<stdio.h>
+  int recursiveToThree(int n){
+    printf("%d th\n", n + 1);
+    if(n < 3){
+      int r = recursiveToThree(n + 1);
+      n = r;
     }
-    Point Point_add(Point a, Point b)
-    {
-      Point c;
-      c.x = a.x + b.x;
-      c.y = a.y + b.y;
-      return c;
-    }
+    return n;
+  }
+  int main(){
+    int n = 0;//変数定義
+
+    n = recursiveToThree(0);//再帰関数呼出
+
+    int arr[5] = {1, 2, 3};//配列変数
+
+    int* ptr = &arr[2];//ポインタ変数
+    *ptr = 5;
+
+    //動的メモリ確保
+    int* d_arry = malloc(sizeof(int) * 3);
+
+    //二次元ポインタ配列の動的メモリ配列
+    int* pd_arr[2];
+    pd_arr[0] = malloc(sizeof(int) * 2);
+    pd_arr[1] = malloc(sizeof(int) * 2);
+
+    printf("Hello,world!\n");//標準出力
+
+    //メモリの解放
+    free(pd_arr[0]);
+    return 0;
+  }
 `;
   const interpreter = new CPP14Interpreter();
   const syntaxError = interpreter.checkSyntaxError(text);

@@ -107,18 +107,21 @@ export abstract class Mapper {
   }
 
   visit(tree: ParseTree) {
+    const accept = () => {
+      const result = tree.accept(this);
+      this.setNodeRangeAndComment(tree, result);
+      return result;
+    };
     if (!this.isDebugMode) {
-      return tree.accept(this);
+      return accept();
     }
     if (!(tree instanceof RuleContext)) {
-      return tree.accept(this);
+      return accept();
     }
     const ruleName = this.getRuleName(tree);
     console.log('*** visit Rule : ' + ruleName + ' ***');
-    const ret = tree.accept(this);
+    const ret = accept();
     console.log('returned: ' + ret);
-
-    this.setNodeRangeAndComment(tree, ret);
     return ret;
   }
 
