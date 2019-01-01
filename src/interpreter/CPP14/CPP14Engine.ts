@@ -1015,6 +1015,9 @@ export class CPP14Engine extends Engine {
           }
         }
       }
+      if (!scope.isStructType(decVar.type) && value === null) {
+        value = this.randInt32();
+      }
 
       if (decVar.modifiers.includes('typedef')) {
         scope.setTypedef(decVar.type, def.name);
