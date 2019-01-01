@@ -10,8 +10,8 @@
       "request": "launch",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
-      "program": "${workspaceRoot}/src/sandbox.ts",
-      "outFiles": ["${workspaceRoot}/dist/sandbox.js"]
+      "program": "${workspaceRoot}/src/test/sandbox.ts",
+      "outFiles": ["${workspaceRoot}/dist/test/sandbox.js"]
     }
   ]
 }

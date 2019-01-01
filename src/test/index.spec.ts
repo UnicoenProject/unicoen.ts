@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { CodeLocation, CodeRange } from '.';
+import { CodeLocation, CodeRange } from '..';
 describe('node_helper', () => {
   it('CodeLocation', () => {
     const codeLocation = new CodeLocation(1, 2);

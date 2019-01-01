@@ -19,7 +19,7 @@ import {
   UniUnaryOp,
   UniVariableDec,
   UniVariableDef,
-} from '.';
+} from '..';
 
 const testData = [
   {

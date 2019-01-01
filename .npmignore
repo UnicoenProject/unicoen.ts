@@ -1,12 +1,10 @@
-.cache-loader
 .vscode
-dist/*.spec.*
-dist/sandbox*
-src/
+**/test/*
 .gitignore
 .npmignore
 .travis.yml
 prettier.config.js
+renovate.json
 tsconfig.json
 tslint.json
 *.pdf
