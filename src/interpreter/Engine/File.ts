@@ -27,7 +27,7 @@ export class File {
     for (let i = 0; i < newBuf.length; ++i) {
       newBuf[i] = this.buf[i];
     }
-    File.filelist[this.name] = newBuf;
+    File.filelist.set(this.name, newBuf);
   }
 
   fclose() {
