@@ -93,7 +93,13 @@ import {
   WhileStatementNoShortIfContext,
   BasicForStatementContext,
   BasicForStatementNoShortIfContext,
+  BreakStatementContext,
+  ContinueStatementContext,
+  ReturnStatementContext,
   ClassInstanceCreationExpression_lfno_primaryContext,
+  ArrayAccessContext,
+  ArrayAccess_lf_primaryContext,
+  ArrayAccess_lfno_primaryContext,
   MethodInvocationContext,
   ReceiversContext,
   ReceiverContext,
@@ -3295,6 +3301,100 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitBreakStatement(ctx: BreakStatementContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniBreak);
+    return node;
+  }
+
+  public visitContinueStatement(ctx: ContinueStatementContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniContinue);
+    return node;
+  }
+
+  public visitReturnStatement(ctx: ReturnStatementContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const value = [];
+    map.set('value', value);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 1889:
+            {
+              value.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniReturn);
+    return node;
+  }
+
   public visitClassInstanceCreationExpression_lfno_primary(
     ctx: ClassInstanceCreationExpression_lfno_primaryContext,
   ) {
@@ -3342,6 +3442,220 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       }
     }
     const node = this.castTo(map, UniNew);
+    return node;
+  }
+
+  public visitArrayAccess(ctx: ArrayAccessContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const left = [];
+    map.set('left', left);
+    const right = [];
+    map.set('right', right);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2362:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2364:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2367:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2369:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2374:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2376:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          case Java8Parser.LBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          case Java8Parser.RBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniBinOp);
+    return node;
+  }
+
+  public visitArrayAccess_lf_primary(ctx: ArrayAccess_lf_primaryContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const left = [];
+    map.set('left', left);
+    const right = [];
+    map.set('right', right);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2384:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2386:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2389:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2391:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          case Java8Parser.LBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          case Java8Parser.RBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    return map;
+  }
+
+  public visitArrayAccess_lfno_primary(ctx: ArrayAccess_lfno_primaryContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const left = [];
+    map.set('left', left);
+    const right = [];
+    map.set('right', right);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2399:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2401:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2404:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2406:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2411:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2413:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          case Java8Parser.LBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          case Java8Parser.RBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniBinOp);
     return node;
   }
 

@@ -5,8 +5,10 @@ import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
 import { UniExpr } from '../../node/UniExpr';
 import { UniIdent } from '../../node/UniIdent';
 import { UniMethodCall } from '../../node/UniMethodCall';
+import { UniNewArray } from '../../node/UniNewArray';
 import { UniStringLiteral } from '../../node/UniStringLiteral';
 import { UniUnaryOp } from '../../node/UniUnaryOp';
+import { UniVariableDec } from '../../node/UniVariableDec';
 import { Engine } from '../Engine/Engine';
 import { File } from '../Engine/File';
 import { Scope } from '../Engine/Scope';
@@ -609,6 +611,15 @@ export class Java8Engine extends Engine {
     );
   }
 
+  protected *_execExpr(expr: UniExpr, scope: Scope): any {
+    if (expr instanceof UniNewArray) {
+      const ret = yield* this.execNewArray(expr, scope);
+      yield ret;
+      return ret;
+    }
+    return yield* super._execExpr(expr, scope);
+  }
+
   protected *execBinOp(arg: string | UniBinOp, scope: Scope, left?: UniExpr, right?: UniExpr): any {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
       const binOp = arg as UniBinOp;
@@ -640,6 +651,24 @@ export class Java8Engine extends Engine {
       ret = Java8Engine.strToBytes(ret);
     }
     return ret;
+  }
+
+  protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
+    let value = null;
+    for (const def of decVar.variables) {
+      // 初期化されている場合
+      if (def.value != null) {
+        // 配列の初期化もここでexecNewExprで行われる。
+        value = yield* this.execExpr(def.value, scope);
+        value = this._execCast(decVar.type, value);
+        if (decVar.type.includes('[')) {
+          const end = decVar.type.indexOf('[');
+          decVar.type = decVar.type.substring(0, end);
+        }
+      }
+      scope.setTop(def.name, value, decVar.type);
+    }
+    return value;
   }
 
   protected execCast(expr: UniCast, scope: Scope): any {
@@ -692,5 +721,19 @@ export class Java8Engine extends Engine {
     }
     list.push(0);
     return list;
+  }
+
+  private *execNewArray(uniNewArray: UniNewArray, scope: Scope) {
+    const elementsNum: UniExpr[] = uniNewArray.elementsNum;
+    const length: number = yield* this.execExpr(elementsNum[0], scope);
+    const value = uniNewArray.value;
+    let array: any[] = new Array(length).fill(0);
+    if (value.items != null) {
+      array = yield* this.execArray(value, scope);
+      for (let i = array.length; i < length; ++i) {
+        array.push(0);
+      }
+    }
+    return array;
   }
 }

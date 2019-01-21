@@ -3,6 +3,7 @@ import {
   CodeLocation,
   CodeRange,
   Java8Engine,
+  Java8Interpreter,
   Java8Mapper,
   UniArray,
   UniBinOp,
@@ -48,6 +49,14 @@ const testData = [
     ret: null,
     stdin: null,
     stdout: '0\n1\n2\nend\n',
+  },
+  {
+    input: wrapMainFunction(`
+      int[] arr = new int[5];
+      arr[2] = 9;
+      return arr[2];
+    `),
+    ret: 9,
   },
   // {
   //   input: `int main()
@@ -115,25 +124,27 @@ describe('node exec', () => {
 
 describe('mapper', () => {
   for (const test of testData) {
-    const cmapper = new Java8Mapper();
-    const text = test.input;
-    const tree = cmapper.parseToUniTree(text);
-    if (test.node != null) {
+    if (test.node) {
+      const mapper = new Java8Mapper();
+      const text = test.input;
+      const tree = mapper.parseToUniTree(text);
       it(test.input + ' node', () => {
         const node = test.node();
         assert.isOk(tree.equals(node));
       });
     }
+
     it(test.input + ' exec', () => {
-      const engine = new Java8Engine();
+      const interpreter = new Java8Interpreter();
       if (test.stdin) {
-        engine.stdin(test.stdin);
+        interpreter.stdin(test.stdin);
       }
-      const ret = engine.execute(tree);
+      const ret = interpreter.execute(test.input);
+      const stdout = interpreter.getStdout();
       if (test.stdout) {
-        const out = engine.getStdout();
-        assert.equal(out, test.stdout);
-      } else if (test.ret) {
+        assert.equal(stdout, test.stdout);
+      }
+      if (test.ret) {
         assert.equal(ret, test.ret);
       }
     });

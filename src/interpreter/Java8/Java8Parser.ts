@@ -24103,6 +24103,15 @@ export class ArrayAccessContext extends ParserRuleContext {
   public expressionName(): ExpressionNameContext | undefined {
     return this.tryGetRuleContext(0, ExpressionNameContext);
   }
+  public LBRACK(): TerminalNode[];
+  public LBRACK(i: number): TerminalNode;
+  public LBRACK(i?: number): TerminalNode | TerminalNode[] {
+    if (i === undefined) {
+      return this.getTokens(Java8Parser.LBRACK);
+    } else {
+      return this.getToken(Java8Parser.LBRACK, i);
+    }
+  }
   public expression(): ExpressionContext[];
   public expression(i: number): ExpressionContext;
   public expression(i?: number): ExpressionContext | ExpressionContext[] {
@@ -24110,6 +24119,15 @@ export class ArrayAccessContext extends ParserRuleContext {
       return this.getRuleContexts(ExpressionContext);
     } else {
       return this.getRuleContext(i, ExpressionContext);
+    }
+  }
+  public RBRACK(): TerminalNode[];
+  public RBRACK(i: number): TerminalNode;
+  public RBRACK(i?: number): TerminalNode | TerminalNode[] {
+    if (i === undefined) {
+      return this.getTokens(Java8Parser.RBRACK);
+    } else {
+      return this.getToken(Java8Parser.RBRACK, i);
     }
   }
   public primaryNoNewArray_lfno_arrayAccess():
@@ -24154,6 +24172,15 @@ export class ArrayAccess_lf_primaryContext extends ParserRuleContext {
       PrimaryNoNewArray_lf_primary_lfno_arrayAccess_lf_primaryContext,
     );
   }
+  public LBRACK(): TerminalNode[];
+  public LBRACK(i: number): TerminalNode;
+  public LBRACK(i?: number): TerminalNode | TerminalNode[] {
+    if (i === undefined) {
+      return this.getTokens(Java8Parser.LBRACK);
+    } else {
+      return this.getToken(Java8Parser.LBRACK, i);
+    }
+  }
   public expression(): ExpressionContext[];
   public expression(i: number): ExpressionContext;
   public expression(i?: number): ExpressionContext | ExpressionContext[] {
@@ -24161,6 +24188,15 @@ export class ArrayAccess_lf_primaryContext extends ParserRuleContext {
       return this.getRuleContexts(ExpressionContext);
     } else {
       return this.getRuleContext(i, ExpressionContext);
+    }
+  }
+  public RBRACK(): TerminalNode[];
+  public RBRACK(i: number): TerminalNode;
+  public RBRACK(i?: number): TerminalNode | TerminalNode[] {
+    if (i === undefined) {
+      return this.getTokens(Java8Parser.RBRACK);
+    } else {
+      return this.getToken(Java8Parser.RBRACK, i);
     }
   }
   public primaryNoNewArray_lf_primary_lf_arrayAccess_lf_primary(): PrimaryNoNewArray_lf_primary_lf_arrayAccess_lf_primaryContext[];
@@ -24199,6 +24235,15 @@ export class ArrayAccess_lfno_primaryContext extends ParserRuleContext {
   public expressionName(): ExpressionNameContext | undefined {
     return this.tryGetRuleContext(0, ExpressionNameContext);
   }
+  public LBRACK(): TerminalNode[];
+  public LBRACK(i: number): TerminalNode;
+  public LBRACK(i?: number): TerminalNode | TerminalNode[] {
+    if (i === undefined) {
+      return this.getTokens(Java8Parser.LBRACK);
+    } else {
+      return this.getToken(Java8Parser.LBRACK, i);
+    }
+  }
   public expression(): ExpressionContext[];
   public expression(i: number): ExpressionContext;
   public expression(i?: number): ExpressionContext | ExpressionContext[] {
@@ -24206,6 +24251,15 @@ export class ArrayAccess_lfno_primaryContext extends ParserRuleContext {
       return this.getRuleContexts(ExpressionContext);
     } else {
       return this.getRuleContext(i, ExpressionContext);
+    }
+  }
+  public RBRACK(): TerminalNode[];
+  public RBRACK(i: number): TerminalNode;
+  public RBRACK(i?: number): TerminalNode | TerminalNode[] {
+    if (i === undefined) {
+      return this.getTokens(Java8Parser.RBRACK);
+    } else {
+      return this.getToken(Java8Parser.RBRACK, i);
     }
   }
   public primaryNoNewArray_lfno_primary_lfno_arrayAccess_lfno_primary():
