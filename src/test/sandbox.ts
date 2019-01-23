@@ -16,21 +16,49 @@ try {
   const text = String.raw`
   import java.util.*;
 
-public class Main {
-  public static void main(String[] args) {
-    Scanner sc = new Scanner(System.in);
-    Scanner sc = new Scanner(System.in);
-    for (int i = 0; i < 3; i++) {
-      int n = sc.nextInt();
-      System.out.println(n);
+  public class Main {
+    public static void main(String[] args) {
+      Scanner sc = new Scanner(System.in);
+      while (true) {
+        int n = sc.nextInt();
+        int r = sc.nextInt();
+        if (n == 0) {
+          break;
+        }
+        int[] a = new int[n];
+        int[] b = new int[n];
+        for (int i = 0; i < n; i++) {
+          a[i] = n - i;
+        }
+        for (int i = 0; i < r; i++) {
+          int p = sc.nextInt();
+          int c = sc.nextInt();
+          p--;
+          for (int j = 0; j < c; j++) {
+            b[j] = a[p + j];
+          }
+          for (int j = 0; j < p; j++) {
+            b[c + j] = a[j];
+          }
+          for (int j = 0; j < p + c; j++) {
+            a[j] = b[j];
+          }
+        }
+        System.out.println(a[0]);
+      }
     }
-    System.out.println("end");
   }
-}
 `;
   const interpreter = new Java8Interpreter();
   const syntaxError = interpreter.checkSyntaxError(text);
-  interpreter.stdin('10\n+\n15\n-\n5\n=\n20');
+  interpreter.stdin(`5 2
+  3 1
+  3 1
+  10 3
+  1 10
+  10 1
+  8 3
+  0 0`);
   const map = new Map<string, ArrayBuffer>();
   interpreter.setFileList(map);
   // let ss = null;

@@ -74,6 +74,42 @@ const testData = [
     stdin: '3 5 9',
     stdout: '3\n5\n9\nend\n',
   },
+  {
+    input: wrapMainFunction(`
+    Scanner sc = new Scanner(System.in);
+    while (true) {
+      int n = sc.nextInt();
+      int r = sc.nextInt();
+      if (n == 0) {
+        break;
+      }
+      int[] a = new int[n];
+      int[] b = new int[n];
+      for (int i = 0; i < n; i++) {
+        a[i] = n - i;
+      }
+      for (int i = 0; i < r; i++) {
+        int p = sc.nextInt();
+        int c = sc.nextInt();
+        p--;
+        for (int j = 0; j < c; j++) {
+          b[j] = a[p + j];
+        }
+        for (int j = 0; j < p; j++) {
+          b[c + j] = a[j];
+        }
+        for (int j = 0; j < p + c; j++) {
+          a[j] = b[j];
+        }
+      }
+      System.out.println(a[0]);
+    }
+    `),
+    node: null,
+    ret: null,
+    stdin: '5 2\n3 1\n3 1\n10 3\n1 10\n10 1\n8 3\n0 0',
+    stdout: '4\n4\n',
+  },
   // {
   //   input: `int main()
   //   {

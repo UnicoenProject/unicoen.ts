@@ -189,13 +189,19 @@ export class Java8Engine extends Engine {
               if (isStdinEmpty) {
                 this.stdout(input + '\n');
               }
-              const sPos = input.trim().indexOf(' ');
-              const nPos = input.trim().indexOf('\n');
-              const tPos = input.trim().indexOf('\t');
-              const spacePos = Math.min(...[sPos, nPos, tPos].filter((pos) => pos !== -1));
-              if (0 <= spacePos) {
-                this.stdin(input.substr(spacePos + 1));
-                input = input.substring(0, spacePos);
+              const start = Math.min(
+                ...Array.from(Array(10).keys())
+                  .map((n) => input.indexOf(`${n}`))
+                  .filter((pos) => pos !== -1),
+              );
+              const end = Math.min(
+                ...[' ', '\n', '\t']
+                  .map((s) => input.indexOf(`${s}`, start))
+                  .filter((pos) => pos !== -1),
+              );
+              if (0 <= end) {
+                this.stdin(input.substr(end));
+                input = input.substring(start, end);
               }
               if (isStdinEmpty) {
                 this.setIsWaitingForStdin(false);
