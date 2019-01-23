@@ -1,6 +1,8 @@
 // tslint:disable:max-classes-per-file
 import { UniExpr } from '../../node/UniExpr';
 import { UniFunctionDec } from '../../node/UniFunctionDec';
+import { UniImportDec } from '../../node/UniImportDec';
+import { clone } from '../../node_helper/clone';
 import { File } from './File';
 import { RuntimeException, UniRuntimeError } from './RuntimeException';
 
@@ -35,6 +37,10 @@ class ValueSetter implements Consumer<any> {
     this.hasValue = true;
     this.value = value;
   }
+}
+
+class Import {
+  constructor(readonly names: string[], readonly isOndemand: boolean) {}
 }
 
 export class Scope {
@@ -75,6 +81,7 @@ export class Scope {
   private listeners: VariableNotFoundListener[] = null;
   private tempAddressForListener: number = -1;
   private toReturnAddress: number = -1;
+  private ImportsList: Import[] = [];
 
   private constructor(type: Type, parent: Scope) {
     this.parent = parent;
@@ -103,6 +110,7 @@ export class Scope {
       this.typeOnMemory = parent.typeOnMemory;
       this.functionAddress = parent.functionAddress;
       this.typedefList = parent.typedefList;
+      this.ImportsList = clone(parent.ImportsList);
     }
   }
 
@@ -430,6 +438,16 @@ export class Scope {
         value.fclose();
       }
     }
+  }
+
+  addImport(im: UniImportDec) {
+    const isOndemand = im.ondemand !== null && im.ondemand === '*';
+    const names = im.name.split('.');
+    this.ImportsList.push(new Import(names, isOndemand));
+  }
+
+  getImportList() {
+    return this.ImportsList;
   }
 
   private getValueImple(key: number, stackName: string): any {
