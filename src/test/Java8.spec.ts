@@ -23,7 +23,9 @@ import {
 } from '..';
 
 const wrapMainFunction = (text: string) => {
-  return String.raw`public class Main {
+  return String.raw`
+  import java.util.*;
+  public class Main {
     public static void main(String[] args) {
       ${text}
     }
@@ -57,6 +59,20 @@ const testData = [
       return arr[2];
     `),
     ret: 9,
+  },
+  {
+    input: wrapMainFunction(`
+    Scanner sc = new Scanner(System.in);
+    for (int i = 0; i < 3; i++) {
+      int n = sc.nextInt();
+      System.out.println(n);
+    }
+    System.out.println("end");
+    `),
+    node: null,
+    ret: null,
+    stdin: '3 5 9',
+    stdout: '3\n5\n9\nend\n',
   },
   // {
   //   input: `int main()

@@ -16,6 +16,7 @@ import { UniFor } from '../../node/UniFor';
 import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { UniIdent } from '../../node/UniIdent';
 import { UniIf } from '../../node/UniIf';
+import { UniImportDec } from '../../node/UniImportDec';
 import { UniIntLiteral } from '../../node/UniIntLiteral';
 import { UniJump } from '../../node/UniJump';
 import { UniLabel } from '../../node/UniLabel';
@@ -772,7 +773,12 @@ export class Engine {
         ret = yield* this.execFuncCall(rec[mc.methodName.name], args);
       } else {
         const receiver: any = yield* this.execExpr(mc.receiver, scope);
-        ret = yield* this.execFuncCall(receiver[mc.methodName.name], args);
+        if (typeof receiver === 'number') {
+          const v = scope.getValue(receiver);
+          ret = yield* this.execFuncCall(v[mc.methodName.name], args);
+        } else {
+          ret = yield* this.execFuncCall(receiver[mc.methodName.name], args);
+        }
       }
     } else {
       const func: any = scope.get(mc.methodName.name);
@@ -840,11 +846,40 @@ export class Engine {
     throw new RuntimeException('Not support expr type: ' + expr);
   }
 
-  private clearStdout() {
+  protected execClassDec(dec: UniClassDec, scope: Scope) {
+    // structのセット クラス名→[オフセット, 型名, sizeof]
+    const fieldOffset: Map<string, [number, string, number]> = new Map();
+    let structAddress = 0;
+    let offset = 1;
+    for (const member of dec.members) {
+      if (member instanceof UniVariableDec) {
+        for (const def of member.variables) {
+          if (scope.isStructType(member.type)) {
+            const offsets = scope.get(member.type);
+            offset = 1;
+            for (const value of offsets.values()) {
+              offset += value[2];
+            }
+          }
+          fieldOffset.set(def.name, [structAddress, member.type, offset]);
+          structAddress += offset;
+        }
+      } else if (member instanceof UniFunctionDec) {
+        if (member.modifiers.includes('static')) {
+          this.setGlobalObjects(member, scope);
+        } else {
+          scope.setTop(member.name, member, member.returnType);
+        }
+      }
+    }
+    scope.setTop(dec.className, fieldOffset, 'CLASS');
+  }
+
+  protected clearStdout() {
     this.stdoutText = '';
   }
 
-  private clearStdin() {
+  protected clearStdin() {
     this.stdinText = '';
   }
 
@@ -907,28 +942,9 @@ export class Engine {
           // console.log(n);
         }
       } else if (dec instanceof UniClassDec) {
-        // structのセット クラス名→[オフセット, 型名, sizeof]
-        const fieldOffset: Map<string, [number, string, number]> = new Map();
-        let structAddress = 0;
-        let offset = 1;
-        for (const member of dec.members) {
-          if (member instanceof UniVariableDec) {
-            for (const def of member.variables) {
-              if (global.isStructType(member.type)) {
-                const offsets = global.get(member.type);
-                offset = 1;
-                for (const value of offsets.values()) {
-                  offset += value[2];
-                }
-              }
-              fieldOffset.set(def.name, [structAddress, member.type, offset]);
-              structAddress += offset;
-            }
-          } else if (member instanceof UniFunctionDec) {
-            this.setGlobalObjects(member, global);
-          }
-        }
-        global.setTop(dec.className, fieldOffset, 'CLASS');
+        this.execClassDec(dec, global);
+      } else if (dec instanceof UniImportDec) {
+        global.addImport(dec);
       }
     }
   }

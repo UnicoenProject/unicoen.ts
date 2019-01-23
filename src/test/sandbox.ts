@@ -14,13 +14,19 @@ import { Java8Interpreter } from '../interpreter/Java8/Java8Interpreter';
 
 try {
   const text = String.raw`
-  public class Main {
-    public static void main(String[] args) {
-      int[] arr = new int[5];
-      arr[2] = 9;
-      return arr[2];
+  import java.util.*;
+
+public class Main {
+  public static void main(String[] args) {
+    Scanner sc = new Scanner(System.in);
+    Scanner sc = new Scanner(System.in);
+    for (int i = 0; i < 3; i++) {
+      int n = sc.nextInt();
+      System.out.println(n);
     }
+    System.out.println("end");
   }
+}
 `;
   const interpreter = new Java8Interpreter();
   const syntaxError = interpreter.checkSyntaxError(text);
