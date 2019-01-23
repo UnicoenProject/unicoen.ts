@@ -27,8 +27,13 @@ import {
   ClassTypeContext,
   InterfaceTypeContext,
   DimsContext,
+  TypeNameIdentContext,
   ExpressionNameContext,
   CompilationUnitContext,
+  SingleTypeImportDeclarationContext,
+  TypeImportOnDemandDeclarationContext,
+  SingleStaticImportDeclarationContext,
+  StaticImportOnDemandDeclarationContext,
   TypeDeclarationContext,
   ClassDeclarationContext,
   NormalClassDeclarationContext,
@@ -93,11 +98,18 @@ import {
   WhileStatementNoShortIfContext,
   BasicForStatementContext,
   BasicForStatementNoShortIfContext,
+  BreakStatementContext,
+  ContinueStatementContext,
+  ReturnStatementContext,
   ClassInstanceCreationExpression_lfno_primaryContext,
+  ArrayAccessContext,
+  ArrayAccess_lf_primaryContext,
+  ArrayAccess_lfno_primaryContext,
   MethodInvocationContext,
   ReceiversContext,
   ReceiverContext,
   IdentContext,
+  MethodInvocation_lfno_primaryContext,
   ArgumentListContext,
   ArrayCreationExpressionContext,
   DimExprsContext,
@@ -148,6 +160,7 @@ import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { UniFor } from '../../node/UniFor';
 import { UniIdent } from '../../node/UniIdent';
 import { UniIf } from '../../node/UniIf';
+import { UniImportDec } from '../../node/UniImportDec';
 import { UniIntLiteral } from '../../node/UniIntLiteral';
 import { UniMethodCall } from '../../node/UniMethodCall';
 import { UniNew } from '../../node/UniNew';
@@ -197,7 +210,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 562:
+          case 564:
             {
               body.push(this.visit(it));
             }
@@ -435,6 +448,42 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitTypeNameIdent(ctx: TypeNameIdentContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const name = [];
+    map.set('name', name);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 799:
+            {
+              name.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniIdent);
+    return node;
+  }
+
   public visitExpressionName(ctx: ExpressionNameContext) {
     const map = new Map<string, any>();
     const none = [];
@@ -483,7 +532,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 826:
+            case 830:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -491,7 +540,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 829:
+            case 833:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -499,7 +548,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 835:
+            case 839:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -528,6 +577,143 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitSingleTypeImportDeclaration(ctx: SingleTypeImportDeclarationContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const name = [];
+    map.set('name', name);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 871:
+            {
+              name.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniImportDec);
+    return node;
+  }
+
+  public visitTypeImportOnDemandDeclaration(ctx: TypeImportOnDemandDeclarationContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const name = [];
+    map.set('name', name);
+    const ondemand = [];
+    map.set('ondemand', ondemand);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 875:
+            {
+              name.push(this.visit(it));
+            }
+            break;
+          case 877:
+            {
+              ondemand.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniImportDec);
+    return node;
+  }
+
+  public visitSingleStaticImportDeclaration(ctx: SingleStaticImportDeclarationContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniImportDec);
+    return node;
+  }
+
+  public visitStaticImportOnDemandDeclaration(ctx: StaticImportOnDemandDeclarationContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniImportDec);
+    return node;
+  }
+
   public visitTypeDeclaration(ctx: TypeDeclarationContext) {
     const map = new Map<string, any>();
     const none = [];
@@ -538,12 +724,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 890:
+          case 894:
             {
               merge.push(this.visit(it));
             }
             break;
-          case 891:
+          case 895:
             {
               merge.push(this.visit(it));
             }
@@ -588,7 +774,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 895:
+          case 899:
             {
               merge.push(this.visit(it));
             }
@@ -642,27 +828,27 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 899:
+          case 903:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 901:
+          case 905:
             {
               className.push(this.visit(it));
             }
             break;
-          case 905:
+          case 909:
             {
               superClass.push(this.visit(it));
             }
             break;
-          case 908:
+          case 912:
             {
               interfaces.push(this.visit(it));
             }
             break;
-          case 911:
+          case 915:
             {
               members.push(this.visit(it));
             }
@@ -728,7 +914,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 915:
+            case 919:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -798,7 +984,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 944:
+            case 948:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -839,7 +1025,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 947:
+            case 951:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -880,7 +1066,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 949:
+            case 953:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -888,7 +1074,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 951:
+            case 955:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -929,7 +1115,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 958:
+            case 962:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -970,7 +1156,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 966:
+            case 970:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -978,7 +1164,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 969:
+            case 973:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1019,7 +1205,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 972:
+            case 976:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1027,7 +1213,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 973:
+            case 977:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1072,17 +1258,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 979:
+            case 983:
               {
                 modifiers.push(this.visit(it));
               }
               break;
-            case 980:
+            case 984:
               {
                 type.push(this.visit(it));
               }
               break;
-            case 981:
+            case 985:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1123,7 +1309,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 984:
+            case 988:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1193,7 +1379,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1000:
+            case 1004:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1201,7 +1387,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 1002:
+            case 1006:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1243,12 +1429,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1008:
+          case 1012:
             {
               name.push(this.visit(it));
             }
             break;
-          case 1010:
+          case 1014:
             {
               value.push(this.visit(it));
             }
@@ -1345,17 +1531,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1097:
+          case 1101:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 1103:
+          case 1107:
             {
               merge.push(this.visit(it));
             }
             break;
-          case 1104:
+          case 1108:
             {
               block.push(this.visit(it));
             }
@@ -1431,22 +1617,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1118:
+          case 1122:
             {
               returnType.push(this.visit(it));
             }
             break;
-          case 1119:
+          case 1123:
             {
               merge.push(this.visit(it));
             }
             break;
-          case 1130:
+          case 1134:
             {
               returnType.push(this.visit(it));
             }
             break;
-          case 1131:
+          case 1135:
             {
               merge.push(this.visit(it));
             }
@@ -1525,17 +1711,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1141:
+          case 1145:
             {
               name.push(this.visit(it));
             }
             break;
-          case 1143:
+          case 1147:
             {
               params.push(this.visit(it));
             }
             break;
-          case 1147:
+          case 1151:
             {
               returnType.push(this.visit(it));
             }
@@ -1601,23 +1787,23 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1152:
-              {
-                const results = this.flatten(this.visit(it));
-                if (Array.isArray(results)) {
-                  for (const result of results) add.push(result);
-                } else add.push(results);
-              }
-              break;
-            case 1154:
-              {
-                const results = this.flatten(this.visit(it));
-                if (Array.isArray(results)) {
-                  for (const result of results) add.push(result);
-                } else add.push(results);
-              }
-              break;
             case 1156:
+              {
+                const results = this.flatten(this.visit(it));
+                if (Array.isArray(results)) {
+                  for (const result of results) add.push(result);
+                } else add.push(results);
+              }
+              break;
+            case 1158:
+              {
+                const results = this.flatten(this.visit(it));
+                if (Array.isArray(results)) {
+                  for (const result of results) add.push(result);
+                } else add.push(results);
+              }
+              break;
+            case 1160:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1658,7 +1844,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1159:
+            case 1163:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1666,7 +1852,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 1161:
+            case 1165:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1710,17 +1896,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1177:
+          case 1181:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 1183:
+          case 1187:
             {
               type.push(this.visit(it));
             }
             break;
-          case 1184:
+          case 1188:
             {
               variables.push(this.visit(it));
             }
@@ -1757,7 +1943,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1186:
+            case 1190:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -1799,12 +1985,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1188:
+          case 1192:
             {
               name.push(this.visit(it));
             }
             break;
-          case 1189:
+          case 1193:
             {
               typeSuffix.push(this.visit(it));
             }
@@ -1868,7 +2054,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1245:
+          case 1249:
             {
               merge.push(this.visit(it));
             }
@@ -1917,17 +2103,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1254:
+          case 1258:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 1260:
+          case 1264:
             {
               merge.push(this.visit(it));
             }
             break;
-          case 1264:
+          case 1268:
             {
               block.push(this.visit(it));
             }
@@ -2004,12 +2190,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1275:
+          case 1279:
             {
               name.push(this.visit(it));
             }
             break;
-          case 1277:
+          case 1281:
             {
               args.push(this.visit(it));
             }
@@ -2073,7 +2259,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1400:
+          case 1404:
             {
               merge.push(this.visit(it));
             }
@@ -2125,22 +2311,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1404:
+          case 1408:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 1406:
+          case 1410:
             {
               className.push(this.visit(it));
             }
             break;
-          case 1410:
+          case 1414:
             {
               interfaces.push(this.visit(it));
             }
             break;
-          case 1413:
+          case 1417:
             {
               members.push(this.visit(it));
             }
@@ -2177,7 +2363,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1415:
+            case 1419:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2276,7 +2462,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1433:
+            case 1437:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2317,7 +2503,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1436:
+            case 1440:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2358,7 +2544,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1444:
+            case 1448:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2366,7 +2552,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 1445:
+            case 1449:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2411,17 +2597,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1451:
+            case 1455:
               {
                 modifiers.push(this.visit(it));
               }
               break;
-            case 1452:
+            case 1456:
               {
                 type.push(this.visit(it));
               }
               break;
-            case 1453:
+            case 1457:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2462,7 +2648,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1456:
+            case 1460:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2534,17 +2720,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1468:
+          case 1472:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 1469:
+          case 1473:
             {
               merge.push(this.visit(it));
             }
             break;
-          case 1470:
+          case 1474:
             {
               block.push(this.visit(it));
             }
@@ -2591,7 +2777,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1472:
+            case 1476:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2660,7 +2846,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1596:
+          case 1600:
             {
               items.push(this.visit(it));
             }
@@ -2697,7 +2883,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1604:
+            case 1608:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2705,7 +2891,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 1606:
+            case 1610:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2745,7 +2931,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1613:
+          case 1617:
             {
               body.push(this.visit(it));
             }
@@ -2782,7 +2968,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 1618:
+            case 1622:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2790,7 +2976,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 1619:
+            case 1623:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -2829,7 +3015,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1630:
+          case 1634:
             {
               merge.push(this.visit(it));
             }
@@ -2879,17 +3065,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1633:
+          case 1637:
             {
               modifiers.push(this.visit(it));
             }
             break;
-          case 1639:
+          case 1643:
             {
               type.push(this.visit(it));
             }
             break;
-          case 1640:
+          case 1644:
             {
               variables.push(this.visit(it));
             }
@@ -2924,7 +3110,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1681:
+          case 1685:
             {
               ret.push(this.visit(it));
             }
@@ -2965,12 +3151,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1695:
+          case 1699:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1697:
+          case 1701:
             {
               trueStatement.push(this.visit(it));
             }
@@ -3010,17 +3196,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1701:
+          case 1705:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1703:
+          case 1707:
             {
               trueStatement.push(this.visit(it));
             }
             break;
-          case 1705:
+          case 1709:
             {
               falseStatement.push(this.visit(it));
             }
@@ -3060,17 +3246,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1709:
+          case 1713:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1711:
+          case 1715:
             {
               trueStatement.push(this.visit(it));
             }
             break;
-          case 1713:
+          case 1717:
             {
               falseStatement.push(this.visit(it));
             }
@@ -3108,12 +3294,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1774:
+          case 1778:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1776:
+          case 1780:
             {
               statement.push(this.visit(it));
             }
@@ -3151,12 +3337,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1780:
+          case 1784:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1782:
+          case 1786:
             {
               statement.push(this.visit(it));
             }
@@ -3198,22 +3384,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1802:
+          case 1806:
             {
               init.push(this.visit(it));
             }
             break;
-          case 1806:
+          case 1810:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1810:
+          case 1814:
             {
               step.push(this.visit(it));
             }
             break;
-          case 1814:
+          case 1818:
             {
               statement.push(this.visit(it));
             }
@@ -3255,22 +3441,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 1818:
+          case 1822:
             {
               init.push(this.visit(it));
             }
             break;
-          case 1822:
+          case 1826:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 1826:
+          case 1830:
             {
               step.push(this.visit(it));
             }
             break;
-          case 1830:
+          case 1834:
             {
               statement.push(this.visit(it));
             }
@@ -3295,6 +3481,100 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitBreakStatement(ctx: BreakStatementContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniBreak);
+    return node;
+  }
+
+  public visitContinueStatement(ctx: ContinueStatementContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniContinue);
+    return node;
+  }
+
+  public visitReturnStatement(ctx: ReturnStatementContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const value = [];
+    map.set('value', value);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 1893:
+            {
+              value.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniReturn);
+    return node;
+  }
+
   public visitClassInstanceCreationExpression_lfno_primary(
     ctx: ClassInstanceCreationExpression_lfno_primaryContext,
   ) {
@@ -3310,12 +3590,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2295:
+          case 2299:
             {
               args.push(this.visit(it));
             }
             break;
-          case 2319:
+          case 2323:
             {
               args.push(this.visit(it));
             }
@@ -3345,6 +3625,220 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitArrayAccess(ctx: ArrayAccessContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const left = [];
+    map.set('left', left);
+    const right = [];
+    map.set('right', right);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2366:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2368:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2371:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2373:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2378:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2380:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          case Java8Parser.LBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          case Java8Parser.RBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniBinOp);
+    return node;
+  }
+
+  public visitArrayAccess_lf_primary(ctx: ArrayAccess_lf_primaryContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const left = [];
+    map.set('left', left);
+    const right = [];
+    map.set('right', right);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2388:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2390:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2393:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2395:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          case Java8Parser.LBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          case Java8Parser.RBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    return map;
+  }
+
+  public visitArrayAccess_lfno_primary(ctx: ArrayAccess_lfno_primaryContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const left = [];
+    map.set('left', left);
+    const right = [];
+    map.set('right', right);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2403:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2405:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2408:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2410:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2415:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 2417:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          case Java8Parser.LBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          case Java8Parser.RBRACK:
+            {
+              operator.push(this.flatten(this.visit(it)));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniBinOp);
+    return node;
+  }
+
   public visitMethodInvocation(ctx: MethodInvocationContext) {
     const map = new Map<string, any>();
     const none = [];
@@ -3360,42 +3854,42 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2421:
+          case 2425:
             {
               methodName.push(this.visit(it));
             }
             break;
-          case 2423:
+          case 2427:
             {
               args.push(this.visit(it));
             }
             break;
-          case 2428:
+          case 2432:
             {
               receiver.push(this.visit(it));
             }
             break;
-          case 2433:
+          case 2437:
             {
               methodName.push(this.visit(it));
             }
             break;
-          case 2435:
+          case 2439:
             {
               args.push(this.visit(it));
             }
             break;
-          case 2440:
+          case 2444:
             {
               receiver.push(this.visit(it));
             }
             break;
-          case 2445:
+          case 2449:
             {
               methodName.push(this.visit(it));
             }
             break;
-          case 2447:
+          case 2451:
             {
               args.push(this.visit(it));
             }
@@ -3431,7 +3925,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2491:
+          case 2495:
             {
               items.push(this.visit(it));
             }
@@ -3468,7 +3962,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 2493:
+            case 2497:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3476,7 +3970,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 2495:
+            case 2499:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3541,6 +4035,121 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitMethodInvocation_lfno_primary(ctx: MethodInvocation_lfno_primaryContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const args = [];
+    map.set('args', args);
+    const receiver = [];
+    map.set('receiver', receiver);
+    const methodName = [];
+    map.set('methodName', methodName);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 2518:
+            {
+              methodName.push(this.visit(it));
+            }
+            break;
+          case 2520:
+            {
+              args.push(this.visit(it));
+            }
+            break;
+          case 2525:
+            {
+              receiver.push(this.visit(it));
+            }
+            break;
+          case 2527:
+            {
+              receiver.push(this.visit(it));
+            }
+            break;
+          case 2530:
+            {
+              methodName.push(this.visit(it));
+            }
+            break;
+          case 2532:
+            {
+              args.push(this.visit(it));
+            }
+            break;
+          case 2537:
+            {
+              receiver.push(this.visit(it));
+            }
+            break;
+          case 2539:
+            {
+              receiver.push(this.visit(it));
+            }
+            break;
+          case 2542:
+            {
+              methodName.push(this.visit(it));
+            }
+            break;
+          case 2544:
+            {
+              args.push(this.visit(it));
+            }
+            break;
+          case 2551:
+            {
+              receiver.push(this.visit(it));
+            }
+            break;
+          case 2554:
+            {
+              methodName.push(this.visit(it));
+            }
+            break;
+          case 2556:
+            {
+              args.push(this.visit(it));
+            }
+            break;
+          case 2561:
+            {
+              receiver.push(this.visit(it));
+            }
+            break;
+          case 2568:
+            {
+              methodName.push(this.visit(it));
+            }
+            break;
+          case 2570:
+            {
+              args.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniMethodCall);
+    return node;
+  }
+
   public visitArgumentList(ctx: ArgumentListContext) {
     const map = new Map<string, any>();
     const none = [];
@@ -3553,7 +4162,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 2572:
+            case 2577:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3561,7 +4170,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 2574:
+            case 2579:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3605,34 +4214,24 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2678:
+          case 2683:
             {
               type.push(this.visit(it));
-            }
-            break;
-          case 2679:
-            {
-              elementsNum.push(this.visit(it));
             }
             break;
           case 2684:
             {
-              type.push(this.visit(it));
+              elementsNum.push(this.visit(it));
             }
             break;
-          case 2685:
+          case 2689:
             {
-              elementsNum.push(this.visit(it));
+              type.push(this.visit(it));
             }
             break;
           case 2690:
             {
-              type.push(this.visit(it));
-            }
-            break;
-          case 2692:
-            {
-              value.push(this.visit(it));
+              elementsNum.push(this.visit(it));
             }
             break;
           case 2695:
@@ -3641,6 +4240,16 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
             }
             break;
           case 2697:
+            {
+              value.push(this.visit(it));
+            }
+            break;
+          case 2700:
+            {
+              type.push(this.visit(it));
+            }
+            break;
+          case 2702:
             {
               value.push(this.visit(it));
             }
@@ -3677,7 +4286,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 2701:
+            case 2706:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3685,7 +4294,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
                 } else add.push(results);
               }
               break;
-            case 2702:
+            case 2707:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3726,7 +4335,7 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
         const it = ctx.getChild(i);
         if (it instanceof RuleContext) {
           switch (it.invokingState) {
-            case 2715:
+            case 2720:
               {
                 const results = this.flatten(this.visit(it));
                 if (Array.isArray(results)) {
@@ -3770,17 +4379,17 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2756:
+          case 2761:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2757:
+          case 2762:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2758:
+          case 2763:
             {
               right.push(this.visit(it));
             }
@@ -3850,22 +4459,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2767:
+          case 2772:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 2768:
+          case 2773:
             {
               cond.push(this.visit(it));
             }
             break;
-          case 2770:
+          case 2775:
             {
               trueExpr.push(this.visit(it));
             }
             break;
-          case 2772:
+          case 2777:
             {
               falseExpr.push(this.visit(it));
             }
@@ -3909,22 +4518,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2779:
+          case 2784:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 476:
+          case 478:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2782:
+          case 2787:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2783:
+          case 2788:
             {
               right.push(this.visit(it));
             }
@@ -3968,22 +4577,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2793:
+          case 2798:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 480:
+          case 482:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2796:
+          case 2801:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2797:
+          case 2802:
             {
               right.push(this.visit(it));
             }
@@ -4027,22 +4636,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2807:
+          case 2812:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 484:
+          case 486:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2810:
+          case 2815:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2811:
+          case 2816:
             {
               right.push(this.visit(it));
             }
@@ -4086,22 +4695,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2821:
+          case 2826:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 488:
+          case 490:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2824:
+          case 2829:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2825:
+          case 2830:
             {
               right.push(this.visit(it));
             }
@@ -4145,22 +4754,22 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2835:
+          case 2840:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 492:
+          case 494:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2838:
+          case 2843:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2839:
+          case 2844:
             {
               right.push(this.visit(it));
             }
@@ -4204,32 +4813,32 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2851:
+          case 2856:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 498:
+          case 500:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2854:
+          case 2859:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2855:
+          case 2860:
             {
               right.push(this.visit(it));
             }
             break;
-          case 2858:
+          case 2863:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2859:
+          case 2864:
             {
               right.push(this.visit(it));
             }
@@ -4273,62 +4882,62 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2877:
+          case 2882:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 510:
+          case 512:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2880:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
-          case 2881:
-            {
-              right.push(this.visit(it));
-            }
-            break;
-          case 2884:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
           case 2885:
             {
-              right.push(this.visit(it));
+              operator.push(this.visit(it));
             }
             break;
-          case 2888:
+          case 2886:
             {
-              operator.push(this.visit(it));
+              right.push(this.visit(it));
             }
             break;
           case 2889:
             {
-              right.push(this.visit(it));
+              operator.push(this.visit(it));
             }
             break;
-          case 2892:
+          case 2890:
             {
-              operator.push(this.visit(it));
+              right.push(this.visit(it));
             }
             break;
           case 2893:
             {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2894:
+            {
               right.push(this.visit(it));
             }
             break;
-          case 2896:
+          case 2897:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2897:
+          case 2898:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2901:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2902:
             {
               right.push(this.visit(it));
             }
@@ -4372,42 +4981,42 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2915:
+          case 2920:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 518:
+          case 520:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2918:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
-          case 2919:
-            {
-              right.push(this.visit(it));
-            }
-            break;
-          case 2922:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
           case 2923:
             {
-              right.push(this.visit(it));
+              operator.push(this.visit(it));
             }
             break;
-          case 2926:
+          case 2924:
             {
-              operator.push(this.visit(it));
+              right.push(this.visit(it));
             }
             break;
           case 2927:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2928:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2931:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2932:
             {
               right.push(this.visit(it));
             }
@@ -4451,32 +5060,32 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2935:
+          case 2940:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 520:
+          case 522:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2938:
+          case 2943:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2939:
+          case 2944:
             {
               right.push(this.visit(it));
             }
             break;
-          case 2942:
+          case 2947:
             {
               operator.push(this.visit(it));
             }
             break;
-          case 2943:
+          case 2948:
             {
               right.push(this.visit(it));
             }
@@ -4520,42 +5129,42 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2957:
+          case 2962:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 528:
+          case 530:
             {
               left.push(this.visit(it));
             }
             break;
-          case 2960:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
-          case 2961:
-            {
-              right.push(this.visit(it));
-            }
-            break;
-          case 2964:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
           case 2965:
             {
-              right.push(this.visit(it));
+              operator.push(this.visit(it));
             }
             break;
-          case 2968:
+          case 2966:
             {
-              operator.push(this.visit(it));
+              right.push(this.visit(it));
             }
             break;
           case 2969:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2970:
+            {
+              right.push(this.visit(it));
+            }
+            break;
+          case 2973:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2974:
             {
               right.push(this.visit(it));
             }
@@ -4597,37 +5206,37 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 2980:
-            {
-              ret.push(this.visit(it));
-            }
-            break;
-          case 2981:
-            {
-              ret.push(this.visit(it));
-            }
-            break;
-          case 2982:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
-          case 2983:
-            {
-              expr.push(this.visit(it));
-            }
-            break;
           case 2985:
             {
-              operator.push(this.visit(it));
+              ret.push(this.visit(it));
             }
             break;
           case 2986:
             {
-              expr.push(this.visit(it));
+              ret.push(this.visit(it));
+            }
+            break;
+          case 2987:
+            {
+              operator.push(this.visit(it));
             }
             break;
           case 2988:
+            {
+              expr.push(this.visit(it));
+            }
+            break;
+          case 2990:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 2991:
+            {
+              expr.push(this.visit(it));
+            }
+            break;
+          case 2993:
             {
               ret.push(this.visit(it));
             }
@@ -4656,49 +5265,6 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
   }
 
   public visitPreIncrementExpression(ctx: PreIncrementExpressionContext) {
-    const map = new Map<string, any>();
-    const none = [];
-    map.set('none', none);
-    const expr = [];
-    map.set('expr', expr);
-    const operator = [];
-    map.set('operator', operator);
-    const n = ctx.childCount;
-    for (let i = 0; i < n; ++i) {
-      const it = ctx.getChild(i);
-      if (it instanceof RuleContext) {
-        switch (it.invokingState) {
-          case 2993:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
-          case 2994:
-            {
-              expr.push(this.visit(it));
-            }
-            break;
-          default:
-            {
-              none.push(this.visit(it));
-            }
-            break;
-        }
-      } else if (it instanceof TerminalNode) {
-        switch (it.symbol.type) {
-          default:
-            {
-              none.push(this.visit(it));
-            }
-            break;
-        }
-      }
-    }
-    const node = this.castTo(map, UniUnaryOp);
-    return node;
-  }
-
-  public visitPreDecrementExpression(ctx: PreDecrementExpressionContext) {
     const map = new Map<string, any>();
     const none = [];
     map.set('none', none);
@@ -4741,6 +5307,49 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
     return node;
   }
 
+  public visitPreDecrementExpression(ctx: PreDecrementExpressionContext) {
+    const map = new Map<string, any>();
+    const none = [];
+    map.set('none', none);
+    const expr = [];
+    map.set('expr', expr);
+    const operator = [];
+    map.set('operator', operator);
+    const n = ctx.childCount;
+    for (let i = 0; i < n; ++i) {
+      const it = ctx.getChild(i);
+      if (it instanceof RuleContext) {
+        switch (it.invokingState) {
+          case 3003:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 3004:
+            {
+              expr.push(this.visit(it));
+            }
+            break;
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      } else if (it instanceof TerminalNode) {
+        switch (it.symbol.type) {
+          default:
+            {
+              none.push(this.visit(it));
+            }
+            break;
+        }
+      }
+    }
+    const node = this.castTo(map, UniUnaryOp);
+    return node;
+  }
+
   public visitUnaryExpressionNotPlusMinus(ctx: UnaryExpressionNotPlusMinusContext) {
     const map = new Map<string, any>();
     const none = [];
@@ -4755,32 +5364,32 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 3005:
+          case 3010:
             {
               ret.push(this.visit(it));
             }
             break;
-          case 3006:
+          case 3011:
             {
               operator.push(this.visit(it));
-            }
-            break;
-          case 3007:
-            {
-              expr.push(this.visit(it));
-            }
-            break;
-          case 3009:
-            {
-              operator.push(this.visit(it));
-            }
-            break;
-          case 3010:
-            {
-              expr.push(this.visit(it));
             }
             break;
           case 3012:
+            {
+              expr.push(this.visit(it));
+            }
+            break;
+          case 3014:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 3015:
+            {
+              expr.push(this.visit(it));
+            }
+            break;
+          case 3017:
             {
               ret.push(this.visit(it));
             }
@@ -4822,32 +5431,32 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 3015:
+          case 3020:
             {
               ret.push(this.visit(it));
-            }
-            break;
-          case 3016:
-            {
-              ret.push(this.visit(it));
-            }
-            break;
-          case 3017:
-            {
-              left.push(this.visit(it));
-            }
-            break;
-          case 3018:
-            {
-              left.push(this.visit(it));
             }
             break;
           case 3021:
             {
-              operator.push(this.visit(it));
+              ret.push(this.visit(it));
             }
             break;
           case 3022:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 3023:
+            {
+              left.push(this.visit(it));
+            }
+            break;
+          case 3026:
+            {
+              operator.push(this.visit(it));
+            }
+            break;
+          case 3027:
             {
               operator.push(this.visit(it));
             }
@@ -4888,12 +5497,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 3030:
+          case 3035:
             {
               expr.push(this.visit(it));
             }
             break;
-          case 3031:
+          case 3036:
             {
               operator.push(this.visit(it));
             }
@@ -4931,12 +5540,12 @@ export class Java8Mapper extends Mapper implements Java8Visitor<any> {
       const it = ctx.getChild(i);
       if (it instanceof RuleContext) {
         switch (it.invokingState) {
-          case 3035:
+          case 3040:
             {
               expr.push(this.visit(it));
             }
             break;
-          case 3036:
+          case 3041:
             {
               operator.push(this.visit(it));
             }

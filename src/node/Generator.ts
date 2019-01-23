@@ -193,6 +193,10 @@ export default class Generator {
                   ],
                   children: [new Node({ className: 'Param' })],
                 }),
+                new Node({
+                  className: 'ImportDec',
+                  members: [['name', 'string'], ['ondemand', 'string']],
+                }),
               ],
             }),
           ],

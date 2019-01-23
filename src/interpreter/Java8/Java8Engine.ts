@@ -1,12 +1,19 @@
 import * as agh from 'agh.sprintf';
 import { UniBinOp } from '../../node/UniBinOp';
+import { UniBlock } from '../../node/UniBlock';
 import { UniCast } from '../../node/UniCast';
 import { UniCharacterLiteral } from '../../node/UniCharacterLiteral';
+import { UniClassDec } from '../../node/UniClassDec';
+import { UniDecralation } from '../../node/UniDecralation';
 import { UniExpr } from '../../node/UniExpr';
+import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { UniIdent } from '../../node/UniIdent';
 import { UniMethodCall } from '../../node/UniMethodCall';
+import { UniNew } from '../../node/UniNew';
+import { UniNewArray } from '../../node/UniNewArray';
 import { UniStringLiteral } from '../../node/UniStringLiteral';
 import { UniUnaryOp } from '../../node/UniUnaryOp';
+import { UniVariableDec } from '../../node/UniVariableDec';
 import { Engine } from '../Engine/Engine';
 import { File } from '../Engine/File';
 import { Scope } from '../Engine/Scope';
@@ -110,12 +117,22 @@ export class Java8Engine extends Engine {
   }
 
   protected loadLibarary(global: Scope) {
-    this.includeStdio(global);
-    this.includeStdlib(global);
-    this.includeMath(global);
+    this.importJavaLang(global);
+    this.importJavaUtil(global);
+    // this.includeMath(global);
   }
 
-  protected includeStdio(global: Scope) {
+  protected importJavaLang(global: Scope) {
+    global.setTop(
+      'java',
+      {
+        lang: {
+          Object: new UniClassDec('Object', [], [], [], []),
+        },
+      },
+      'CLASS',
+    );
+
     global.setTop(
       'System',
       {
@@ -154,249 +171,48 @@ export class Java8Engine extends Engine {
       },
       'CLASS',
     );
-
-    global.setTop(
-      'scanf',
-      function*() {
-        // this.setIsWaitingForStdin(true); // yield and set stdin
-        // ////////////////////////////////////////////
-        // const args = yield; // get args from next(args) from execUniMethodCall
-        // ////////////////////////////////////////////
-        // const input = this.getStdin();
-        // this.clearStdin();
-        // this.stdout(input + '\n');
-        // this.setIsWaitingForStdin(false);
-        // if (!Array.isArray(args) || args.length === 0) {
-        //   return 0;
-        // }
-        // const format = Java8Engine.bytesToStr(args[0]);
-        // args.shift();
-        // const values = sscanf(input, format);
-        // const setValue = (addr, valueStr) => {
-        //   const type:string = this.currentScope.getType(addr);
-        //   if (type === 'double' || type === 'float') {
-        //     const value = Number.parseFloat(valueStr);
-        //     this.currentScope.set(addr, value);
-        //   } else if (type === 'char') {
-        //     if (1 < valueStr.length) {
-        //       try {
-        //         const bytes:number[] = Java8Engine.strToBytes(valueStr);
-        //         for (let k = 0; k < valueStr.length(); ++k) {
-        //           this.currentScope.set(addr + k, bytes[k]);
-        //         }
-        //       } catch (e) {
-        //         // TODO 自動生成された catch ブロック
-        //         e.printStackTrace();
-        //       }
-        //     } else {
-        //       const value:number = Java8Engine.strToBytes(valueStr)[0];
-        //       this.currentScope.set(addr, value);
-        //     }
-        //   } else {
-        //     const value = Number.parseInt(valueStr);
-        //     this.currentScope.set(addr, value);
-        //   }
-        // };
-        // if (Array.isArray(values)) {
-        //   const length = Math.min(args.length, values.length);
-        //   for (let i = 0; i < length; ++i) {
-        //     const addr:number = args[i];
-        //     setValue(addr, values[i]);
-        //   }
-        //   return length;
-        // } else {
-        //   const addr = args[0];
-        //   setValue(addr, '' + values);
-        //   return 1;
-        // }
-      },
-      'FUNCTION',
-    );
-
-    global.setTop(
-      'fopen',
-      // tslint:disable-next-line:only-arrow-functions
-      function() {
-        if (arguments.length < 1) {
-          return 0;
-        }
-        const args = [];
-        for (const argument of arguments) {
-          args.push(argument);
-        }
-        const filename = Java8Engine.bytesToStr(args[0]);
-        const mode = Java8Engine.bytesToStr(args[1]);
-        let ret = 0;
-        try {
-          switch (mode) {
-            // テキスト
-            case 'r': {
-              const buf = File.getFileFromFileList(filename);
-              const file = new File(filename, buf, mode);
-              ret = global.setCode(file, 'FILE');
-              break;
-            }
-            case 'w': {
-              const buf = new ArrayBuffer(1024);
-              File.addFileToFileList(filename, buf);
-              const file = new File(filename, buf, 'w');
-              ret = global.setCode(file, 'FILE');
-              break;
-            }
-            case 'a':
-              break;
-            case 'rb':
-              break;
-            case 'r+':
-              break;
-            case 'w+':
-              break;
-            case 'a+':
-              break;
-            // バイナリ
-            case 'wb':
-              break;
-            case 'ab':
-              break;
-            case 'r+b':
-            case 'rb+':
-              break;
-            case 'w+b':
-            case 'wb+':
-              break;
-            case 'a+b':
-            case 'ab+':
-              break;
-            default:
-              break;
-          }
-        } catch (e) {
-          // TODO 自動生成された catch ブロック
-          // e.printStackTrace();
-        }
-        return ret;
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'fgetc',
-      (arg: any) => {
-        let ch = -1;
-        const addr = arg as number;
-        const fp: File = global.getValue(addr);
-        ch = fp.fgetc();
-        return ch;
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'fgets',
-      (s: number, n: number, stream: number) => {
-        const ch = -1;
-        const fp: File = global.getValue(stream);
-        const buf = fp.fgets(n);
-        if (buf === null) {
-          return 0;
-        }
-        const addr = s as number;
-        for (let i = 0; i < buf.length; ++i) {
-          global.set(addr + i, buf[i]);
-          if (buf[i] === 0) {
-            break;
-          }
-        }
-        return s;
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'fputc',
-      (c: number, stream: number) => {
-        let ch = -1;
-        const addr = stream as number;
-        const fp: File = global.getValue(addr);
-        ch = fp.fputc(c);
-        return ch;
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'fputs',
-      (s: number | number[], stream: number) => {
-        const addr = stream as number;
-        let bytes = null;
-        if (typeof s === 'number') {
-          bytes = Java8Engine.getCharArrAsByte(global.objectOnMemory, s);
-        } else if (typeof s === 'string') {
-          bytes = Java8Engine.strToBytes(s);
-        }
-        const fp: File = global.getValue(addr);
-        let ret = -1;
-        for (const byte of bytes) {
-          ret = fp.fputc(byte);
-        }
-        return 1;
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'fflush',
-      (stream: number) => {
-        const addr = stream as number;
-        const fp: File = global.getValue(addr);
-        fp.flush();
-        return 0;
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'fclose',
-      (stream: number) => {
-        const addr = stream as number;
-        const fp: File = global.getValue(addr);
-        fp.fclose();
-        return 0;
-      },
-      'FUNCTION',
-    );
   }
 
-  protected includeStdlib(global: Scope) {
+  protected importJavaUtil(global: Scope) {
     global.setTop(
-      'malloc',
-      (x: number) => {
-        const num = x;
-        const heapAddress = global.setHeap(this.randInt32(), '?');
-        for (let i = 1; i < num; ++i) {
-          global.setHeap(this.randInt32(), '?');
-        }
-        global.setMallocSize(heapAddress, num);
-        return heapAddress;
+      'java',
+      {
+        util: {
+          Scanner: {
+            nextInt: () => {
+              const isStdinEmpty = this.getStdin() === '';
+              if (isStdinEmpty) {
+                this.setIsWaitingForStdin(true); // yield and set stdin
+              }
+              let input: string = this.getStdin();
+              this.clearStdin();
+              if (isStdinEmpty) {
+                this.stdout(input + '\n');
+              }
+              const start = Math.min(
+                ...Array.from(Array(10).keys())
+                  .map((n) => input.indexOf(`${n}`))
+                  .filter((pos) => pos !== -1),
+              );
+              const end = Math.min(
+                ...[' ', '\n', '\t']
+                  .map((s) => input.indexOf(`${s}`, start))
+                  .filter((pos) => pos !== -1),
+              );
+              if (0 <= end) {
+                this.stdin(input.substr(end));
+                input = input.substring(start, end);
+              }
+              if (isStdinEmpty) {
+                this.setIsWaitingForStdin(false);
+              }
+
+              return parseInt(input.trim(), 10);
+            },
+          },
+        },
       },
-      'FUNCTION',
-    );
-    global.setTop(
-      'free',
-      (x: number) => {
-        const address = x;
-        const size = global.getMallocSize(address);
-        return global.removeOnMemory(address, size);
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'rand',
-      (x: number) => {
-        return Math.round(Math.random() * Math.pow(0, Math.pow(2, 32)));
-      },
-      'FUNCTION',
-    );
-    global.setTop(
-      'abs',
-      (x: number) => {
-        return Math.abs(x);
-      },
-      'FUNCTION',
+      'CLASS',
     );
   }
 
@@ -609,6 +425,19 @@ export class Java8Engine extends Engine {
     );
   }
 
+  protected *_execExpr(expr: UniExpr, scope: Scope): any {
+    if (expr instanceof UniNewArray) {
+      const ret = yield* this.execNewArray(expr, scope);
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniNew) {
+      const ret = yield* this.execNew(expr, scope);
+      yield ret;
+      return ret;
+    }
+    return yield* super._execExpr(expr, scope);
+  }
+
   protected *execBinOp(arg: string | UniBinOp, scope: Scope, left?: UniExpr, right?: UniExpr): any {
     if (arg instanceof UniBinOp && left === undefined && right === undefined) {
       const binOp = arg as UniBinOp;
@@ -640,6 +469,24 @@ export class Java8Engine extends Engine {
       ret = Java8Engine.strToBytes(ret);
     }
     return ret;
+  }
+
+  protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
+    let value = null;
+    for (const def of decVar.variables) {
+      // 初期化されている場合
+      if (def.value != null) {
+        // 配列の初期化もここでexecNewExprで行われる。
+        value = yield* this.execExpr(def.value, scope);
+        value = this._execCast(decVar.type, value);
+        if (decVar.type.includes('[')) {
+          const end = decVar.type.indexOf('[');
+          decVar.type = decVar.type.substring(0, end);
+        }
+      }
+      scope.setTop(def.name, value, decVar.type);
+    }
+    return value;
   }
 
   protected execCast(expr: UniCast, scope: Scope): any {
@@ -692,5 +539,52 @@ export class Java8Engine extends Engine {
     }
     list.push(0);
     return list;
+  }
+
+  private *execNewArray(uniNewArray: UniNewArray, scope: Scope) {
+    const elementsNum: UniExpr[] = uniNewArray.elementsNum;
+    const length: number = yield* this.execExpr(elementsNum[0], scope);
+    const value = uniNewArray.value;
+    let array: any[] = new Array(length).fill(0);
+    if (value.items != null) {
+      array = yield* this.execArray(value, scope);
+      for (let i = array.length; i < length; ++i) {
+        array.push(0);
+      }
+    }
+    return array;
+  }
+
+  private *execNew(newExpr: UniNew, scope: Scope) {
+    let className = newExpr.type;
+    let value: any = '';
+    const importsList = scope.getImportList();
+    if (!scope.hasValue(className)) {
+      for (const im of importsList) {
+        const item: UniExpr[] = im.names.map((name) => new UniIdent(name));
+        let rec = yield* this.execExpr(item[0], scope);
+        for (let i = 1; i < item.length; ++i) {
+          if (item[i] instanceof UniIdent) {
+            rec = rec[(item[i] as UniIdent).name];
+          } else {
+            rec = rec[yield* this.execExpr(item[i], scope)];
+          }
+        }
+        if (im.isOndemand) {
+          if (rec[className]) {
+            value = rec[className];
+            className = `${im.names.join('.')}.${className}`;
+          }
+        } else {
+          if (rec) {
+            value = rec;
+            className = im.names.join('.');
+          }
+        }
+      }
+    }
+    const heapAddress = scope.setHeap(value, newExpr.type);
+    // const uniClassDec: UniClassDec = scope.get(newExpr.type);
+    return heapAddress;
   }
 }

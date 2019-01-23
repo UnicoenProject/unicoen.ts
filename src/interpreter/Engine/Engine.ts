@@ -16,6 +16,7 @@ import { UniFor } from '../../node/UniFor';
 import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { UniIdent } from '../../node/UniIdent';
 import { UniIf } from '../../node/UniIf';
+import { UniImportDec } from '../../node/UniImportDec';
 import { UniIntLiteral } from '../../node/UniIntLiteral';
 import { UniJump } from '../../node/UniJump';
 import { UniLabel } from '../../node/UniLabel';
@@ -389,6 +390,7 @@ export class Engine {
       return;
     }
   }
+
   protected *execStatement(state: UniStatement, scope: Scope): any {
     if (state instanceof UniIf) {
       return yield* this.execIf(state, scope);
@@ -771,7 +773,12 @@ export class Engine {
         ret = yield* this.execFuncCall(rec[mc.methodName.name], args);
       } else {
         const receiver: any = yield* this.execExpr(mc.receiver, scope);
-        ret = yield* this.execFuncCall(receiver[mc.methodName.name], args);
+        if (typeof receiver === 'number') {
+          const v = scope.getValue(receiver);
+          ret = yield* this.execFuncCall(v[mc.methodName.name], args);
+        } else {
+          ret = yield* this.execFuncCall(receiver[mc.methodName.name], args);
+        }
       }
     } else {
       const func: any = scope.get(mc.methodName.name);
@@ -785,11 +792,94 @@ export class Engine {
     return ret;
   }
 
-  private clearStdout() {
+  // tslint:disable-next-line:function-name
+  protected *_execExpr(expr: UniExpr, scope: Scope): any {
+    if (expr === null) {
+      console.assert(expr != null);
+    }
+    if (expr instanceof UniStatement) {
+      return yield* this.execStatement(expr, scope);
+    } else if (expr instanceof UniDecralation) {
+      return yield* this.execDecralation(expr, scope);
+    } else if (expr instanceof UniMethodCall) {
+      return yield* this.execMethoodCall(expr, scope);
+    } else if (expr instanceof UniIdent) {
+      const ret = scope.get((expr as UniIdent).name);
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniBoolLiteral) {
+      const ret = (expr as UniBoolLiteral).value;
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniCharacterLiteral) {
+      const ret = this.execCharLiteral(expr, scope);
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniStringLiteral) {
+      const ret = this.execStringLiteral(expr, scope);
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniIntLiteral) {
+      const ret = this.execIntLiteral(expr, scope);
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniNumberLiteral) {
+      const ret = (expr as UniNumberLiteral).value;
+      yield ret;
+      return ret;
+    } else if (expr instanceof UniUnaryOp) {
+      return yield* this.execUnaryOp(expr as UniUnaryOp, scope);
+    } else if (expr instanceof UniBinOp) {
+      return yield* this.execBinOp(expr as UniBinOp, scope);
+    } else if (expr instanceof UniTernaryOp) {
+      const condOp = expr as UniTernaryOp;
+      if (this.toBool(yield* this.execExpr(condOp.cond, scope))) {
+        return yield* this.execExpr(condOp.trueExpr, scope);
+      } else {
+        return yield* this.execExpr(condOp.falseExpr, scope);
+      }
+    } else if (expr instanceof UniArray) {
+      return yield* this.execArray(expr as UniArray, scope);
+    } else if (expr instanceof UniCast) {
+      return yield* this.execCast(expr as UniCast, scope);
+    }
+    throw new RuntimeException('Not support expr type: ' + expr);
+  }
+
+  protected execClassDec(dec: UniClassDec, scope: Scope) {
+    // structのセット クラス名→[オフセット, 型名, sizeof]
+    const fieldOffset: Map<string, [number, string, number]> = new Map();
+    let structAddress = 0;
+    let offset = 1;
+    for (const member of dec.members) {
+      if (member instanceof UniVariableDec) {
+        for (const def of member.variables) {
+          if (scope.isStructType(member.type)) {
+            const offsets = scope.get(member.type);
+            offset = 1;
+            for (const value of offsets.values()) {
+              offset += value[2];
+            }
+          }
+          fieldOffset.set(def.name, [structAddress, member.type, offset]);
+          structAddress += offset;
+        }
+      } else if (member instanceof UniFunctionDec) {
+        if (member.modifiers.includes('static')) {
+          this.setGlobalObjects(member, scope);
+        } else {
+          scope.setTop(member.name, member, member.returnType);
+        }
+      }
+    }
+    scope.setTop(dec.className, fieldOffset, 'CLASS');
+  }
+
+  protected clearStdout() {
     this.stdoutText = '';
   }
 
-  private clearStdin() {
+  protected clearStdin() {
     this.stdinText = '';
   }
 
@@ -852,103 +942,11 @@ export class Engine {
           // console.log(n);
         }
       } else if (dec instanceof UniClassDec) {
-        // structのセット クラス名→[オフセット, 型名, sizeof]
-        const fieldOffset: Map<string, [number, string, number]> = new Map();
-        let structAddress = 0;
-        let offset = 1;
-        for (const member of dec.members) {
-          if (member instanceof UniVariableDec) {
-            for (const def of member.variables) {
-              if (global.isStructType(member.type)) {
-                const offsets = global.get(member.type);
-                offset = 1;
-                for (const value of offsets.values()) {
-                  offset += value[2];
-                }
-              }
-              fieldOffset.set(def.name, [structAddress, member.type, offset]);
-              structAddress += offset;
-            }
-          } else if (member instanceof UniFunctionDec) {
-            this.setGlobalObjects(member, global);
-          }
-        }
-        global.setTop(dec.className, fieldOffset, 'CLASS');
+        this.execClassDec(dec, global);
+      } else if (dec instanceof UniImportDec) {
+        global.addImport(dec);
       }
     }
-  }
-
-  // tslint:disable-next-line:function-name
-  private *_execExpr(expr: UniExpr, scope: Scope): any {
-    if (expr === null) {
-      console.assert(expr != null);
-    }
-    if (expr instanceof UniStatement) {
-      return yield* this.execStatement(expr, scope);
-    } else if (expr instanceof UniDecralation) {
-      return yield* this.execDecralation(expr, scope);
-    } else if (expr instanceof UniMethodCall) {
-      return yield* this.execMethoodCall(expr, scope);
-    } else if (expr instanceof UniIdent) {
-      const ret = scope.get((expr as UniIdent).name);
-      yield ret;
-      return ret;
-    } else if (expr instanceof UniBoolLiteral) {
-      const ret = (expr as UniBoolLiteral).value;
-      yield ret;
-      return ret;
-    } else if (expr instanceof UniCharacterLiteral) {
-      const ret = this.execCharLiteral(expr, scope);
-      yield ret;
-      return ret;
-    } else if (expr instanceof UniStringLiteral) {
-      const ret = this.execStringLiteral(expr, scope);
-      yield ret;
-      return ret;
-    } else if (expr instanceof UniIntLiteral) {
-      const ret = this.execIntLiteral(expr, scope);
-      yield ret;
-      return ret;
-    } else if (expr instanceof UniNumberLiteral) {
-      const ret = (expr as UniNumberLiteral).value;
-      yield ret;
-      return ret;
-    } else if (expr instanceof UniUnaryOp) {
-      return yield* this.execUnaryOp(expr as UniUnaryOp, scope);
-    } else if (expr instanceof UniBinOp) {
-      return yield* this.execBinOp(expr as UniBinOp, scope);
-    } else if (expr instanceof UniTernaryOp) {
-      const condOp = expr as UniTernaryOp;
-      if (this.toBool(yield* this.execExpr(condOp.cond, scope))) {
-        return yield* this.execExpr(condOp.trueExpr, scope);
-      } else {
-        return yield* this.execExpr(condOp.falseExpr, scope);
-      }
-    } else if (expr instanceof UniArray) {
-      return yield* this.execArray(expr as UniArray, scope);
-    } else if (expr instanceof UniCast) {
-      return yield* this.execCast(expr as UniCast, scope);
-    }
-    // if (expr instanceof UniNewArray) {
-    //   UniNewArray uniNewArray = (UniNewArray) expr;// C言語ではtypeは取れない
-    //   List<UniExpr > elementsNum = uniNewArray.elementsNum;// 多次元未対応
-    //   int length = (int)this.execExpr(elementsNum.get(0),scope);// 多次元未対応
-    //   UniArray value = uniNewArray.value;
-    //   List < Object > array = new ArrayList<Object>();
-    //   if (value.items == null) {
-    //     for (int i = 0;i < length;++i) {
-    //       array.add((byte)0);
-    //     }
-    //   }
-    //   else {
-    //     array = execArray(value,scope);
-    //     for (int i = array.size();i < length;++i;) {
-    //       array.add((byte)0);
-    //     }
-    //   }
-    //   return array;
-    // }
-    throw new RuntimeException('Not support expr type: ' + expr);
   }
 
   private *execFunc(fdec: UniFunctionDec, scope: Scope, args: any[]): any {

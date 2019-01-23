@@ -37,6 +37,7 @@ import { WildcardContext } from './Java8Parser';
 import { WildcardBoundsContext } from './Java8Parser';
 import { PackageNameContext } from './Java8Parser';
 import { TypeNameContext } from './Java8Parser';
+import { TypeNameIdentContext } from './Java8Parser';
 import { PackageOrTypeNameContext } from './Java8Parser';
 import { ExpressionNameContext } from './Java8Parser';
 import { AmbiguousNameContext } from './Java8Parser';
@@ -544,6 +545,13 @@ export interface Java8Visitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitTypeName?: (ctx: TypeNameContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `Java8Parser.typeNameIdent`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitTypeNameIdent?: (ctx: TypeNameIdentContext) => Result;
 
   /**
    * Visit a parse tree produced by `Java8Parser.packageOrTypeName`.
