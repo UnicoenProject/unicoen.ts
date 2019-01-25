@@ -1,24 +1,49 @@
 import { UniStatement } from './UniStatement';
+import { UniIdent } from './UniIdent';
 import { UniExpr } from './UniExpr';
 
 export class UniEnhancedFor extends UniStatement {
   public modifiers: string[];
   public type: string;
-  public name: string;
+  public name: UniIdent;
   public container: UniExpr;
   public statement: UniStatement;
 
   public constructor();
-  public constructor(modifiers: string[], type: string, name: string, container: UniExpr, statement: UniStatement);
-  public constructor(modifiers?: string[], type?: string, name?: string, container?: UniExpr, statement?: UniStatement) {
+  public constructor(
+    modifiers: string[],
+    type: string,
+    name: UniIdent,
+    container: UniExpr,
+    statement: UniStatement,
+  );
+  public constructor(
+    modifiers?: string[],
+    type?: string,
+    name?: UniIdent,
+    container?: UniExpr,
+    statement?: UniStatement,
+  ) {
     super();
-    if (modifiers === undefined && type === undefined && name === undefined && container === undefined && statement === undefined) {
+    if (
+      modifiers === undefined &&
+      type === undefined &&
+      name === undefined &&
+      container === undefined &&
+      statement === undefined
+    ) {
       this.modifiers = [];
       this.type = null;
       this.name = null;
       this.container = null;
       this.statement = null;
-    } else if (modifiers === undefined || type === undefined || name === undefined || container === undefined || statement === undefined) {
+    } else if (
+      modifiers === undefined ||
+      type === undefined ||
+      name === undefined ||
+      container === undefined ||
+      statement === undefined
+    ) {
       throw new Error('invalid arguments');
     } else {
       this.modifiers = modifiers;
@@ -29,24 +54,26 @@ export class UniEnhancedFor extends UniStatement {
     }
     this.fields.set('modifiers', String);
     this.fields.set('type', String);
-    this.fields.set('name', String);
+    this.fields.set('name', UniIdent);
     this.fields.set('container', UniExpr);
     this.fields.set('statement', UniStatement);
   }
 
   public toString(): string {
-    return 'EnhancedFor(' + this.type + ', ' + this.name + ')';
+    return 'EnhancedFor(' + this.type + ')';
   }
 
   public equals(obj: any): boolean {
     if (obj == null || !(obj instanceof UniEnhancedFor)) return false;
     const that: UniEnhancedFor = <UniEnhancedFor>obj;
-    return super.equals(that)
-        && (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers))
-        && (this.type == null ? that.type == null : this.type === that.type)
-        && (this.name == null ? that.name == null : this.name === that.name)
-        && (this.container == null ? that.container == null : this.container.equals(that.container))
-        && (this.statement == null ? that.statement == null : this.statement.equals(that.statement));
+    return (
+      super.equals(that) &&
+      (this.modifiers == null ? that.modifiers == null : this.modifiers.equals(that.modifiers)) &&
+      (this.type == null ? that.type == null : this.type === that.type) &&
+      (this.name == null ? that.name == null : this.name.equals(that.name)) &&
+      (this.container == null ? that.container == null : this.container.equals(that.container)) &&
+      (this.statement == null ? that.statement == null : this.statement.equals(that.statement))
+    );
   }
 
   public merge(that: UniEnhancedFor) {

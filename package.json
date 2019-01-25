@@ -24,7 +24,7 @@
     "precommit": "lint-staged",
     "postcommit": "git update-index --again",
     "test": "yarn build && yarn exec:test",
-    "exec:test": "mocha dist/test/*.spec.js"
+    "exec:test": "mocha --timeout 10000 dist/test/*.spec.js"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",

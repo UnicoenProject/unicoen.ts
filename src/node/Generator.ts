@@ -50,6 +50,10 @@ export default class Generator {
               members: [['value', 'boolean']],
             }),
             new Node({
+              className: 'NoneLiteral',
+              members: [['value', 'string']],
+            }),
+            new Node({
               className: 'Cast',
               members: [['type', 'string'], ['value', 'Expr']],
             }),
@@ -136,7 +140,7 @@ export default class Generator {
                   members: [
                     ['modifiers', 'string[]'],
                     ['type', 'string'],
-                    ['name', 'string'],
+                    ['name', 'Ident'],
                     ['container', 'Expr'],
                     ['statement', 'Statement'],
                   ],
