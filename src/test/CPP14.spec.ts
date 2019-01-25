@@ -763,7 +763,7 @@ inum=123
   },
 ];
 
-describe('node exec', () => {
+describe('CPP14 node exec', () => {
   for (const test of testData) {
     if (test.node) {
       it(test.input, () => {
@@ -777,7 +777,7 @@ describe('node exec', () => {
   }
 });
 
-describe('mapper', () => {
+describe('CPP14 mapper', () => {
   for (const test of testData) {
     if (test.node) {
       const mapper = new CPP14Mapper();

@@ -62,14 +62,17 @@ export class Python3Engine extends Engine {
     );
     global.setTop(
       'input',
-      (outtext?: string) => {
+      function*(outtext?: string) {
         if (typeof outtext !== 'undefined') {
           this.stdout(outtext.trim()); // ignore \n
         }
+        ////////////////////////////////////////////
         const isStdinEmpty = this.getStdin() === '';
         if (isStdinEmpty) {
           this.setIsWaitingForStdin(true); // yield and set stdin
+          yield; // get args from next(args) from execUniMethodCall
         }
+        ////////////////////////////////////////////
 
         let input: string = this.getStdin();
         this.clearStdin();

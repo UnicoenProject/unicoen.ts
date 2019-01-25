@@ -58,7 +58,7 @@ while True:
   },
 ];
 
-describe('node exec', () => {
+describe('Python3 node exec', () => {
   for (const test of testData) {
     if (test.node == null) {
       continue;
@@ -73,7 +73,7 @@ describe('node exec', () => {
   }
 });
 
-describe('mapper', () => {
+describe('Python3 mapper', () => {
   for (const test of testData) {
     if (test.node) {
       const mapper = new Python3Mapper();
