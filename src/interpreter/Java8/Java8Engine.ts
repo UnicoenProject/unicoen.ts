@@ -31,19 +31,6 @@ export class Java8Engine extends Engine {
     return bytes;
   }
 
-  // Byte[]
-  static bytesToStr(obj: any): string {
-    const bytes = obj as number[];
-    const pos = bytes.indexOf(0);
-    const length = pos === -1 ? bytes.length : pos;
-
-    // new String(data);
-    let str = '';
-    for (let i = 0; i < length; ++i) {
-      str += String.fromCharCode(bytes[i]);
-    }
-    return str;
-  }
   static getCharArrAsByte(objectOnMemory: Map<number, any>, beginArg: number): number[] {
     let begin = beginArg;
     const bytes: number[] = [];
@@ -68,7 +55,7 @@ export class Java8Engine extends Engine {
   }
   static charArrToStr(objectOnMemory: Map<number, any>, beginArg: number): string {
     const bytes = this.getCharArrAsByte(objectOnMemory, beginArg);
-    return this.bytesToStr(bytes);
+    return Engine.bytesToStr(bytes);
   }
   constructor() {
     super();
@@ -145,7 +132,7 @@ export class Java8Engine extends Engine {
             for (const argument of arguments) {
               args.push(argument);
             }
-            let text = Java8Engine.bytesToStr(args[0]);
+            let text = Engine.bytesToStr(args[0]);
             text = text.replace('\\n', '\n');
             for (let i = 1; i < args.length; ++i) {
               if (global.typeOnMemory.containsKey(args[i])) {
@@ -163,7 +150,7 @@ export class Java8Engine extends Engine {
             return count;
           },
           println(arg: any) {
-            const text = Array.isArray(arg) ? Java8Engine.bytesToStr(arg) : arg;
+            const text = Array.isArray(arg) ? Engine.bytesToStr(arg) : arg;
             const output = agh.sprintf(String(text)).replace('\\n', '\n');
             this.stdout(output + '\n');
           },
@@ -457,11 +444,11 @@ export class Java8Engine extends Engine {
   protected execBinOpImple(op: string, l: any, r: any): any {
     let isString = false;
     if (Array.isArray(l) && l[l.length - 1] === 0) {
-      l = Java8Engine.bytesToStr(l);
+      l = Engine.bytesToStr(l);
       isString = true;
     }
     if (Array.isArray(r) && r[r.length - 1] === 0) {
-      r = Java8Engine.bytesToStr(r);
+      r = Engine.bytesToStr(r);
       isString = true;
     }
     let ret = super.execBinOpImple(op, l, r);

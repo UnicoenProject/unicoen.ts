@@ -1,64 +1,41 @@
 import { CPP14Interpreter } from '../interpreter/CPP14/CPP14Interpreter';
 import { Java8Interpreter } from '../interpreter/Java8/Java8Interpreter';
-
+import { Python3Interpreter } from '../interpreter/Python3/Python3Interpreter';
 // tslint:disable
 // const t = String.raw`
 // int main() {
 //     int arr[] = {0,0,0,0,0};
 //     arr[2] = 9;
-//     //return arr[2];
+//     return arr[2];
 // }`;
 // const i = new CPP14Interpreter();
 // const ret = i.execute(t);
 // console.log(ret);
 
 try {
-  const text = String.raw`
-  import java.util.*;
-
-  public class Main {
-    public static void main(String[] args) {
-      Scanner sc = new Scanner(System.in);
-      while (true) {
-        int n = sc.nextInt();
-        int r = sc.nextInt();
-        if (n == 0) {
-          break;
-        }
-        int[] a = new int[n];
-        int[] b = new int[n];
-        for (int i = 0; i < n; i++) {
-          a[i] = n - i;
-        }
-        for (int i = 0; i < r; i++) {
-          int p = sc.nextInt();
-          int c = sc.nextInt();
-          p--;
-          for (int j = 0; j < c; j++) {
-            b[j] = a[p + j];
-          }
-          for (int j = 0; j < p; j++) {
-            b[c + j] = a[j];
-          }
-          for (int j = 0; j < p + c; j++) {
-            a[j] = b[j];
-          }
-        }
-        System.out.println(a[0]);
-      }
-    }
-  }
+  const text = `
+while True:
+  n, r = map(int, input().split())
+  if n == 0:
+    break
+  a = [0] * n
+  b = [0] * n
+  for i in range(n):
+    a[i] = b[i] = n - i
+  for i in range(r):
+    p, c = map(int, input().split())
+    p = p - 1
+    for j in range(c):
+      b[j] = a[p + j]
+    for j in range(p):
+      b[c + j] = a[j]
+    for j in range(p + c):
+      a[j] = b[j]
+  print(a[0])
 `;
-  const interpreter = new Java8Interpreter();
+  const interpreter = new Python3Interpreter();
   const syntaxError = interpreter.checkSyntaxError(text);
-  interpreter.stdin(`5 2
-  3 1
-  3 1
-  10 3
-  1 10
-  10 1
-  8 3
-  0 0`);
+  interpreter.stdin(`5 2\n3 1\n3 1\n10 3\n1 10\n10 1\n8 3\n0 0`);
   const map = new Map<string, ArrayBuffer>();
   interpreter.setFileList(map);
   // let ss = null;

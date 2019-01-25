@@ -28,20 +28,6 @@ export class CPP14Engine extends Engine {
     return bytes;
   }
 
-  // Byte[]
-  static bytesToStr(obj: any): string {
-    const bytes = obj as number[];
-    const pos = bytes.indexOf(0);
-    const length = pos === -1 ? bytes.length : pos;
-
-    // new String(data);
-    let str = '';
-    for (let i = 0; i < length; ++i) {
-      str += String.fromCharCode(bytes[i]);
-    }
-    return str;
-  }
-
   static getCharArrAsByte(objectOnMemory: Map<number, any>, beginArg: number): number[] {
     let begin = beginArg;
     const bytes: number[] = [];
@@ -65,8 +51,8 @@ export class CPP14Engine extends Engine {
     return bytes;
   }
   static charArrToStr(objectOnMemory: Map<number, any>, beginArg: number): string {
-    const bytes = this.getCharArrAsByte(objectOnMemory, beginArg);
-    return this.bytesToStr(bytes);
+    const bytes = CPP14Engine.getCharArrAsByte(objectOnMemory, beginArg);
+    return Engine.bytesToStr(bytes);
   }
 
   // '\''n'を'\n'にする
@@ -119,7 +105,7 @@ export class CPP14Engine extends Engine {
         if (typeof arg === 'string') {
           return this.sizeof(arg as string);
         } else if (Array.isArray(arg)) {
-          return this.sizeof(CPP14Engine.bytesToStr(arg));
+          return this.sizeof(Engine.bytesToStr(arg));
         }
         throw new Error('Unsupported type of argument.');
       },
@@ -141,7 +127,7 @@ export class CPP14Engine extends Engine {
         for (const argument of arguments) {
           args.push(argument);
         }
-        let text = CPP14Engine.bytesToStr(args[0]);
+        let text = Engine.bytesToStr(args[0]);
         text = CPP14Engine.escapeText(text);
         for (let i = 1; i < args.length; ++i) {
           if (global.typeOnMemory.containsKey(args[i])) {
@@ -190,7 +176,7 @@ export class CPP14Engine extends Engine {
         if (!Array.isArray(args) || args.length === 0) {
           return 0;
         }
-        const format = CPP14Engine.bytesToStr(args[0]);
+        const format = Engine.bytesToStr(args[0]);
         args.shift();
 
         const values = sscanf(input, format);
@@ -312,8 +298,8 @@ export class CPP14Engine extends Engine {
         for (const argument of arguments) {
           args.push(argument);
         }
-        const filename = CPP14Engine.bytesToStr(args[0]);
-        const mode = CPP14Engine.bytesToStr(args[1]);
+        const filename = Engine.bytesToStr(args[0]);
+        const mode = Engine.bytesToStr(args[1]);
         let ret = 0;
         try {
           switch (mode) {

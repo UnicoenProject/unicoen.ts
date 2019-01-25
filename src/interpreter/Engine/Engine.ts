@@ -11,6 +11,7 @@ import { UniContinue } from '../../node/UniContinue';
 import { UniDecralation } from '../../node/UniDecralation';
 import { UniDoWhile } from '../../node/UniDoWhile';
 import { UniEmptyStatement } from '../../node/UniEmptyStatement';
+import { UniEnhancedFor } from '../../node/UniEnhancedFor';
 import { UniExpr } from '../../node/UniExpr';
 import { UniFor } from '../../node/UniFor';
 import { UniFunctionDec } from '../../node/UniFunctionDec';
@@ -66,6 +67,20 @@ export class Engine {
 
   static executeSimpleProgram(program: UniProgram): any {
     return this.executeSimpleExpr(program.block, Scope.createGlobal());
+  }
+
+  // Byte[]
+  static bytesToStr(obj: any): string {
+    const bytes = obj as number[];
+    const pos = bytes.indexOf(0);
+    const length = pos === -1 ? bytes.length : pos;
+
+    // new String(data);
+    let str = '';
+    for (let i = 0; i < length; ++i) {
+      str += String.fromCharCode(bytes[i]);
+    }
+    return str;
   }
 
   protected currentState: ExecState = null;
@@ -293,63 +308,68 @@ export class Engine {
     }
     return array;
   }
-
-  protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
+  protected *execVariableDecInitValue(def: UniVariableDef, decVar: UniVariableDec, scope: Scope) {
+    // 初期化されている場合
     let value = null;
-    for (const def of decVar.variables) {
-      // 初期化されている場合
-      if (def.value != null) {
-        value = yield* this.execExpr(def.value, scope);
-        value = this._execCast(decVar.type, value);
-      }
+    if (def.value != null) {
+      value = yield* this.execExpr(def.value, scope);
+      value = this._execCast(decVar.type, value);
+    }
 
-      // 配列の場合
-      let length = 0;
-      if (def.typeSuffix != null && def.typeSuffix !== '') {
-        const sizes: number[] = [];
-        const typeSuffix: string = def.typeSuffix;
-        for (let k = 0; k < typeSuffix.length; ++k) {
-          const left = typeSuffix.indexOf('[', k);
-          const right = typeSuffix.indexOf(']', k);
-          const size = typeSuffix.slice(left + 1, right);
-          sizes.push(Number.parseInt(size, 10));
-          k = right;
-        }
-        if (0 < sizes.length) {
-          if (sizes.length === 1) {
-            length = sizes[0];
-            if (value != null) {
-              // 初期化している場合。
-              for (let i = value.length; i < length; ++i) {
-                value.push(0);
-              }
-            } else {
-              value = [];
-              for (let i = 0; i < length; ++i) {
-                value.push(this.randInt32());
-              }
+    // 配列の場合
+    let length = 0;
+    if (def.typeSuffix != null && def.typeSuffix !== '') {
+      const sizes: number[] = [];
+      const typeSuffix: string = def.typeSuffix;
+      for (let k = 0; k < typeSuffix.length; ++k) {
+        const left = typeSuffix.indexOf('[', k);
+        const right = typeSuffix.indexOf(']', k);
+        const size = typeSuffix.slice(left + 1, right);
+        sizes.push(Number.parseInt(size, 10));
+        k = right;
+      }
+      if (0 < sizes.length) {
+        if (sizes.length === 1) {
+          length = sizes[0];
+          if (value != null) {
+            // 初期化している場合。
+            for (let i = value.length; i < length; ++i) {
+              value.push(0);
             }
-          } else if (sizes.length === 2) {
-            length = sizes[0];
-            if (value != null) {
-              // 初期化している場合。
-              for (let i = value.length; i < length; ++i) {
-                value.push(0);
+          } else {
+            value = [];
+            for (let i = 0; i < length; ++i) {
+              value.push(this.randInt32());
+            }
+          }
+        } else if (sizes.length === 2) {
+          length = sizes[0];
+          if (value != null) {
+            // 初期化している場合。
+            for (let i = value.length; i < length; ++i) {
+              value.push(0);
+            }
+          } else {
+            value = [];
+            for (let i = 0; i < length; ++i) {
+              const value2 = [];
+              const length2 = sizes[1];
+              for (let k = 0; k < length2; ++k) {
+                value2.push(this.randInt32());
               }
-            } else {
-              value = [];
-              for (let i = 0; i < length; ++i) {
-                const value2 = [];
-                const length2 = sizes[1];
-                for (let k = 0; k < length2; ++k) {
-                  value2.push(this.randInt32());
-                }
-                value.push(value2);
-              }
+              value.push(value2);
             }
           }
         }
       }
+    }
+    return value;
+  }
+
+  protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
+    let value = null;
+    for (const def of decVar.variables) {
+      value = yield* this.execVariableDecInitValue(def, decVar, scope);
       scope.setTop(def.name, value, decVar.type);
     }
     return value;
@@ -377,7 +397,6 @@ export class Engine {
   protected loadLibarary(global: Scope) {
     return;
   }
-
   protected *execDecralation(dec: UniDecralation, scope: Scope) {
     if (dec instanceof UniVariableDec) {
       const uvd = dec as UniVariableDec;
@@ -396,6 +415,8 @@ export class Engine {
       return yield* this.execIf(state, scope);
     } else if (state instanceof UniFor) {
       return yield* this.execFor(state, scope);
+    } else if (state instanceof UniEnhancedFor) {
+      return yield* this.execEnhancedFor(state, scope);
     } else if (state instanceof UniWhile) {
       return yield* this.execWhile(state, scope);
     } else if (state instanceof UniDoWhile) {
@@ -470,6 +491,41 @@ export class Engine {
           yield* this.stopByYield(ret, uf.statement);
         }
         ret = yield* this.execExpr(uf.statement, forScope);
+      } catch (e) {
+        if (e instanceof Continue) {
+          continue;
+        } else if (e instanceof Break) {
+          break;
+        } else {
+          throw e;
+        }
+      }
+    }
+    scope.removeChild(forScope);
+    return ret;
+  }
+
+  protected *execEnhancedFor(euf: UniEnhancedFor, scope: Scope) {
+    const forScope: Scope = Scope.createLocal(scope);
+    forScope.name = scope.name;
+    let ret = null;
+    let isFirst = true;
+    for (const value of yield* this.execExpr(euf.container, forScope)) {
+      try {
+        if (!(euf.statement instanceof UniBlock)) {
+          yield* this.stopByYield(ret, euf.statement);
+        }
+        if (isFirst) {
+          yield* this.execVariableDec(
+            new UniVariableDec([], euf.type, [new UniVariableDef(euf.name.name, value, null)]),
+            forScope,
+          );
+          isFirst = false;
+        } else {
+          const leftEvaluated = yield* this.getAddress(euf.name, forScope);
+          ret = this.execAssign(leftEvaluated, value, forScope);
+        }
+        ret = yield* this.execExpr(euf.statement, forScope);
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -883,7 +939,7 @@ export class Engine {
     this.stdinText = '';
   }
 
-  private getEntryPoint(node: UniNode): UniFunctionDec {
+  protected getEntryPoint(node: UniNode): UniFunctionDec {
     let entry: UniFunctionDec = null;
     if (node instanceof UniProgram) {
       const block: UniBlock = node.block;
