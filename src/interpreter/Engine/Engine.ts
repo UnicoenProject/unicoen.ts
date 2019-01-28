@@ -446,25 +446,37 @@ export class Engine {
   protected *execBlock(block: UniBlock, scope: Scope) {
     const blockScope: Scope = Scope.createLocal(scope);
     blockScope.name = scope.name;
-    let ret = null;
-    for (const stateOfBlock of block.body) {
-      yield* this.stopByYield(ret, stateOfBlock);
-      ret = yield* this.execExpr(stateOfBlock, blockScope);
-      this.currentState.setCurrentExpr(stateOfBlock);
-      // この中でさらにexecBlockが呼ばれた場合thisは？//Sumに代入されているかチェック
+    try {
+      let ret = null;
+      for (const stateOfBlock of block.body) {
+        yield* this.stopByYield(ret, stateOfBlock);
+        ret = yield* this.execExpr(stateOfBlock, blockScope);
+        this.currentState.setCurrentExpr(stateOfBlock);
+      }
+      return ret;
+    } catch (e) {
+      throw e;
+    } finally {
+      scope.removeChild(blockScope);
     }
-    scope.removeChild(blockScope);
-    return ret;
   }
 
   protected *execIf(ui: UniIf, scope: Scope) {
-    const cond = this.toBool(yield* this.execExpr(ui.cond, scope));
-    const nextStatement: UniStatement = cond ? ui.trueStatement : ui.falseStatement;
-    if (nextStatement) {
-      if (!(nextStatement instanceof UniBlock)) {
-        yield* this.stopByYield(cond, nextStatement);
+    const ifCondScope: Scope = Scope.createLocal(scope);
+    ifCondScope.name = scope.name;
+    try {
+      const cond = this.toBool(yield* this.execExpr(ui.cond, ifCondScope));
+      const nextStatement: UniStatement = cond ? ui.trueStatement : ui.falseStatement;
+      if (nextStatement) {
+        if (!(nextStatement instanceof UniBlock)) {
+          yield* this.stopByYield(cond, nextStatement);
+        }
+        return yield* this.execExpr(nextStatement, ifCondScope);
       }
-      return yield* this.execExpr(nextStatement, scope);
+    } catch (e) {
+      throw e;
+    } finally {
+      scope.removeChild(ifCondScope);
     }
   }
 
@@ -480,96 +492,116 @@ export class Engine {
     if (uf.step == null) {
       uf.step = new UniEmptyStatement();
     }
-    let ret = null;
-    for (
-      yield* this.execExpr(uf.init, forScope);
-      this.toBool(yield* this.execExpr(uf.cond, forScope));
-      yield* this.stopByYield(ret, uf.cond), yield* this.execExpr(uf.step, forScope)
-    ) {
-      try {
-        if (!(uf.statement instanceof UniBlock)) {
-          yield* this.stopByYield(ret, uf.statement);
-        }
-        ret = yield* this.execExpr(uf.statement, forScope);
-      } catch (e) {
-        if (e instanceof Continue) {
-          continue;
-        } else if (e instanceof Break) {
-          break;
-        } else {
-          throw e;
+    try {
+      let ret = null;
+      for (
+        yield* this.execExpr(uf.init, forScope);
+        this.toBool(yield* this.execExpr(uf.cond, forScope));
+        yield* this.stopByYield(ret, uf.cond), yield* this.execExpr(uf.step, forScope)
+      ) {
+        try {
+          if (!(uf.statement instanceof UniBlock)) {
+            yield* this.stopByYield(ret, uf.statement);
+          }
+          ret = yield* this.execExpr(uf.statement, forScope);
+        } catch (e) {
+          if (e instanceof Continue) {
+            continue;
+          } else if (e instanceof Break) {
+            break;
+          } else {
+            throw e;
+          }
         }
       }
+      return ret;
+    } catch (e) {
+      throw e;
+    } finally {
+      scope.removeChild(forScope);
     }
-    scope.removeChild(forScope);
-    return ret;
   }
 
   protected *execEnhancedFor(euf: UniEnhancedFor, scope: Scope) {
     const forScope: Scope = Scope.createLocal(scope);
     forScope.name = scope.name;
-    let ret = null;
-    let isFirst = true;
-    for (const value of yield* this.execExpr(euf.container, forScope)) {
-      try {
-        if (!(euf.statement instanceof UniBlock)) {
-          yield* this.stopByYield(ret, euf.statement);
-        }
-        if (isFirst) {
-          yield* this.execVariableDec(
-            new UniVariableDec([], euf.type, [new UniVariableDef(euf.name.name, value, null)]),
-            forScope,
-          );
-          isFirst = false;
-        } else {
-          const leftEvaluated = yield* this.getAddress(euf.name, forScope);
-          ret = this.execAssign(leftEvaluated, value, forScope);
-        }
-        ret = yield* this.execExpr(euf.statement, forScope);
-      } catch (e) {
-        if (e instanceof Continue) {
-          continue;
-        } else if (e instanceof Break) {
-          break;
-        } else {
-          throw e;
+    try {
+      let ret = null;
+      let isFirst = true;
+      for (const value of yield* this.execExpr(euf.container, forScope)) {
+        try {
+          if (!(euf.statement instanceof UniBlock)) {
+            yield* this.stopByYield(ret, euf.statement);
+          }
+          if (isFirst) {
+            yield* this.execVariableDec(
+              new UniVariableDec([], euf.type, [new UniVariableDef(euf.name.name, value, null)]),
+              forScope,
+            );
+            isFirst = false;
+          } else {
+            const leftEvaluated = yield* this.getAddress(euf.name, forScope);
+            ret = this.execAssign(leftEvaluated, value, forScope);
+          }
+          ret = yield* this.execExpr(euf.statement, forScope);
+        } catch (e) {
+          if (e instanceof Continue) {
+            continue;
+          } else if (e instanceof Break) {
+            break;
+          } else {
+            throw e;
+          }
         }
       }
+      return ret;
+    } catch (e) {
+      throw e;
+    } finally {
+      scope.removeChild(forScope);
     }
-    scope.removeChild(forScope);
-    return ret;
   }
 
   protected *execWhile(uw: UniWhile, scope: Scope) {
-    let ret;
-    while (this.toBool(yield* this.execExpr(uw.cond, scope))) {
-      try {
-        if (!(uw.statement instanceof UniBlock)) {
-          yield* this.stopByYield(ret, uw.statement);
+    const whileScope: Scope = Scope.createLocal(scope);
+    whileScope.name = scope.name;
+    try {
+      let ret;
+      while (this.toBool(yield* this.execExpr(uw.cond, whileScope))) {
+        try {
+          if (!(uw.statement instanceof UniBlock)) {
+            yield* this.stopByYield(ret, uw.statement);
+          }
+          ret = yield* this.execExpr(uw.statement, whileScope);
+        } catch (e) {
+          if (e instanceof Continue) {
+            continue;
+          } else if (e instanceof Break) {
+            break;
+          } else {
+            throw e;
+          }
         }
-        ret = yield* this.execExpr(uw.statement, scope);
-      } catch (e) {
-        if (e instanceof Continue) {
-          continue;
-        } else if (e instanceof Break) {
-          break;
-        } else {
-          throw e;
-        }
+        yield* this.stopByYield(ret, uw.cond);
       }
-      yield* this.stopByYield(ret, uw.cond);
+      return ret;
+    } catch (e) {
+      throw e;
+    } finally {
+      scope.removeChild(whileScope);
     }
-    return ret;
   }
 
   protected *execDoWhile(udw: UniDoWhile, scope: Scope) {
     let ret;
     do {
+      const doScope: Scope = Scope.createLocal(scope);
+      doScope.name = scope.name;
       try {
         if (!(udw.statement instanceof UniBlock)) {
           yield* this.stopByYield(ret, udw.statement);
         }
-        ret = yield* this.execExpr(udw.statement, scope);
+        ret = yield* this.execExpr(udw.statement, doScope);
       } catch (e) {
         if (e instanceof Continue) {
           continue;
@@ -578,6 +610,8 @@ export class Engine {
         } else {
           throw e;
         }
+      } finally {
+        scope.removeChild(doScope);
       }
       yield* this.stopByYield(ret, udw.cond);
     } while (this.toBool(yield* this.execExpr(udw.cond, scope)));
@@ -587,43 +621,50 @@ export class Engine {
   protected *execSwitch(us: UniSwitch, scope: Scope) {
     const switchScope: Scope = Scope.createLocal(scope);
     switchScope.name = scope.name;
-    let ret;
-    let didJump = false;
-    const cond = yield* this.execExpr(us.cond, scope);
-    let defaultCase: UniSwitchUnit = null;
-    while (!didJump) {
-      for (const unit of us.cases) {
-        if (unit.label === 'default') {
-          if (defaultCase == null) {
-            defaultCase = unit;
-            continue;
-          } else {
-            didJump = true;
-          }
-        }
-        const condOfCase = unit.cond != null ? yield* this.execExpr(unit.cond, switchScope) : null;
-        if (didJump || cond.valueOf() === condOfCase.valueOf()) {
-          yield* this.stopByYield(cond, unit.cond);
-          didJump = true;
-          try {
-            for (const statement of unit.statement) {
-              yield* this.stopByYield(ret, statement);
-              ret = yield* this.execExpr(statement, scope);
-            }
-          } catch (e) {
-            if (e instanceof Break) {
-              break;
+    try {
+      let ret;
+      let didJump = false;
+      const cond = yield* this.execExpr(us.cond, switchScope);
+      let defaultCase: UniSwitchUnit = null;
+      while (!didJump) {
+        for (const unit of us.cases) {
+          if (unit.label === 'default') {
+            if (defaultCase == null) {
+              defaultCase = unit;
+              continue;
             } else {
-              throw e;
+              didJump = true;
+            }
+          }
+          const condOfCase =
+            unit.cond != null ? yield* this.execExpr(unit.cond, switchScope) : null;
+          if (didJump || cond.valueOf() === condOfCase.valueOf()) {
+            yield* this.stopByYield(cond, unit.cond);
+            didJump = true;
+            try {
+              for (const statement of unit.statement) {
+                yield* this.stopByYield(ret, statement);
+                ret = yield* this.execExpr(statement, switchScope);
+              }
+            } catch (e) {
+              if (e instanceof Break) {
+                break;
+              } else {
+                throw e;
+              }
             }
           }
         }
+        if (defaultCase == null) {
+          break;
+        }
       }
-      if (defaultCase == null) {
-        break;
-      }
+      return ret;
+    } catch (e) {
+      throw e;
+    } finally {
+      scope.removeChild(switchScope);
     }
-    return ret;
   }
 
   protected *execExpr(expr: UniExpr, scope: Scope): any {
