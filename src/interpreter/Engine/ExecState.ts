@@ -181,6 +181,8 @@ export class ExecState {
     for (const key of scope.variableAddress.keys()) {
       varList.push(key);
     }
+    console.log(varList);
+    console.log(scope.variableAddress);
     for (const varName of varList) {
       const type: string = scope.variableTypes.get(varName);
       if (type === 'FUNCTION' || type === 'CLASS' || type === 'SYSTEM') {
@@ -204,8 +206,9 @@ export class ExecState {
         for (let i = 1; i < dims.length; ++i) {
           startAddr = scope.objectOnMemory.get(startAddr);
         }
+        const elemSizeOf = Scope.sizeof(type);
         let arrayList = Array.from(new Array(sum), (v: any, i: number) => {
-          const addr = startAddr + i;
+          const addr = startAddr + i * elemSizeOf;
           const val = scope.objectOnMemory.get(addr);
           return new Variable(null, varName, val, addr, scope.depth);
         });

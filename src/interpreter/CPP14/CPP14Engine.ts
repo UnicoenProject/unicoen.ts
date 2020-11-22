@@ -76,22 +76,20 @@ export class CPP14Engine extends Engine {
       .replace(/\\/g, '/');
   }
 
-  constructor() {
-    super();
+  static sizeof(type: string): number {
+    if (type.includes('char')) {
+      return 1;
+    } else if (type.includes('short')) {
+      return 2;
+    } else if (type.includes('double')) {
+      return 8;
+    }
+    return 4;
   }
 
-  sizeof(type: string): number {
-    return 1;
-    /*		if(type.contains("char")){
-			return 1;
-		}
-		else if(type.contains("short")){
-			return 2;
-		}
-		else if(type.contains("double")){
-			return 8;
-		}
-		return 4;*/
+  constructor() {
+    super();
+    Scope.sizeof = this.sizeof;
   }
 
   protected loadLibarary(global: Scope) {

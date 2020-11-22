@@ -44,6 +44,7 @@ class Import {
 }
 
 export class Scope {
+  static sizeof: (type: string) => number;
   static createGlobal(): Scope {
     return new Scope(Type.GLOBAL, null);
   }
@@ -279,11 +280,14 @@ export class Scope {
 
   setSystemVariable(type: string, name: string, value: any): number {
     Scope.assertNotUnicoen(value);
+    const addr = this.address.codeAddress;
     this.variableTypes.set(name, type);
-    this.variableAddress.set(name, this.address.codeAddress);
-    this.objectOnMemory.set(this.address.codeAddress, value);
-    this.typeOnMemory.set(this.address.codeAddress, type);
-    return this.address.codeAddress++;
+    this.variableAddress.set(name, addr);
+    this.objectOnMemory.set(addr, value);
+    this.typeOnMemory.set(addr, type);
+    const size = Scope.sizeof(type);
+    this.address.codeAddress += size;
+    return addr;
   }
 
   setStruct(key: string, value: any, type: string) {
@@ -469,9 +473,12 @@ export class Scope {
 
   private setAreaImple(value: any, type: string, addr: Address, member: string): number {
     Scope.assertNotUnicoen(value);
+    const ret = addr[member];
     this.objectOnMemory.set(addr[member], value);
     this.typeOnMemory.set(addr[member], type);
-    return addr[member]++;
+    const size = Scope.sizeof(type);
+    addr[member] += size;
+    return ret;
   }
 
   private setArray(value: any[], type: string, dims: number[]): number {
@@ -497,6 +504,8 @@ export class Scope {
         }
       }
     }
+    console.log(this.objectOnMemory);
+    console.log(this.typeOnMemory);
     return ret;
   }
 
@@ -518,7 +527,8 @@ export class Scope {
     this.variableAddress.set(key, address[member]);
     this.objectOnMemory.set(address[member], value);
     this.typeOnMemory.set(address[member], type);
-    ++address[member];
+    const size = Scope.sizeof(type);
+    address[member] += size;
   }
 
   private setPrimitive(key: string, value: any, type: string): void {

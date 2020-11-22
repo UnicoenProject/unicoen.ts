@@ -18,7 +18,9 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "watch": "rimraf dist && tsc -w",
-    "format": "prettier --write src/**.ts **/*.json",
+    "format": "yarn prettier && yarn lint",
+    "prettier": "prettier --write src/**.ts **/*.json",
+    "lint": "tslint --fix 'src/**/*.ts'",
     "prepare": "yarn build",
     "generate:node": "ts-node src/node/Generator.ts",
     "precommit": "lint-staged",
