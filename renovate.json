@@ -9,5 +9,6 @@
   "minor": {
     "groupName": "all dependencies"
   },
-  "automergeType": "branch-push"
+  "automergeType": "branch-push",
+  "ignoreDeps": ["antlr4ts"]
 }
