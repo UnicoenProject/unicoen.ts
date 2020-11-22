@@ -1,5 +1,5 @@
 // Generated from C:\develop\UniMapperGeneratorForTS\net.unicoen\..\UniMapperGenerator\src-gen\Java8.g4 by ANTLR 4.6-SNAPSHOT
-
+// @ts-nocheck
 import { ATN } from 'antlr4ts/atn/ATN';
 import { ATNDeserializer } from 'antlr4ts/atn/ATNDeserializer';
 import { FailedPredicateException } from 'antlr4ts/FailedPredicateException';

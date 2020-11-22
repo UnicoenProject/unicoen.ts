@@ -1,5 +1,5 @@
 // Generated from C:\develop\UniMapperGeneratorForTS\net.unicoen\..\UniMapperGenerator\src-gen\Python3.g4 by ANTLR 4.6-SNAPSHOT
-
+// @ts-nocheck
 import { Token } from 'antlr4ts/Token';
 import { CommonToken } from 'antlr4ts/CommonToken';
 import { Python3Parser } from './Python3Parser';
@@ -510,7 +510,7 @@ export class Python3Lexer extends Lexer {
     // Check if the end-of-file is ahead and there are still some DEDENTS expected.
     if (this.inputStream.LA(1) === Python3Parser.EOF && this.indents.length) {
       // Remove any trailing EOF tokens from our buffer.
-      this.token_queue = this.token_queue.filter(function(val) {
+      this.token_queue = this.token_queue.filter(function (val) {
         return val.type !== Python3Parser.EOF;
       });
 
