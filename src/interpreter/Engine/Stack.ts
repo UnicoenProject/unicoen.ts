@@ -14,7 +14,7 @@ export class Stack {
       this.variables.push(arg0 as Variable);
       return;
     } else if (name === undefined || value === undefined || depth === undefined) {
-      throw new RuntimeException('args erro');
+      throw new RuntimeException('args error');
     }
     const type = arg0 as string;
     let lastAddress = this.address;

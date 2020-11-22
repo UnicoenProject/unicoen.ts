@@ -151,6 +151,7 @@ export class Engine {
       this.execStepItr = null;
     }
     this.currentState.make();
+    console.log(this.getCurrentState().getStacks());
     return clone(this.currentState);
   }
 

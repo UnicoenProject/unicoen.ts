@@ -1,58 +1,33 @@
 import { CPP14Interpreter } from '../interpreter/CPP14/CPP14Interpreter';
 import { Java8Interpreter } from '../interpreter/Java8/Java8Interpreter';
 import { Python3Interpreter } from '../interpreter/Python3/Python3Interpreter';
-// tslint:disable
-// const t = String.raw`
-// int main() {
-//     int arr[] = {0,0,0,0,0};
-//     arr[2] = 9;
-//     return arr[2];
-// }`;
-// const i = new CPP14Interpreter();
-// const ret = i.execute(t);
-// console.log(ret);
+//tslint:disable
+const t = String.raw`
+#include<stdio.h>
+int main(){
+  int n = 3;
 
-try {
-  const text = `
-while True:
-  n, r = map(int, input().split())
-  if n == 0:
-    break
-  a = [0] * n
-  b = [0] * n
-  for i in range(n):
-    a[i] = b[i] = n - i
-  for i in range(r):
-    p, c = map(int, input().split())
-    p = p - 1
-    for j in range(c):
-      b[j] = a[p + j]
-    for j in range(p):
-      b[c + j] = a[j]
-    for j in range(p + c):
-      a[j] = b[j]
-  print(a[0])
-`;
-  const interpreter = new Python3Interpreter();
-  const syntaxError = interpreter.checkSyntaxError(text);
-  interpreter.stdin(`5 2\n3 1\n3 1\n10 3\n1 10\n10 1\n8 3\n0 0`);
-  const map = new Map<string, ArrayBuffer>();
-  interpreter.setFileList(map);
-  // let ss = null;
-  //  {
-  //   let rr = interpreter.startStepExecution(text);
+  int arr[5] = {1, 2, 3};//配列変数
 
-  //   while(interpreter.isStepExecutionRunning())
-  //   {
-  //     rr = interpreter.stepExecute();
-  //     ss = interpreter.getCurrentState().make();
-  //   }
-  // }
-  const r = interpreter.execute(text);
-  const out = interpreter.getStdout();
-  const state = interpreter.getCurrentState();
-  console.log(r);
-  console.log(out);
-} catch (e) {
-  console.error(e);
-}
+  int* ptr = &arr[2];//ポインタ変数
+  *ptr = 5;
+
+  //動的メモリ確保
+  int* d_arry = malloc(sizeof(int) * 3);
+
+  //二次元ポインタ配列の動的メモリ配列
+  int* pd_arr[2];
+  pd_arr[0] = malloc(sizeof(int) * 2);
+  pd_arr[1] = malloc(sizeof(int) * 2);
+
+  free(pd_arr[0]);//メモリの解放
+
+  printf("Hello,world!\n");//標準出力
+
+  return 0;
+}`;
+const i = new CPP14Interpreter();
+const ret = i.execute(t);
+const out = i.getStdout();
+console.log(ret);
+console.log(out);
