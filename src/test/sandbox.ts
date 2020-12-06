@@ -13,12 +13,12 @@ int main(){
   *ptr = 5;
 
   //動的メモリ確保
-  int* d_arry = malloc(sizeof(int) * 3);
+  char* d_arry = malloc(sizeof(char) * 3);
 
   //二次元ポインタ配列の動的メモリ配列
-  int* pd_arr[2];
-  pd_arr[0] = malloc(sizeof(int) * 2);
-  pd_arr[1] = malloc(sizeof(int) * 2);
+  short* pd_arr[2];
+  pd_arr[0] = malloc(sizeof(short) * 2);
+  pd_arr[1] = malloc(sizeof(short) * 2);
 
   free(pd_arr[0]);//メモリの解放
 

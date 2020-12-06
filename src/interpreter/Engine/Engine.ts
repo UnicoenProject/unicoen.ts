@@ -1,4 +1,3 @@
-import { isArray } from 'util';
 import { UniArray } from '../../node/UniArray';
 import { UniBinOp } from '../../node/UniBinOp';
 import { UniBlock } from '../../node/UniBlock';
@@ -58,6 +57,7 @@ export class Return extends ControlException {
 export class Exit extends Return {}
 
 export class Engine {
+  static lastSizeOf: string = '';
   static executeSimpleExpr(expr: UniExpr, scope?: Scope): any {
     if (scope === undefined) {
       return new Engine().execExpr(expr, scope);
@@ -81,6 +81,18 @@ export class Engine {
       str += String.fromCharCode(bytes[i]);
     }
     return str;
+  }
+  static sizeof(type: string): number {
+    if (type.includes('*')) {
+      return 4;
+    } else if (type.includes('char')) {
+      return 1;
+    } else if (type.includes('short')) {
+      return 2;
+    } else if (type.includes('double')) {
+      return 8;
+    }
+    return 4;
   }
 
   protected currentState: ExecState = null;
@@ -275,8 +287,25 @@ export class Engine {
     } else if (expr instanceof UniBinOp) {
       const ubo = expr as UniBinOp;
       if (ubo.operator === '[]') {
+        let elemTypeSize = 1;
+        if (ubo.left instanceof UniIdent) {
+          const type = scope.getRawType(ubo.left.name);
+          elemTypeSize = Engine.sizeof(type);
+        } else if (ubo.right instanceof UniIdent) {
+          // 1[a] のようなトリッキーなケース
+          const type = scope.getRawType(ubo.right.name);
+          elemTypeSize = Engine.sizeof(type);
+        }
+
         return yield* this.getAddress(
-          new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)),
+          new UniUnaryOp(
+            '*',
+            new UniBinOp(
+              '+',
+              ubo.left,
+              new UniBinOp('*', new UniIntLiteral(elemTypeSize), ubo.right),
+            ),
+          ),
           scope,
         );
       } else if (ubo.operator === '->') {
@@ -369,22 +398,13 @@ export class Engine {
 
   protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
+    Engine.lastSizeOf = decVar.type;
     for (const def of decVar.variables) {
       value = yield* this.execVariableDecInitValue(def, decVar, scope);
       scope.setTop(def.name, value, decVar.type);
     }
+    Engine.lastSizeOf = '';
     return value;
-  }
-
-  protected sizeof(type: string): number {
-    if (type.includes('char')) {
-      return 1;
-    } else if (type.includes('short')) {
-      return 2;
-    } else if (type.includes('double')) {
-      return 8;
-    }
-    return 4;
   }
 
   protected stdout(text: string): void {
@@ -748,6 +768,7 @@ export class Engine {
 
   protected execAssign(address: number, value: any, scope: Scope): any {
     const type: string = scope.getRawType(address);
+    Engine.lastSizeOf = type;
     value = this._execCast(type, value);
     scope.set(address, value);
     if (type && type.endsWith('*')) {
@@ -763,12 +784,13 @@ export class Engine {
             scope.typeOnMemory.set(++i + taddress, v[1]); // 型名
           }
         } else {
-          for (let i = 0; i < size; ++i) {
+          for (let i = 0; i < size; i += Engine.sizeof(rawType)) {
             scope.typeOnMemory.set(taddress + i, rawType);
           }
         }
       }
     }
+    Engine.lastSizeOf = '';
     return value;
   }
 
@@ -804,7 +826,11 @@ export class Engine {
   }
 
   protected randInt32(): number {
-    const a = Math.pow(2, 32);
+    return this.rand(32);
+  }
+
+  protected rand(bit: number): number {
+    const a = Math.pow(2, bit);
     const v = Math.floor(Math.random() * a);
     return v;
   }

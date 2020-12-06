@@ -13,6 +13,7 @@ import { UniVariableDec } from '../../node/UniVariableDec';
 import { Engine, Exit } from '../Engine/Engine';
 import { File } from '../Engine/File';
 import { Scope } from '../Engine/Scope';
+import { Variable } from '../Engine/Variable';
 import { Int } from './Int';
 
 export class CPP14Engine extends Engine {
@@ -76,20 +77,10 @@ export class CPP14Engine extends Engine {
       .replace(/\\/g, '/');
   }
 
-  static sizeof(type: string): number {
-    if (type.includes('char')) {
-      return 1;
-    } else if (type.includes('short')) {
-      return 2;
-    } else if (type.includes('double')) {
-      return 8;
-    }
-    return 4;
-  }
-
   constructor() {
     super();
-    Scope.sizeof = this.sizeof;
+    Scope.sizeof = CPP14Engine.sizeof;
+    Variable.sizeof = CPP14Engine.sizeof;
   }
 
   protected loadLibarary(global: Scope) {
@@ -101,9 +92,9 @@ export class CPP14Engine extends Engine {
       'sizeof',
       (arg: string | number[]) => {
         if (typeof arg === 'string') {
-          return this.sizeof(arg as string);
+          return CPP14Engine.sizeof(arg as string);
         } else if (Array.isArray(arg)) {
-          return this.sizeof(Engine.bytesToStr(arg));
+          return CPP14Engine.sizeof(Engine.bytesToStr(arg));
         }
         throw new Error('Unsupported type of argument.');
       },
@@ -439,15 +430,20 @@ export class CPP14Engine extends Engine {
     global.setTop(
       'malloc',
       (x: number) => {
-        const num = x;
+        let type = Engine.lastSizeOf;
+        if (type.includes('*')) {
+          type = type.replace('*', '');
+        }
+        const num = x / CPP14Engine.sizeof(type);
         if (10000000 <= num) {
           return 0;
         }
-        const heapAddress = global.setHeap(this.randInt32(), '?');
+        const typeBit = CPP14Engine.sizeof(type) * 8;
+        const heapAddress = global.setHeap(this.rand(typeBit), type);
         for (let i = 1; i < num; ++i) {
-          global.setHeap(this.randInt32(), '?');
+          global.setHeap(this.rand(typeBit), type);
         }
-        global.setMallocSize(heapAddress, num);
+        global.setMallocSize(heapAddress, num * CPP14Engine.sizeof(type));
         return heapAddress;
       },
       'FUNCTION',
@@ -877,6 +873,7 @@ export class CPP14Engine extends Engine {
 
   protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
+    Engine.lastSizeOf = decVar.type;
     for (const def of decVar.variables) {
       value = null; // 2これがないと個目以降に残ってしまう。
       while (def.name.startsWith('*')) {
@@ -901,7 +898,7 @@ export class CPP14Engine extends Engine {
               const size: number = scope.getMallocSize(address);
               // tslint:disable-next-line:no-shadowed-variable
               const type = decVar.type.substring(0, decVar.type.length - 1);
-              const typeSize = this.sizeof(type);
+              const typeSize = CPP14Engine.sizeof(type);
               for (let i = 0; i < size; i += typeSize) {
                 scope.typeOnMemory.set(address + i, type);
               }
@@ -1009,6 +1006,7 @@ export class CPP14Engine extends Engine {
         scope.setTop(def.name, value, decVar.type);
       }
     }
+    Engine.lastSizeOf = '';
     return value;
   }
 
