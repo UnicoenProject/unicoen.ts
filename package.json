@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@types/chai": "4.2.14",
-    "@types/mocha": "8.0.4",
+    "@types/mocha": "8.2.0",
     "chai": "4.2.0",
     "lint-staged": "10.5.3",
     "mocha": "8.2.1",
@@ -36,12 +36,12 @@
     "pre-commit": "1.2.2",
     "prettier": "2.2.1",
     "rimraf": "3.0.2",
-    "ts-node": "9.1.0",
+    "ts-node": "9.1.1",
     "tslint": "5.20.1",
     "typescript": "4.1.2"
   },
   "dependencies": {
-    "@types/node": "14.14.10",
+    "@types/node": "14.14.11",
     "agh.sprintf": "0.0.11",
     "antlr4ts": "^0.5.0-alpha.1",
     "scanf": "^1.0.2"
