@@ -320,8 +320,8 @@ export class Scope {
     }
     let k = 0;
     for (const [fieldName, valueofOffset] of offsets) {
-      const offset = valueofOffset[0];
       const fieldType = valueofOffset[1];
+      const offset = valueofOffset[2];
       const v = arr[k++];
       Scope.assertNotUnicoen(value);
       if (this.isStructType(fieldType)) {
@@ -333,8 +333,9 @@ export class Scope {
         this.setArray(v, type, [v.length]);
       } else {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
-        this.objectOnMemory.set(this.address.stackAddress++, v);
+        this.objectOnMemory.set(this.address.stackAddress, v);
       }
+      this.address.stackAddress += offset;
     }
   }
 
@@ -368,7 +369,7 @@ export class Scope {
       this.setPrimitiveOnCode(key, value, type);
     } else if (this.isStructType(type)) {
       // 構造体
-      this.setPrimitive(key, this.address.stackAddress + 1, type);
+      this.setPrimitive(key, this.address.stackAddress + 4, type);
       this.setStruct(key, value, type);
     } else if (value instanceof Array) {
       // 配列の場合

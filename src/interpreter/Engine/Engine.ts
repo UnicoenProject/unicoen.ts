@@ -82,6 +82,8 @@ export class Engine {
     }
     return str;
   }
+
+  // ToDo: structに対応するためstaticを外しscopeからsizeを取得する
   static sizeof(type: string): number {
     if (type.includes('*')) {
       return 4;
@@ -315,7 +317,7 @@ export class Engine {
         );
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
-        let type: string = scope.getRawType(startAddress - 1);
+        let type: string = scope.getRawType(startAddress - 4);
         if (ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
           while (type.endsWith('*')) {
             type = type.substring(0, type.length - 1);
@@ -933,19 +935,20 @@ export class Engine {
     // structのセット クラス名→[オフセット, 型名, sizeof]
     const fieldOffset: Map<string, [number, string, number]> = new Map();
     let structAddress = 0;
-    let offset = 1;
     for (const member of dec.members) {
       if (member instanceof UniVariableDec) {
         for (const def of member.variables) {
+          let size = 0;
           if (scope.isStructType(member.type)) {
             const offsets = scope.get(member.type);
-            offset = 1;
             for (const value of offsets.values()) {
-              offset += value[2];
+              size += value[2];
             }
+          } else {
+            size = Engine.sizeof(member.type);
           }
-          fieldOffset.set(def.name, [structAddress, member.type, offset]);
-          structAddress += offset;
+          fieldOffset.set(def.name, [structAddress, member.type, size]);
+          structAddress += size;
         }
       } else if (member instanceof UniFunctionDec) {
         if (member.modifiers.includes('static')) {
