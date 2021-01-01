@@ -3,6 +3,7 @@ import { UniExpr } from '../../node/UniExpr';
 import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { UniImportDec } from '../../node/UniImportDec';
 import { clone } from '../../node_helper/clone';
+import { Engine } from './Engine';
 import { File } from './File';
 import { RuntimeException, UniRuntimeError } from './RuntimeException';
 
@@ -45,6 +46,7 @@ class Import {
 
 export class Scope {
   static sizeof: (type: string) => number;
+  static structInfoSize: number;
   static createGlobal(): Scope {
     return new Scope(Type.GLOBAL, null);
   }
@@ -327,15 +329,20 @@ export class Scope {
       if (this.isStructType(fieldType)) {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
         // JSは関数の引数は左から評価される。
-        this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
+        this.objectOnMemory.set(
+          this.address.stackAddress,
+          this.address.stackAddress + Engine.structInfoSize,
+        );
+        this.address.stackAddress += Engine.structInfoSize;
         this.setStruct(fieldName, v, fieldType);
       } else if (v instanceof Array) {
         this.setArray(v, type, [v.length]);
+        this.address.stackAddress += offset;
       } else {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
         this.objectOnMemory.set(this.address.stackAddress, v);
+        this.address.stackAddress += offset;
       }
-      this.address.stackAddress += offset;
     }
   }
 

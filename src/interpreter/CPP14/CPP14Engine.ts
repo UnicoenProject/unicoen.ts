@@ -79,6 +79,7 @@ export class CPP14Engine extends Engine {
 
   constructor() {
     super();
+    Scope.structInfoSize = CPP14Engine.structInfoSize;
     Scope.sizeof = CPP14Engine.sizeof;
     Variable.sizeof = CPP14Engine.sizeof;
   }
@@ -434,13 +435,29 @@ export class CPP14Engine extends Engine {
         if (type.includes('*')) {
           type = type.replace('*', '');
         }
+
+        const heapAddress = global.address.heapAddress;
+
+        if (global.isStructType(type)) {
+          // 構造体
+          const rawType = global.getTypedef(type);
+          global.setHeap(heapAddress + Engine.structInfoSize, type);
+          // [offset, type]のタプル
+          const offsets: Map<string, number> = global.get(rawType);
+          for (const [fieldName, valueofOffset] of offsets) {
+            const fieldType = valueofOffset[1];
+            global.setHeap(this.rand(CPP14Engine.sizeof(fieldType) * 8), fieldType);
+          }
+          global.setMallocSize(heapAddress, x + Engine.structInfoSize);
+          return heapAddress;
+        }
+
         const num = x / CPP14Engine.sizeof(type);
         if (10000000 <= num) {
           return 0;
         }
         const typeBit = CPP14Engine.sizeof(type) * 8;
-        const heapAddress = global.setHeap(this.rand(typeBit), type);
-        for (let i = 1; i < num; ++i) {
+        for (let i = 0; i < num; ++i) {
           global.setHeap(this.rand(typeBit), type);
         }
         global.setMallocSize(heapAddress, num * CPP14Engine.sizeof(type));
@@ -800,6 +817,7 @@ export class CPP14Engine extends Engine {
           while (type.endsWith('*')) {
             type = type.substring(0, type.length - 1);
           }
+          Engine.lastSizeOf = type;
           let typeSize = 1;
           if (scope.isStructType(type)) {
             const offsets: Map<string, number> = scope.get(type);

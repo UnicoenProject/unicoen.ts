@@ -57,6 +57,7 @@ export class Return extends ControlException {
 export class Exit extends Return {}
 
 export class Engine {
+  static readonly structInfoSize = 4;
   static lastSizeOf: string = '';
   static executeSimpleExpr(expr: UniExpr, scope?: Scope): any {
     if (scope === undefined) {
@@ -291,12 +292,24 @@ export class Engine {
       if (ubo.operator === '[]') {
         let elemTypeSize = 1;
         if (ubo.left instanceof UniIdent) {
-          const type = scope.getRawType(ubo.left.name);
+          let type = scope.getRawType(ubo.left.name);
+          while (type.endsWith('*')) {
+            type = type.substr(0, type.length - 1);
+          }
           elemTypeSize = Engine.sizeof(type);
         } else if (ubo.right instanceof UniIdent) {
           // 1[a] のようなトリッキーなケース
           const type = scope.getRawType(ubo.right.name);
           elemTypeSize = Engine.sizeof(type);
+        } else {
+          let l = ubo.left;
+          while (l instanceof UniBinOp) {
+            l = l.left;
+            if (l instanceof UniIdent) {
+              elemTypeSize = Engine.sizeof(scope.getRawType(l.name));
+              break;
+            }
+          }
         }
 
         return yield* this.getAddress(
@@ -780,10 +793,9 @@ export class Engine {
         const rawType = type.substring(0, type.length - 1);
         if (scope.isStructType(rawType)) {
           scope.typeOnMemory.set(taddress, rawType);
-          scope.objectOnMemory.set(taddress, taddress + 1);
-          let i = 0;
+          scope.objectOnMemory.set(taddress, taddress + Engine.structInfoSize);
           for (const v of scope.get(rawType).values()) {
-            scope.typeOnMemory.set(++i + taddress, v[1]); // 型名
+            scope.typeOnMemory.set(taddress + Engine.structInfoSize + v[0], v[1]); // 型名
           }
         } else {
           for (let i = 0; i < size; i += Engine.sizeof(rawType)) {
@@ -944,6 +956,7 @@ export class Engine {
             for (const value of offsets.values()) {
               size += value[2];
             }
+            size += Engine.structInfoSize; // 構造体のサイズ情報格納分
           } else {
             size = Engine.sizeof(member.type);
           }
