@@ -5,13 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Program",
+      "name": "Launch Program(ts)",
       "type": "node",
       "request": "launch",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
       "program": "${workspaceRoot}/src/test/sandbox.ts",
       "outFiles": ["${workspaceRoot}/dist/test/sandbox.js"]
+    },
+    {
+      "name": "Launch Program(js)",
+      "type": "node",
+      "request": "launch",
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "program": "${workspaceRoot}/dist/test/sandbox.js"
     }
   ]
 }

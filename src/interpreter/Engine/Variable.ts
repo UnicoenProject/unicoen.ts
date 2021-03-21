@@ -1,4 +1,7 @@
+import { CPP14Engine } from '../CPP14/CPP14Engine';
+
 export class Variable {
+  static sizeof: (type: string) => number;
   constructor(
     readonly type: string,
     readonly name: string, // p1.x
@@ -117,7 +120,7 @@ export class Variable {
       return vars[size - 1].getByteSize() * size;
     }
     // 処理系依存かもしれないが、リテラルのサイズ、構造体はメンバ変数のsize合計、配列の場合は型*size()などを考慮する必要がある。
-    return 1; // CppEngine.sizeof(this.type);
+    return Variable.sizeof(this.type);
   }
 
   toString(): string {

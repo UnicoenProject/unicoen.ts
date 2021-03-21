@@ -3,6 +3,7 @@ import { UniExpr } from '../../node/UniExpr';
 import { UniFunctionDec } from '../../node/UniFunctionDec';
 import { UniImportDec } from '../../node/UniImportDec';
 import { clone } from '../../node_helper/clone';
+import { Engine } from './Engine';
 import { File } from './File';
 import { RuntimeException, UniRuntimeError } from './RuntimeException';
 
@@ -44,6 +45,8 @@ class Import {
 }
 
 export class Scope {
+  static sizeof: (type: string) => number;
+  static structInfoSize: number;
   static createGlobal(): Scope {
     return new Scope(Type.GLOBAL, null);
   }
@@ -279,11 +282,14 @@ export class Scope {
 
   setSystemVariable(type: string, name: string, value: any): number {
     Scope.assertNotUnicoen(value);
+    const addr = this.address.codeAddress;
     this.variableTypes.set(name, type);
-    this.variableAddress.set(name, this.address.codeAddress);
-    this.objectOnMemory.set(this.address.codeAddress, value);
-    this.typeOnMemory.set(this.address.codeAddress, type);
-    return this.address.codeAddress++;
+    this.variableAddress.set(name, addr);
+    this.objectOnMemory.set(addr, value);
+    this.typeOnMemory.set(addr, type);
+    const size = Scope.sizeof(type);
+    this.address.codeAddress += size;
+    return addr;
   }
 
   setStruct(key: string, value: any, type: string) {
@@ -316,20 +322,26 @@ export class Scope {
     }
     let k = 0;
     for (const [fieldName, valueofOffset] of offsets) {
-      const offset = valueofOffset[0];
       const fieldType = valueofOffset[1];
+      const offset = valueofOffset[2];
       const v = arr[k++];
       Scope.assertNotUnicoen(value);
       if (this.isStructType(fieldType)) {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
         // JSは関数の引数は左から評価される。
-        this.objectOnMemory.set(this.address.stackAddress, ++this.address.stackAddress);
+        this.objectOnMemory.set(
+          this.address.stackAddress,
+          this.address.stackAddress + Engine.structInfoSize,
+        );
+        this.address.stackAddress += Engine.structInfoSize;
         this.setStruct(fieldName, v, fieldType);
       } else if (v instanceof Array) {
         this.setArray(v, type, [v.length]);
+        this.address.stackAddress += offset;
       } else {
         this.typeOnMemory.set(this.address.stackAddress, fieldType);
-        this.objectOnMemory.set(this.address.stackAddress++, v);
+        this.objectOnMemory.set(this.address.stackAddress, v);
+        this.address.stackAddress += offset;
       }
     }
   }
@@ -364,7 +376,7 @@ export class Scope {
       this.setPrimitiveOnCode(key, value, type);
     } else if (this.isStructType(type)) {
       // 構造体
-      this.setPrimitive(key, this.address.stackAddress + 1, type);
+      this.setPrimitive(key, this.address.stackAddress + 4, type);
       this.setStruct(key, value, type);
     } else if (value instanceof Array) {
       // 配列の場合
@@ -469,9 +481,12 @@ export class Scope {
 
   private setAreaImple(value: any, type: string, addr: Address, member: string): number {
     Scope.assertNotUnicoen(value);
+    const ret = addr[member];
     this.objectOnMemory.set(addr[member], value);
     this.typeOnMemory.set(addr[member], type);
-    return addr[member]++;
+    const size = Scope.sizeof(type);
+    addr[member] += size;
+    return ret;
   }
 
   private setArray(value: any[], type: string, dims: number[]): number {
@@ -497,6 +512,8 @@ export class Scope {
         }
       }
     }
+    console.log(this.objectOnMemory);
+    console.log(this.typeOnMemory);
     return ret;
   }
 
@@ -518,7 +535,8 @@ export class Scope {
     this.variableAddress.set(key, address[member]);
     this.objectOnMemory.set(address[member], value);
     this.typeOnMemory.set(address[member], type);
-    ++address[member];
+    const size = Scope.sizeof(type);
+    address[member] += size;
   }
 
   private setPrimitive(key: string, value: any, type: string): void {

@@ -1,4 +1,3 @@
-import { isArray } from 'util';
 import { UniArray } from '../../node/UniArray';
 import { UniBinOp } from '../../node/UniBinOp';
 import { UniBlock } from '../../node/UniBlock';
@@ -58,6 +57,8 @@ export class Return extends ControlException {
 export class Exit extends Return {}
 
 export class Engine {
+  static readonly structInfoSize = 4;
+  static lastSizeOf: string = '';
   static executeSimpleExpr(expr: UniExpr, scope?: Scope): any {
     if (scope === undefined) {
       return new Engine().execExpr(expr, scope);
@@ -81,6 +82,20 @@ export class Engine {
       str += String.fromCharCode(bytes[i]);
     }
     return str;
+  }
+
+  // ToDo: structに対応するためstaticを外しscopeからsizeを取得する
+  static sizeof(type: string): number {
+    if (type.includes('*')) {
+      return 4;
+    } else if (type.includes('char')) {
+      return 1;
+    } else if (type.includes('short')) {
+      return 2;
+    } else if (type.includes('double')) {
+      return 8;
+    }
+    return 4;
   }
 
   protected currentState: ExecState = null;
@@ -151,6 +166,7 @@ export class Engine {
       this.execStepItr = null;
     }
     this.currentState.make();
+    console.log(this.getCurrentState().getStacks());
     return clone(this.currentState);
   }
 
@@ -274,8 +290,37 @@ export class Engine {
     } else if (expr instanceof UniBinOp) {
       const ubo = expr as UniBinOp;
       if (ubo.operator === '[]') {
+        let elemTypeSize = 1;
+        if (ubo.left instanceof UniIdent) {
+          let type = scope.getRawType(ubo.left.name);
+          while (type.endsWith('*')) {
+            type = type.substr(0, type.length - 1);
+          }
+          elemTypeSize = Engine.sizeof(type);
+        } else if (ubo.right instanceof UniIdent) {
+          // 1[a] のようなトリッキーなケース
+          const type = scope.getRawType(ubo.right.name);
+          elemTypeSize = Engine.sizeof(type);
+        } else {
+          let l = ubo.left;
+          while (l instanceof UniBinOp) {
+            l = l.left;
+            if (l instanceof UniIdent) {
+              elemTypeSize = Engine.sizeof(scope.getRawType(l.name));
+              break;
+            }
+          }
+        }
+
         return yield* this.getAddress(
-          new UniUnaryOp('*', new UniBinOp('+', ubo.left, ubo.right)),
+          new UniUnaryOp(
+            '*',
+            new UniBinOp(
+              '+',
+              ubo.left,
+              new UniBinOp('*', new UniIntLiteral(elemTypeSize), ubo.right),
+            ),
+          ),
           scope,
         );
       } else if (ubo.operator === '->') {
@@ -285,7 +330,7 @@ export class Engine {
         );
       } else if (ubo.operator === '.') {
         const startAddress: number = yield* this.execExpr(ubo.left, scope);
-        let type: string = scope.getRawType(startAddress - 1);
+        let type: string = scope.getRawType(startAddress - 4);
         if (ubo.left instanceof UniUnaryOp && ubo.left.operator === '*') {
           while (type.endsWith('*')) {
             type = type.substring(0, type.length - 1);
@@ -368,22 +413,13 @@ export class Engine {
 
   protected *execVariableDec(decVar: UniVariableDec, scope: Scope) {
     let value = null;
+    Engine.lastSizeOf = decVar.type;
     for (const def of decVar.variables) {
       value = yield* this.execVariableDecInitValue(def, decVar, scope);
       scope.setTop(def.name, value, decVar.type);
     }
+    Engine.lastSizeOf = '';
     return value;
-  }
-
-  protected sizeof(type: string): number {
-    if (type.includes('char')) {
-      return 1;
-    } else if (type.includes('short')) {
-      return 2;
-    } else if (type.includes('double')) {
-      return 8;
-    }
-    return 4;
   }
 
   protected stdout(text: string): void {
@@ -747,6 +783,7 @@ export class Engine {
 
   protected execAssign(address: number, value: any, scope: Scope): any {
     const type: string = scope.getRawType(address);
+    Engine.lastSizeOf = type;
     value = this._execCast(type, value);
     scope.set(address, value);
     if (type && type.endsWith('*')) {
@@ -756,18 +793,18 @@ export class Engine {
         const rawType = type.substring(0, type.length - 1);
         if (scope.isStructType(rawType)) {
           scope.typeOnMemory.set(taddress, rawType);
-          scope.objectOnMemory.set(taddress, taddress + 1);
-          let i = 0;
+          scope.objectOnMemory.set(taddress, taddress + Engine.structInfoSize);
           for (const v of scope.get(rawType).values()) {
-            scope.typeOnMemory.set(++i + taddress, v[1]); // 型名
+            scope.typeOnMemory.set(taddress + Engine.structInfoSize + v[0], v[1]); // 型名
           }
         } else {
-          for (let i = 0; i < size; ++i) {
+          for (let i = 0; i < size; i += Engine.sizeof(rawType)) {
             scope.typeOnMemory.set(taddress + i, rawType);
           }
         }
       }
     }
+    Engine.lastSizeOf = '';
     return value;
   }
 
@@ -803,7 +840,11 @@ export class Engine {
   }
 
   protected randInt32(): number {
-    const a = Math.pow(2, 32);
+    return this.rand(32);
+  }
+
+  protected rand(bit: number): number {
+    const a = Math.pow(2, bit);
     const v = Math.floor(Math.random() * a);
     return v;
   }
@@ -906,19 +947,21 @@ export class Engine {
     // structのセット クラス名→[オフセット, 型名, sizeof]
     const fieldOffset: Map<string, [number, string, number]> = new Map();
     let structAddress = 0;
-    let offset = 1;
     for (const member of dec.members) {
       if (member instanceof UniVariableDec) {
         for (const def of member.variables) {
+          let size = 0;
           if (scope.isStructType(member.type)) {
             const offsets = scope.get(member.type);
-            offset = 1;
             for (const value of offsets.values()) {
-              offset += value[2];
+              size += value[2];
             }
+            size += Engine.structInfoSize; // 構造体のサイズ情報格納分
+          } else {
+            size = Engine.sizeof(member.type);
           }
-          fieldOffset.set(def.name, [structAddress, member.type, offset]);
-          structAddress += offset;
+          fieldOffset.set(def.name, [structAddress, member.type, size]);
+          structAddress += size;
         }
       } else if (member instanceof UniFunctionDec) {
         if (member.modifiers.includes('static')) {
