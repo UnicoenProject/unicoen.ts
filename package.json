@@ -43,7 +43,7 @@
     "typescript": "4.3.2"
   },
   "dependencies": {
-    "@types/node": "14.17.3",
+    "@types/node": "16.11.60",
     "agh.sprintf": "0.0.11",
     "antlr4ts": "^0.5.0-alpha.1",
     "scanf": "^1.0.2"
