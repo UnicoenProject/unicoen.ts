@@ -1085,9 +1085,9 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   integrity sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==
 
 scanf@^1.0.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/scanf/-/scanf-1.1.2.tgz#1a11912f50f6773e0c9e1e26145b9895fdd69c07"
-  integrity sha512-AjyDCF9jrLcGl+wbH2OO0vfpMUNmv6skJuuLL/vgDUmG/0YXCT6SVBTOvZXOPAD5raJLtDtUU7v0yF79JDuAqA==
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/scanf/-/scanf-1.2.0.tgz#46bf3f2f8b7c062969c27190665bfd0b8013ebc9"
+  integrity sha512-I2wC8pY78d7mkkElvvfpf47F8Dzdx9ep8/bPvy/0/PeUYW8Fb4p+DD/Axcp5isO5cOUhcrmXp0IHZwDlTYeJAg==
 
 semver-compare@^1.0.0:
   version "1.0.0"
