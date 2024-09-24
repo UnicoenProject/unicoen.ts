@@ -29,21 +29,21 @@
     "exec:test": "mocha --timeout 10000 dist/test/*.spec.js"
   },
   "devDependencies": {
-    "@types/chai": "4.2.18",
+    "@types/chai": "4.3.20",
     "@types/mocha": "8.2.2",
-    "chai": "4.3.4",
+    "chai": "4.5.0",
     "lint-staged": "10.5.4",
     "mocha": "8.4.0",
     "post-commit": "0.0.1",
     "pre-commit": "1.2.2",
-    "prettier": "2.3.1",
+    "prettier": "2.8.8",
     "rimraf": "3.0.2",
     "ts-node": "9.1.1",
     "tslint": "5.20.1",
-    "typescript": "4.3.2"
+    "typescript": "4.9.5"
   },
   "dependencies": {
-    "@types/node": "14.17.3",
+    "@types/node": "14.18.63",
     "agh.sprintf": "0.0.11",
     "antlr4ts": "^0.5.0-alpha.1",
     "scanf": "^1.0.2"
