@@ -29,9 +29,9 @@
     "exec:test": "mocha --timeout 10000 dist/test/*.spec.js"
   },
   "devDependencies": {
-    "@types/chai": "4.2.18",
+    "@types/chai": "5.0.1",
     "@types/mocha": "8.2.2",
-    "chai": "4.3.4",
+    "chai": "5.1.2",
     "lint-staged": "10.5.4",
     "mocha": "8.4.0",
     "post-commit": "0.0.1",
